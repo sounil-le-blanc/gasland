@@ -179,12 +179,12 @@ function populateFormOptions() {
     vSelect.innerHTML = Object.entries(GASLANDS_DATA.vehicles).map(([key, v]) => `<option value="${key}">${v.name} (${v.baseCost} Cans — Slots: ${v.slots})</option>`).join("");
   }
 
-  // Attacher l'écouteur de changement d'arme pour recalculer l'interface en direct
+  // ---> RE-VOILÀ L'INJECTION DES ARMES ! <---
   if (wSelect) {
+    wSelect.innerHTML = GASLANDS_DATA.weapons.map(w => `<option value="${w.id}">${w.name} ${w.cost > 0 ? `(+${w.cost} Cans)` : ''}</option>`).join("");
     wSelect.addEventListener("change", handleWeaponChange);
   }
 
-  // Attacher l'écouteur de changement d'orientation pour recalculer l'affichage des points
   const wfSelect = document.getElementById("weapon-facing");
   if (wfSelect) {
     wfSelect.addEventListener("change", updateLiveWeaponCosts);
@@ -202,10 +202,9 @@ function populateFormOptions() {
 
   handleSponsorChange();
   handleTrailerChange();
-  handleWeaponChange(); // Initialisation au démarrage
+  handleWeaponChange();
 }
 
-// 💥 SURVEILLANCE DE L'ARME SELECTIONNÉE (Sécurité Tourelle)
 function handleWeaponChange() {
   const weaponId = document.getElementById("weapon-select").value;
   const wfSelect = document.getElementById("weapon-facing");
@@ -213,19 +212,15 @@ function handleWeaponChange() {
   if (!wfSelect) return;
 
   if (weaponId === "none") {
-    // Si pas d'arme, on force "Avant" et on bloque le menu d'orientation
     wfSelect.value = "Avant";
     wfSelect.disabled = true;
   } else {
-    // Si une arme est choisie, on libère les choix d'orientations
     wfSelect.disabled = false;
   }
 
-  // Mettre à jour l'affichage textuel du prix de la tourelle
   updateLiveWeaponCosts();
 }
 
-// Met à jour visuellement le texte de l'option Tourelle dans le menu déroulant
 function updateLiveWeaponCosts() {
   const weaponId = document.getElementById("weapon-select").value;
   const wfSelect = document.getElementById("weapon-facing");
@@ -235,7 +230,6 @@ function updateLiveWeaponCosts() {
   const weapon = GASLANDS_DATA.weapons.find(w => w.id === weaponId);
   const currentWeaponCost = weapon ? weapon.cost : 0;
 
-  // On recalcule dynamiquement la valeur affichée pour l'option Tourelle (Coût x 3)
   const turretOption = wfSelect.querySelector('option[value*="Tourelle"]');
   if (turretOption) {
     if (weaponId !== "none" && currentWeaponCost > 0) {
@@ -310,7 +304,6 @@ function addVehicleToCrew() {
   const trailer = GASLANDS_DATA.trailers.find(t => t.id === trailerId);
   const cargo = GASLANDS_DATA.cargoUpgrades.find(c => c.id === cargoId);
 
-  // --- ARME EN TOURELLE (COÛT DE L'ARME X3 SUR LE PRÉCIPITATIF) ---
   let finalWeaponCost = weapon.cost;
   if (weaponId !== "none" && weaponFacing.includes("Tourelle")) {
     finalWeaponCost = weapon.cost * 3;
@@ -359,7 +352,7 @@ function addVehicleToCrew() {
   document.getElementById("trailer-select").value = "none";
   checkboxes.forEach(cb => cb.checked = false);
   handleTrailerChange();
-  handleWeaponChange(); // Reset l'état de l'orientation
+  handleWeaponChange();
 }
 
 function removeVehicle(id) {
