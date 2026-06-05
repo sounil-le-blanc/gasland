@@ -28,21 +28,61 @@ const GASLANDS_DATA = {
     "heavy-truck": { name: "Poids Lourd", baseCost: 25, hull: 14, slots: 5 },
     bus: { name: "Bus de ligne", baseCost: 30, hull: 16, slots: 3 }
   },
+  // 💥 TOUTES LES ARMES EXTRAITES DE TES PAGES (ea696d1c-2325-4fe7-81c9-0dd162f0da83 & 184ce3ee-f889-49dc-8b04-13b5cf731dfb)
   weapons: [
     { id: "none", name: "Aucune arme additionnelle", cost: 0, slots: 0 },
-    { id: "machine_gun", name: "Mitrailleuse (Machine Gun)", cost: 2, slots: 1 },
-    { id: "heavy_machine_gun", name: "Mitrailleuse Lourde", cost: 3, slots: 1 },
+    { id: "auto_tourelle", name: "Auto-Tourelle", cost: 3, slots: 0 },
+    { id: "bfg", name: "BFG", cost: 4, slots: 3 },
+    { id: "bras_mecanique", name: "Bras Mécanique", cost: 6, slots: 1 },
+    { id: "brouilleur_em", name: "Brouilleur Électromagnétique", cost: 2, slots: 0 },
+    { id: "bombes_teleguidees", name: "Bombes Téléguidées", cost: 3, slots: 0 },
+    { id: "boule_demolition", name: "Boule de démolition", cost: 2, slots: 3 },
+    { id: "canon_arc", name: "Canon à Arc Électrique", cost: 6, slots: 2 },
+    { id: "canon_125", name: "Canon de 125 mm", cost: 6, slots: 3 },
+    { id: "canon_gravitationnel", name: "Canon Gravitationnel", cost: 4, slots: 1 },
+    { id: "canon_laser", name: "Canon Laser", cost: 5, slots: 1 },
+    { id: "cocktails_molotov", name: "Cocktails Molotov", cost: 1, slots: 0 },
+    { id: "filet_metallique", name: "Filet Métallique", cost: 1, slots: 0 },
+    { id: "fusil_pompe", name: "Fusil à Pompe", cost: 0, slots: 0 },
+    { id: "grenades", name: "Grenades", cost: 1, slots: 0 },
+    { id: "grenades_lacrymo", name: "Grenades Lacrymogènes", cost: 1, slots: 0 },
+    { id: "lance_carcasse", name: "Lance-Carcasse", cost: 4, slots: 4 },
+    { id: "flamethrower", name: "Lance-Flammes", cost: 4, slots: 2 },
+    { id: "lance_missiles", name: "Lance-missiles", cost: 5, slots: 2 },
+    { id: "rockets", name: "Lance-Roquettes", cost: 4, slots: 2 },
+    { id: "largueur_chausse_trapes", name: "Largueur de Chausse-Trapes", cost: 1, slots: 1 },
+    { id: "largueur_colle", name: "Largueur de Colle", cost: 1, slots: 1 },
+    { id: "largueur_fumigenes", name: "Largueur de Fumigènes", cost: 1, slots: 0 },
+    { id: "largueur_huile", name: "Largueur d'Huile", cost: 2, slots: 0 },
+    { id: "largueur_mines", name: "Largueur de Mines", cost: 1, slots: 1 },
+    { id: "largueur_napalm", name: "Largueur de Napalm", cost: 1, slots: 1 },
+    { id: "harpon", name: "Harpon", cost: 2, slots: 1 },
+    { id: "magnum", name: "Magnum", cost: 1, slots: 0 },
+    { id: "marteleur", name: "Marteleur (Mishkin)", cost: 4, slots: 2 },
     { id: "mini_gun", name: "Minigun", cost: 5, slots: 1 },
-    { id: "flamethrower", name: "Lance-flammes", cost: 4, slots: 1 },
-    { id: "rockets", name: "Roquettes (Rockets)", cost: 4, slots: 1 },
-    { id: "mortar", name: "Mortier", cost: 4, slots: 2 }
+    { id: "machine_gun", name: "Mitrailleuse", cost: 2, slots: 1 },
+    { id: "heavy_machine_gun", name: "Mitrailleuse Lourde", cost: 3, slots: 1 },
+    { id: "mortar", name: "Mortier", cost: 4, slots: 1 },
+    { id: "mur_haut_parleurs", name: "Mur de haut-parleurs", cost: 4, slots: 3 },
+    { id: "pistolet", name: "Pistolet", cost: 0, slots: 0 },
+    { id: "pistolet_mitrailleur", name: "Pistolet Mitralleur", cost: 5, slots: 0 },
+    { id: "rayon_desintegrateur", name: "Rayon Désintégrateur", cost: 3, slots: 1 },
+    { id: "super_ampli_cinetique", name: "Super Amplificateur Cinétique (Mishkin)", cost: 6, slots: 2 },
+    { id: "tromblon", name: "Tromblon", cost: 2, slots: 0 }
   ],
+  // 🔧 TOUTES LES AMÉLIORATIONS EXTRAITES DE TA PAGE (184ce3ee-f889-49dc-8b04-13b5cf731dfb)
   upgrades: [
     { id: "none", name: "Aucune amélioration matérielle", cost: 0 },
-    { id: "armor_plating", name: "Blindages additionnels (+2 Coque)", cost: 4 },
-    { id: "nitro", name: "Booster Nitro", cost: 6 },
-    { id: "ram", name: "Éperon renforcé (Ram)", cost: 2 },
-    { id: "exploding_ram", name: "Éperon Explosif", cost: 3 }
+    { id: "arceaux", name: "Arceaux", cost: 4 },
+    { id: "belier", name: "Bélier", cost: 4 },
+    { id: "belier_explosif", name: "Bélier Explosif", cost: 3 },
+    { id: "armor_plating", name: "Blindage (+2 Coque)", cost: 4 },
+    { id: "catapulte_improvisee", name: "Catapulte Improvisée", cost: 2 },
+    { id: "chenilles", name: "Chenilles", cost: 4 },
+    { id: "equipage_supp", name: "Membre d'Équipage Supplémentaire", cost: 4 },
+    { id: "nitro", name: "Nitro", cost: 6 },
+    { id: "reacteur_nucleaire", name: "Réacteur Nucléaire Expérimental (Mishkin)", cost: 5 },
+    { id: "teleporteur", name: "Téléporteur Expérimental (Mishkin)", cost: 7 }
   ],
   trailers: [
     { id: "none", name: "Aucune remorque", cost: 0, extraSlots: 0 },
@@ -178,10 +218,8 @@ function populateFormOptions() {
   if (vSelect) {
     vSelect.innerHTML = Object.entries(GASLANDS_DATA.vehicles).map(([key, v]) => `<option value="${key}">${v.name} (${v.baseCost} Cans — Slots: ${v.slots})</option>`).join("");
   }
-
-  // ---> RE-VOILÀ L'INJECTION DES ARMES ! <---
   if (wSelect) {
-    wSelect.innerHTML = GASLANDS_DATA.weapons.map(w => `<option value="${w.id}">${w.name} ${w.cost > 0 ? `(+${w.cost} Cans)` : ''}</option>`).join("");
+    wSelect.innerHTML = GASLANDS_DATA.weapons.map(w => `<option value="${w.id}">${w.name} [${w.slots} Slot${w.slots > 1 ? 's' : ''}] ${w.cost > 0 ? `(+${w.cost} Cans)` : ''}</option>`).join("");
     wSelect.addEventListener("change", handleWeaponChange);
   }
 
