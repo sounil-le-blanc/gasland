@@ -44,7 +44,6 @@ const GASLANDS_DATA = {
     { id: "ram", name: "Éperon renforcé (Ram)", cost: 2 },
     { id: "exploding_ram", name: "Éperon Explosif", cost: 3 }
   ],
-  // 🚛 DONNÉES EXTRAITES DE LA PAGE 1000026186.jpg
   trailers: [
     { id: "none", name: "Aucune remorque", cost: 0, extraSlots: 0 },
     { id: "trailer_light", name: "Remorque (Poids Léger)", cost: 4, extraSlots: 0 },
@@ -53,92 +52,103 @@ const GASLANDS_DATA = {
   ],
   cargoUpgrades: [
     { id: "none", name: "Aucune amélioration de transport", cost: 0 },
-    { id: "tord_boyaux", name: "Tord-boyaux de Pêche", cost: 0 }, // Souvent inclus ou coût spécifique selon règles générales
+    { id: "tord_boyaux", name: "Tord-boyaux de Pêche", cost: 0 },
     { id: "turbo_tonneau", name: "Turbo de Fond de Tonneau", cost: 0 },
     { id: "pompe_syphon", name: "Pompe à Syphon", cost: 0 },
     { id: "liqueur_mais", name: "Liqueur de Maïs à l'Ancienne", cost: 0 },
     { id: "marteau_bovins", name: "Marteau à Bovins", cost: 0 }
   ],
   perks: [
-    { id: "none", name: "Aucun avantage sélectionné", cost: 0, class: "All" },
-    // 🔧 CLASSE : MÉCANIQUE (Engineering) - Réf: 52a21705-7ebc-4d36-ad09-ab777056b39f
+    // On retire le choix "none" inutile en mode checkbox
+    // 🔧 CLASSE : MÉCANIQUE (Engineering)
     { id: "poids_mort", name: "Poids Mort", cost: 2, class: "Engineering" },
     { id: "expert_tonneaux", name: "Expert en Tonneaux", cost: 2, class: "Engineering" },
     { id: "cogneur", name: "Cogneur", cost: 4, class: "Engineering" },
     { id: "retour_de_flamme", name: "Retour de Flamme", cost: 5, class: "Engineering" },
     { id: "concasseur", name: "Concasseur", cost: 7, class: "Engineering" },
     { id: "meme_pas_mal", name: "Même pas Mal !", cost: 8, class: "Engineering" },
-    // ⚡ CLASSE : RAPIDITÉ (Speed) - Réf: f1d9bebf-7b7a-483b-82f4-8802de38b50a
+
+    // ⚡ CLASSE : RAPIDITÉ (Speed)
     { id: "depart_eclair", name: "Départ Éclair", cost: 1, class: "Speed" },
     { id: "sillage", name: "Sillage", cost: 2, class: "Speed" },
     { id: "surcharge", name: "Surcharge", cost: 2, class: "Speed" },
     { id: "retrograder", name: "Rétrograder", cost: 3, class: "Speed" },
     { id: "temps_additionnel", name: "Temps Additionnel !", cost: 3, class: "Speed" },
     { id: "a_fond_la_caisse", name: "À Fond la Caisse", cost: 5, class: "Speed" },
-    // 🔥 CLASSE : TROMPE-LA-MORT (Badass) - Réf: d5ecf7be-bb9e-4b0d-81d5-6ce92d9e4f97
+
+    // 🔥 CLASSE : TROMPE-LA-MORT (Badass)
     { id: "rage_au_volant", name: "Rage au Volant", cost: 1, class: "Badass" },
     { id: "frenesie", name: "Frénésie", cost: 2, class: "Badass" },
     { id: "foutu_pour_foutu", name: "Foutu pour Foutu", cost: 2, class: "Badass" },
     { id: "intouchable", name: "Intouchable", cost: 4, class: "Badass" },
     { id: "plus_balaise_que_toi", name: "Plus Balaise que Toi", cost: 4, class: "Badass" },
     { id: "biereserker", name: "Bièreserker", cost: 5, class: "Badass" },
-    // 🎯 CLASSE : PRÉCISION (Precision) - Réf: ce65e45c-ba38-40dd-98fe-e4dcf05d074a
+
+    // 🎯 CLASSE : PRÉCISION (Precision)
     { id: "mister_fahrenheit", name: "Mister Fahrenheit", cost: 2, class: "Precision" },
     { id: "heure_de_gloire", name: "Heure de Gloire", cost: 2, class: "Precision" },
     { id: "prudence", name: "Prudence", cost: 2, class: "Precision" },
     { id: "expertise", name: "Expertise", cost: 3, class: "Precision" },
     { id: "art_de_la_route", name: "Art de la Route", cost: 3, class: "Precision" },
     { id: "pilote_ne", name: "Pilote-Né", cost: 5, class: "Precision" },
-    // 🤠 CLASSE : AUDACE (Audace) - Réf: 1000026185.jpg
+
+    // 🤠 CLASSE : AUDACE (Audace)
     { id: "symbiose", name: "Symbiose", cost: 2, class: "Audace" },
     { id: "insaisissable", name: "Insaisissable", cost: 3, class: "Audace" },
     { id: "as_du_frein_a_main", name: "As du Frein à Main", cost: 3, class: "Audace" },
     { id: "feinte", name: "Feinte", cost: 5, class: "Audace" },
     { id: "derapage_controle", name: "Dérapage Contrôlé", cost: 5, class: "Audace" },
     { id: "cascadeur", name: "Cascadeur", cost: 7, class: "Audace" },
-    // 💥 CLASSE : AGRESSION (Agression) - Réf: 1000026185.jpg
+
+    // 💥 CLASSE : AGRESSION (Agression)
     { id: "double_canon", name: "Double Canon", cost: 2, class: "Agression" },
     { id: "abordage", name: "Abordage", cost: 2, class: "Agression" },
     { id: "marteau_de_guerre", name: "Marteau de Guerre", cost: 4, class: "Agression" },
     { id: "psychopathe", name: "Psychopathe", cost: 5, class: "Agression" },
     { id: "broyeur", name: "Broyeur", cost: 5, class: "Agression" },
     { id: "engin_de_la_mort", name: "Engin de la Mort", cost: 5, class: "Agression" },
-    // 🛡️ CLASSE : DUR À CUIRE (DurACuire) - Réf: 2b84b894-e13f-4b1e-8747-23eac0b5a4c4
+
+    // 🛡️ CLASSE : DUR À CUIRE (DurACuire)
     { id: "baril_de_poudre", name: "Baril de Poudre", cost: 1, class: "DurACuire" },
     { id: "sens_du_spectacle", name: "Sens du Spectacle", cost: 1, class: "DurACuire" },
     { id: "guerrier_de_la_route", name: "Guerrier de la Route", cost: 2, class: "DurACuire" },
     { id: "couvrez_moi", name: "Couvrez-Moi !", cost: 2, class: "DurACuire" },
     { id: "fou_furieux", name: "Fou Furieux", cost: 3, class: "DurACuire" },
     { id: "pluie_de_balles", name: "Pluie de Balles", cost: 3, class: "DurACuire" },
-    // 💀 CLASSE : HORREUR (Horreur) - Réf: 75f49b9e-987d-4a2a-a882-5b47a3f6602f
+
+    // 💀 CLASSE : HORREUR (Horreur)
     { id: "flammes_purificatrices", name: "Flammes Purificatrices", cost: 1, class: "Horreur" },
     { id: "visions_extatiques", name: "Visions Extatiques", cost: 1, class: "Horreur" },
     { id: "pacte_avec_le_diable", name: "Pacte avec le Diable", cost: 1, class: "Horreur" },
     { id: "autoroute_vers_lenfer", name: "Autoroute vers l'Enfer", cost: 2, class: "Horreur" },
     { id: "manifestation_diabolique", name: "Manifestation Diabolique", cost: 3, class: "Horreur" },
     { id: "ange_de_la_mort", name: "Ange de la Mort", cost: 4, class: "Horreur" },
-    // ⚔️ CLASSE : MILITAIRE (Militaire) - Réf: 2cbd2f66-d8e1-4aa8-b78f-010529a3856c
+
+    // ⚔️ CLASSE : MILITAIRE (Militaire)
     { id: "tireur_delite", name: "Tireur d'Élite", cost: 2, class: "Militaire" },
     { id: "servant_dartillerie", name: "Servant d'Artillerie", cost: 2, class: "Militaire" },
     { id: "charge_a_bloc", name: "Chargé à Bloc", cost: 2, class: "Militaire" },
     { id: "tirs_rapides", name: "Tirs Rapides", cost: 2, class: "Militaire" },
     { id: "tir_a_la_tete", name: "Tir à la Tête", cost: 4, class: "Militaire" },
     { id: "riposte", name: "Riposte", cost: 5, class: "Militaire" },
-    // ⚙️ CLASSE : OPTIMISATION (Optimisation) - Réf: 8062496c-174e-4420-b816-fe721b041c70
+
+    // ⚙️ CLASSE : OPTIMISATION (Optimisation)
     { id: "fenderkiss", name: "Fenderkiss", cost: 2, class: "Optimisation" },
     { id: "propulsion", name: "Propulsion", cost: 2, class: "Optimisation" },
     { id: "doigte", name: "Doigté", cost: 3, class: "Optimisation" },
     { id: "momentum", name: "Momentum", cost: 3, class: "Optimisation" },
     { id: "ronronnement", name: "Ronronnement", cost: 6, class: "Optimisation" },
     { id: "sur_deux_roues", name: "Sur Deux Roues", cost: 6, class: "Optimisation" },
-    // 🏁 CLASSE : POURSUITE (Poursuite) - Réf: b307f5d8-9aea-49ae-8220-6fdf2763461e
+
+    // 🏁 CLASSE : POURSUITE (Poursuite)
     { id: "a_tes_trousses", name: "À Tes Trousses", cost: 2, class: "Poursuite" },
     { id: "le_malheur_des_uns", name: "Le Malheur des Uns...", cost: 2, class: "Poursuite" },
     { id: "provocation", name: "Provocation", cost: 2, class: "Poursuite" },
     { id: "distancer", name: "Distancer", cost: 2, class: "Poursuite" },
     { id: "tip", name: "Tip", cost: 4, class: "Poursuite" },
     { id: "regard_destabilisant", name: "Regard Déstabilisant", cost: 5, class: "Poursuite" },
-    // 💻 CLASSE : TECHNOLOGIE (Technologie) - Réf: b4c35181-ce87-42fc-99b4-936bb8aedb22
+
+    // 💻 CLASSE : TECHNOLOGIE (Technologie)
     { id: "moteurs_fusee", name: "Moteurs-Fusée", cost: 1, class: "Technologie" },
     { id: "survolte", name: "Survolté", cost: 1, class: "Technologie" },
     { id: "gyroscope", name: "Gyroscope", cost: 1, class: "Technologie" },
@@ -206,9 +216,9 @@ function populateFormOptions() {
   }
 
   handleSponsorChange();
+  handleTrailerChange();
 }
 
-// Gère le masquage / affichage des améliorations de transport si pas de remorque
 function handleTrailerChange() {
   const trailerId = document.getElementById("trailer-select").value;
   const cargoZone = document.getElementById("cargo-upgrade-zone");
@@ -222,16 +232,16 @@ function handleTrailerChange() {
   }
 }
 
+// GENERATION DYNAMIQUE DES CHECKBOXES DE PERKS
 function handleSponsorChange() {
   const sponsorId = document.getElementById("sponsor-select").value;
-  const pSelect = document.getElementById("perk-select");
+  const container = document.getElementById("perk-checkboxes-container");
   const trailerZone = document.getElementById("trailer-zone");
 
-  if (!pSelect) return;
+  if (!container) return;
 
   const selectedSponsor = GASLANDS_DATA.sponsors.find(s => s.id === sponsorId);
 
-  // Gérer l'affichage de la zone remorque uniquement pour Rusty's Bootleggers ou Alignement libre
   if (trailerZone) {
     if (sponsorId === "rustys" || sponsorId === "none") {
       trailerZone.classList.remove("hidden");
@@ -242,13 +252,21 @@ function handleSponsorChange() {
     }
   }
 
-  const allowedPerks = GASLANDS_DATA.perks.filter(perk => {
-    return perk.id === "none" || perk.class === "All" || selectedSponsor.perkClasses.includes(perk.class);
-  });
+  // Filtrer les avantages autorisés
+  const allowedPerks = GASLANDS_DATA.perks.filter(perk => selectedSponsor.perkClasses.includes(perk.class));
 
-  pSelect.innerHTML = allowedPerks.map(p =>
-    `<option value="${p.id}">${p.name} [${p.class}] ${p.cost > 0 ? `(+${p.cost} Cans)` : ''}</option>`
-  ).join("");
+  if (allowedPerks.length === 0) {
+    container.innerHTML = `<p class="text-xs text-zinc-600 italic">Aucun avantage pour ce sponsor.</p>`;
+    return;
+  }
+
+  // Injecter la liste de checkboxes
+  container.innerHTML = allowedPerks.map(p => `
+    <label class="flex items-center gap-2.5 cursor-pointer hover:text-amber-400 transition py-0.5">
+      <input type="checkbox" name="perk-checkbox" value="${p.id}" class="accent-amber-500 w-4 h-4 cursor-pointer">
+      <span>${p.name} <span class="text-[10px] text-zinc-500">[${p.class}]</span> <span class="text-amber-500 font-bold text-xs">(+${p.cost})</span></span>
+    </label>
+  `).join("");
 }
 
 function handleChassisChange() { }
@@ -259,27 +277,38 @@ function addVehicleToCrew() {
   const weaponId = document.getElementById("weapon-select").value;
   const weaponFacing = document.getElementById("weapon-facing").value;
   const upgradeId = document.getElementById("upgrade-select").value;
-  const perkId = document.getElementById("perk-select").value;
   const trailerId = document.getElementById("trailer-select").value;
   const cargoId = document.getElementById("cargo-select").value;
 
   const chassis = GASLANDS_DATA.vehicles[chassisKey];
   const weapon = GASLANDS_DATA.weapons.find(w => w.id === weaponId);
   const upgrade = GASLANDS_DATA.upgrades.find(u => u.id === upgradeId);
-  const perk = GASLANDS_DATA.perks.find(p => p.id === perkId);
   const trailer = GASLANDS_DATA.trailers.find(t => t.id === trailerId);
   const cargo = GASLANDS_DATA.cargoUpgrades.find(c => c.id === cargoId);
 
+  // --- ARME EN TOURELLE (COÛT DE L'ARME X3) ---
   let finalWeaponCost = weapon.cost;
   if (weaponId !== "none" && weaponFacing.includes("Tourelle")) {
-    finalWeaponCost += 3;
+    finalWeaponCost = weapon.cost * 3;
   }
 
-  const totalVehicleCost = chassis.baseCost + finalWeaponCost + upgrade.cost + perk.cost + trailer.cost + cargo.cost;
+  // --- RECONNAISSANCE DES POUVOIRS COCHÉS ---
+  const checkboxes = document.querySelectorAll('input[name="perk-checkbox"]:checked');
+  let totalPerksCost = 0;
+  let selectedPerksNames = [];
+
+  checkboxes.forEach(cb => {
+    const perkObj = GASLANDS_DATA.perks.find(p => p.id === cb.value);
+    if (perkObj) {
+      totalPerksCost += perkObj.cost;
+      selectedPerksNames.push(perkObj.name);
+    }
+  });
+
+  const totalVehicleCost = chassis.baseCost + finalWeaponCost + upgrade.cost + totalPerksCost + trailer.cost + cargo.cost;
   const finalName = customName || `${chassis.name} de Combat`;
 
   const slotsUsed = weapon.slots;
-  // Calcul dynamique de la soute d'armes disponible : Châssis de Base + Bonus apporté par la remorque !
   const maxSlotsAvailable = chassis.slots + trailer.extraSlots;
   const slotsExceeded = slotsUsed > maxSlotsAvailable;
 
@@ -292,7 +321,7 @@ function addVehicleToCrew() {
     slotsUsed: slotsUsed,
     weaponName: weaponId !== "none" ? `${weapon.name} (${weaponFacing})` : "Aucune",
     upgradeName: upgradeId !== "none" ? upgrade.name : "Aucune",
-    perkName: perkId !== "none" ? perk.name : "Aucun",
+    perkName: selectedPerksNames.length > 0 ? selectedPerksNames.join(", ") : "Aucun",
     trailerName: trailerId !== "none" ? trailer.name : "Aucune",
     cargoName: cargoId !== "none" ? cargo.name : "Aucune",
     cost: totalVehicleCost,
@@ -303,8 +332,10 @@ function addVehicleToCrew() {
   saveData();
   renderCrew();
 
+  // Reset des champs et des checkboxes décochées
   document.getElementById("vehicle-name").value = "";
   document.getElementById("trailer-select").value = "none";
+  checkboxes.forEach(cb => cb.checked = false);
   handleTrailerChange();
 }
 

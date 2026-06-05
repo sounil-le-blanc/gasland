@@ -97,10 +97,11 @@
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Avantage Tactique (Perk)</label>
-        <select id="perk-select"
-          class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 font-sans transition">
-        </select>
+        <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Avantages Tactiques (Perks)</label>
+        <div id="perk-checkboxes-container"
+          class="bg-zinc-950 border-2 border-zinc-800 rounded p-3 max-h-48 overflow-y-auto flex flex-col gap-2 font-sans text-sm text-zinc-300 scrollbar-thin scrollbar-thumb-zinc-800">
+          <!-- Injecté dynamiquement par app.js -->
+        </div>
       </div>
 
       <!-- 🚛 ZONE EXTENSION REMORQUE ET CARGAISON DE CONTREBANDE (RUSTY) -->
