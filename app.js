@@ -29,7 +29,7 @@ const GASLANDS_DATA = {
 };
 
 // ==========================================
-// 2. CONFIGURATION CONFIGURATION SUPABASE
+// 2. CONFIGURATION SUPABASE
 // ==========================================
 const SUPABASE_URL = "https://vwfzzybjjlrashioovrk.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_CVxOH_z-iZs-hmc2O6NBEw_faZRGkNI";
@@ -42,8 +42,39 @@ if (typeof window.supabase !== 'undefined') {
 let crew = [];
 let currentUser = null;
 
-// Initialisation au chargement de la page
-document.addEventListener("DOMContentLoaded", async () => {
+// Injection directe des options dans le DOM
+function populateFormOptions() {
+  const vSelect = document.getElementById("vehicle-type");
+  const wSelect = document.getElementById("weapon-select");
+  const uSelect = document.getElementById("upgrade-select");
+
+  if (!vSelect || !wSelect || !uSelect) {
+    console.error("Éléments HTML introuvables pour injecter les données.");
+    return;
+  }
+
+  vSelect.innerHTML = Object.entries(GASLANDS_DATA.vehicles).map(([key, v]) =>
+    `<option value="${key}">${v.name} (${v.baseCost} Cans — Build Slots: ${v.slots})</option>`
+  ).join("");
+
+  wSelect.innerHTML = GASLANDS_DATA.weapons.map(w =>
+    `<option value="${w.id}">${w.name} ${w.cost > 0 ? `(+${w.cost} Cans)` : ''}</option>`
+  ).join("");
+
+  uSelect.innerHTML = GASLANDS_DATA.upgrades.map(u =>
+    `<option value="${u.id}">${u.name} ${u.cost > 0 ? `(+${u.cost} Cans)` : ''}</option>`
+  ).join("");
+
+  console.log("Menus déroulants injectés avec succès.");
+}
+
+// Fonction requise par le onchange du HTML pour éviter les plantages
+function handleChassisChange() {
+  console.log("Changement de châssis détecté :", document.getElementById("vehicle-type").value);
+}
+
+// Lancement automatique sans attendre le DOM s'il est déjà là
+async function init() {
   populateFormOptions();
 
   if (supabase) {
@@ -58,30 +89,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (localData) crew = JSON.parse(localData);
   }
   renderCrew();
-});
-
-// Injection des options dans le DOM
-function populateFormOptions() {
-  const vSelect = document.getElementById("vehicle-type");
-  const wSelect = document.getElementById("weapon-select");
-  const uSelect = document.getElementById("upgrade-select");
-
-  if (!vSelect || !wSelect || !uSelect) return;
-
-  vSelect.innerHTML = Object.entries(GASLANDS_DATA.vehicles).map(([key, v]) =>
-    `<option value="${key}">${v.name} (${v.baseCost} Cans — Build Slots: ${v.slots})</option>`
-  ).join("");
-
-  wSelect.innerHTML = GASLANDS_DATA.weapons.map(w =>
-    `<option value="${w.id}">${w.name} ${w.cost > 0 ? `(+${w.cost} Cans)` : ''}</option>`
-  ).join("");
-
-  uSelect.innerHTML = GASLANDS_DATA.upgrades.map(u =>
-    `<option value="${u.id}">${u.name} ${u.cost > 0 ? `(+${u.cost} Cans)` : ''}</option>`
-  ).join("");
 }
 
-// Ajout d'un véhicule
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}
+
+// ==========================================
+// 3. LOGIQUE DU GARAGE (MÉCANIQUE DE JEU)
+// ==========================================
 function addVehicleToCrew() {
   const chassisKey = document.getElementById("vehicle-type").value;
   const customName = document.getElementById("vehicle-name").value.trim();
@@ -201,6 +219,9 @@ async function loadCrewFromSupabase() {
   if (data && data.data) crew = data.data;
 }
 
+// ==========================================
+// 4. SYSTÈME AUTHENTIFICATION MODAL
+// ==========================================
 function toggleAuthModal(mode = "signin") {
   const modal = document.getElementById("auth-modal");
   if (!modal) return;
