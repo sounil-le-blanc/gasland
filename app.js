@@ -1,26 +1,52 @@
 // ==========================================
-// CONFIGURATION SUPABASE (PROJET WASTELAND)
+// 1. CATALOGUE OFFICIEL DES RÈGLES GASLANDS
+// ==========================================
+const GASLANDS_DATA = {
+  vehicles: {
+    bike: { name: "Moto", baseCost: 5, hull: 4, slots: 1, crew: 1 },
+    buggy: { name: "Buggy", baseCost: 6, hull: 6, slots: 2, crew: 2 },
+    car: { name: "Voiture", baseCost: 15, hull: 10, slots: 2, crew: 2 },
+    truck: { name: "Camionette / Pick-up", baseCost: 15, hull: 12, slots: 3, crew: 3 },
+    "heavy-truck": { name: "Poids Lourd", baseCost: 25, hull: 14, slots: 5, crew: 4 },
+    bus: { name: "Bus de ligne", baseCost: 30, hull: 16, slots: 3, crew: 8 }
+  },
+  weapons: [
+    { id: "none", name: "Aucune arme additionnelle", cost: 0, slots: 0 },
+    { id: "machine_gun", name: "Mitrailleuse (Machine Gun)", cost: 2, slots: 1 },
+    { id: "heavy_machine_gun", name: "Mitrailleuse Lourde", cost: 3, slots: 1 },
+    { id: "mini_gun", name: "Minigun", cost: 5, slots: 1 },
+    { id: "flamethrower", name: "Lance-flammes", cost: 4, slots: 1 },
+    { id: "rockets", name: "Roquettes (Rockets)", cost: 4, slots: 1 },
+    { id: "mortar", name: "Mortier", cost: 4, slots: 2 }
+  ],
+  upgrades: [
+    { id: "none", name: "Aucune amélioration", cost: 0 },
+    { id: "armor_plating", name: "Blindages additionnels (+2 Coque)", cost: 4 },
+    { id: "nitro", name: "Booster Nitro", cost: 6 },
+    { id: "ram", name: "Éperon renforcé (Ram)", cost: 2 },
+    { id: "exploding_ram", name: "Éperon Explosif", cost: 3 }
+  ]
+};
+
+// ==========================================
+// 2. CONFIGURATION CONFIGURATION SUPABASE
 // ==========================================
 const SUPABASE_URL = "https://vwfzzybjjlrashioovrk.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_CVxOH_z-iZs-hmc2O6NBEw_faZRGkNI";
 
 let supabase = null;
-
-// Initialisation via l'objet global exposé par le CDN dans index.html
 if (typeof window.supabase !== 'undefined') {
   supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
-// État (State) de l'application
 let crew = [];
 let currentUser = null;
 
-// Initialisation automatique au chargement du DOM
+// Initialisation au chargement de la page
 document.addEventListener("DOMContentLoaded", async () => {
   populateFormOptions();
 
   if (supabase) {
-    // Récupération de la session utilisateur active si elle existe
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
       currentUser = session.user;
@@ -28,14 +54,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       await loadCrewFromSupabase();
     }
   } else {
-    // Mode de secours local si le CDN Supabase échouait à charger
     const localData = localStorage.getItem("gaslands_advanced_crew");
     if (localData) crew = JSON.parse(localData);
   }
   renderCrew();
 });
 
-// Injection dynamique des données de règles (data.js) dans le HTML
+// Injection des options dans le DOM
 function populateFormOptions() {
   const vSelect = document.getElementById("vehicle-type");
   const wSelect = document.getElementById("weapon-select");
@@ -43,23 +68,20 @@ function populateFormOptions() {
 
   if (!vSelect || !wSelect || !uSelect) return;
 
-  // Remplir les types de châssis
   vSelect.innerHTML = Object.entries(GASLANDS_DATA.vehicles).map(([key, v]) =>
     `<option value="${key}">${v.name} (${v.baseCost} Cans — Build Slots: ${v.slots})</option>`
   ).join("");
 
-  // Remplir la soute à armes
   wSelect.innerHTML = GASLANDS_DATA.weapons.map(w =>
     `<option value="${w.id}">${w.name} ${w.cost > 0 ? `(+${w.cost} Cans)` : ''}</option>`
   ).join("");
 
-  // Remplir les pièces de rechange (Upgrades)
   uSelect.innerHTML = GASLANDS_DATA.upgrades.map(u =>
     `<option value="${u.id}">${u.name} ${u.cost > 0 ? `(+${u.cost} Cans)` : ''}</option>`
   ).join("");
 }
 
-// Ajout mécanique d'un véhicule configuré au gang
+// Ajout d'un véhicule
 function addVehicleToCrew() {
   const chassisKey = document.getElementById("vehicle-type").value;
   const customName = document.getElementById("vehicle-name").value.trim();
@@ -71,7 +93,6 @@ function addVehicleToCrew() {
   const weapon = GASLANDS_DATA.weapons.find(w => w.id === weaponId);
   const upgrade = GASLANDS_DATA.upgrades.find(u => u.id === upgradeId);
 
-  // Règle Gaslands : Monter une arme sur tourelle ajoute +3 Cans au coût total
   let finalWeaponCost = weapon.cost;
   if (weaponId !== "none" && weaponFacing.includes("Tourelle")) {
     finalWeaponCost += 3;
@@ -80,7 +101,6 @@ function addVehicleToCrew() {
   const totalVehicleCost = chassis.baseCost + finalWeaponCost + upgrade.cost;
   const finalName = customName || `${chassis.name} Reconditionnée`;
 
-  // Vérification de la contrainte technique des Build Slots du châssis
   const slotsUsed = weapon.slots;
   const slotsExceeded = slotsUsed > chassis.slots;
 
@@ -88,7 +108,7 @@ function addVehicleToCrew() {
     id: crypto.randomUUID(),
     name: finalName,
     chassisName: chassis.name,
-    hull: upgradeId === "armor_plating" ? chassis.hull + 2 : chassis.hull, // Blindage = +2 Coque
+    hull: upgradeId === "armor_plating" ? chassis.hull + 2 : chassis.hull,
     maxSlots: chassis.slots,
     slotsUsed: slotsUsed,
     weaponName: weaponId !== "none" ? `${weapon.name} (${weaponFacing})` : "Aucune",
@@ -101,18 +121,15 @@ function addVehicleToCrew() {
   saveData();
   renderCrew();
 
-  // Reset du champ de saisie du nom pour la bagnole suivante
   document.getElementById("vehicle-name").value = "";
 }
 
-// Destruction d'un véhicule ciblé
 function removeVehicle(id) {
   crew = crew.filter(v => v.id !== id);
   saveData();
   renderCrew();
 }
 
-// Purge complète du garage
 function clearRoster() {
   if (confirm("Détruire l'intégralité des véhicules du Roster ?")) {
     crew = [];
@@ -121,7 +138,6 @@ function clearRoster() {
   }
 }
 
-// Rendu et mise à jour de l'affichage HTML
 function renderCrew() {
   const container = document.getElementById("crew-list");
   const totalCansEl = document.getElementById("total-cans");
@@ -164,7 +180,6 @@ function renderCrew() {
 
   totalCansEl.textContent = totalCans;
 
-  // Alerte si la liste dépasse la limite classique de tournoi à 50 Cans
   if (totalCans > 50) {
     totalCansEl.className = "text-5xl font-black text-red-500 font-sans tracking-tight animate-pulse";
   } else {
@@ -172,34 +187,20 @@ function renderCrew() {
   }
 }
 
-// Sauvegarde persistante synchrone (Base Cloud ou locale)
 async function saveData() {
   if (supabase && currentUser) {
-    await supabase
-      .from("crews")
-      .upsert({ user_id: currentUser.id, data: crew });
+    await supabase.from("crews").upsert({ user_id: currentUser.id, data: crew });
   } else {
     localStorage.setItem("gaslands_advanced_crew", JSON.stringify(crew));
   }
 }
 
-// Chargement distant depuis Supabase
 async function loadCrewFromSupabase() {
   if (!supabase || !currentUser) return;
-  const { data, error } = await supabase
-    .from("crews")
-    .select("data")
-    .eq("user_id", currentUser.id)
-    .maybeSingle(); // Prévient les plantages si la ligne n'existe pas encore
-
-  if (data && data.data) {
-    crew = data.data;
-  }
+  const { data } = await supabase.from("crews").select("data").eq("user_id", currentUser.id).maybeSingle();
+  if (data && data.data) crew = data.data;
 }
 
-// ==========================================
-// MOTEUR D'AUTHENTIFICATION COMPTE PILOTE
-// ==========================================
 function toggleAuthModal(mode = "signin") {
   const modal = document.getElementById("auth-modal");
   if (!modal) return;
@@ -212,23 +213,17 @@ function toggleAuthModal(mode = "signin") {
 
 async function handleAuthSubmit(event) {
   event.preventDefault();
-  if (!supabase) {
-    alert("Le client de communication avec les serveurs est hors-ligne.");
-    return;
-  }
+  if (!supabase) return;
   const mode = document.getElementById("auth-mode").value;
   const email = document.getElementById("auth-email").value;
   const password = document.getElementById("auth-password").value;
 
-  let response;
-  if (mode === "signin") {
-    response = await supabase.auth.signInWithPassword({ email, password });
-  } else {
-    response = await supabase.auth.signUp({ email, password });
-  }
+  let response = mode === "signin"
+    ? await supabase.auth.signInWithPassword({ email, password })
+    : await supabase.auth.signUp({ email, password });
 
   if (response.error) {
-    alert(`Échec de la liaison radio : ${response.error.message}`);
+    alert(`Échec : ${response.error.message}`);
   } else {
     currentUser = response.data.user;
     toggleAuthModal();
@@ -247,7 +242,6 @@ async function handleLogout() {
   renderCrew();
 }
 
-// Rafraîchissement graphique des indicateurs de statut
 function updateAuthUI() {
   const loggedOutZone = document.getElementById("auth-logged-out");
   const loggedInZone = document.getElementById("auth-logged-in");
