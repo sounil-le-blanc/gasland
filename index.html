@@ -79,7 +79,6 @@
           Multiple)</label>
         <div id="weapon-checkboxes-container"
           class="bg-zinc-950 border-2 border-zinc-800 rounded p-3 max-h-56 overflow-y-auto flex flex-col gap-2 font-sans text-sm text-zinc-300 scrollbar-thin scrollbar-thumb-zinc-800">
-          <!-- Injecté par JS -->
         </div>
       </div>
 
@@ -89,7 +88,6 @@
           Multiple)</label>
         <div id="upgrade-checkboxes-container"
           class="bg-zinc-950 border-2 border-zinc-800 rounded p-3 max-h-44 overflow-y-auto flex flex-col gap-2 font-sans text-sm text-zinc-300 scrollbar-thin scrollbar-thumb-zinc-800">
-          <!-- Injecté par JS -->
         </div>
       </div>
 
@@ -98,7 +96,6 @@
         <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Avantages Tactiques (Perks)</label>
         <div id="perk-checkboxes-container"
           class="bg-zinc-950 border-2 border-zinc-800 rounded p-3 max-h-44 overflow-y-auto flex flex-col gap-2 font-sans text-sm text-zinc-300 scrollbar-thin scrollbar-thumb-zinc-800">
-          <!-- Injecté par JS -->
         </div>
       </div>
 
@@ -128,16 +125,32 @@
 
     <section class="lg:col-span-7 flex flex-col gap-6 w-full">
 
-      <div class="bg-zinc-900 border-2 border-zinc-800 rounded-xl p-6 flex items-center justify-between shadow-xl">
-        <div class="text-left">
+      <!-- COMPTEUR DE BUDGET MIS À JOUR AVEC OPTIONS PLUS / MOINS -->
+      <div
+        class="bg-zinc-900 border-2 border-zinc-800 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between shadow-xl gap-4">
+        <div class="text-left w-full sm:w-auto">
           <h1 class="text-xl font-black uppercase tracking-wide">Roster Officiel</h1>
-          <p id="crew-status-text" class="text-zinc-500 text-xs font-sans">Sauvegarde locale active. Connecte-toi pour
-            sauvegarder sur le Cloud.</p>
+          <p id="crew-status-text" class="text-zinc-500 text-xs font-sans">Sauvegarde locale active.</p>
         </div>
-        <div class="text-right flex items-baseline gap-2">
-          <span id="total-cans"
-            class="text-5xl font-black text-amber-500 font-sans tracking-tight drop-shadow-[0_4px_12px_rgba(245,158,11,0.2)]">0</span>
-          <span class="text-zinc-500 font-bold uppercase text-xs tracking-widest">/ 50 Cans</span>
+
+        <div
+          class="flex items-center gap-4 justify-between w-full sm:w-auto border-t sm:border-t-0 border-zinc-800 pt-3 sm:pt-0">
+          <div class="text-right flex items-baseline gap-1.5">
+            <span id="total-cans" class="text-5xl font-black text-amber-500 font-sans tracking-tight">0</span>
+            <span class="text-zinc-500 font-bold uppercase text-xs tracking-widest">/ <span
+                id="max-cans-display">50</span> Cans</span>
+          </div>
+
+          <!-- Contrôleur du Budget Maximal -->
+          <div class="flex flex-col gap-1 items-center bg-zinc-950 border border-zinc-800 rounded p-1.5">
+            <span class="text-[9px] uppercase font-bold text-zinc-500 tracking-wider">Limite</span>
+            <div class="flex items-center gap-2">
+              <button onclick="adjustMaxCans(-5)"
+                class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 font-bold text-xs px-2 py-0.5 rounded text-zinc-400 hover:text-amber-500 transition cursor-pointer">-5</button>
+              <button onclick="adjustMaxCans(5)"
+                class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 font-bold text-xs px-2 py-0.5 rounded text-zinc-400 hover:text-amber-500 transition cursor-pointer">+5</button>
+            </div>
+          </div>
         </div>
       </div>
 

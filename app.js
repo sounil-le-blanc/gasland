@@ -21,7 +21,7 @@ const GASLANDS_DATA = {
   vehicles: {
     bike: { name: "Moto", baseCost: 5, hull: 4, slots: 1 },
     buggy: { name: "Buggy", baseCost: 6, hull: 6, slots: 2 },
-    car: { name: "Voiture Standard", baseCost: 15, hull: 10, slots: 2 },
+    car: { name: "Voiture Standard", baseCost: 12, hull: 10, slots: 2 }, // 💥 CORRECTIF : 12 CANS
     "perf-car": { name: "Voiture de Course (Performance Car)", baseCost: 15, hull: 8, slots: 1 },
     truck: { name: "Camionette / Pick-up", baseCost: 15, hull: 12, slots: 3 },
     "monster-truck": { name: "Monster Truck", baseCost: 25, hull: 12, slots: 2 },
@@ -171,7 +171,7 @@ const GASLANDS_DATA = {
 };
 
 // ==========================================
-// 2. CONFIGURATION SUPABASE
+// 2. CONFIGURATION SUPABASE & BUDGET GLOBAL
 // ==========================================
 const SUPABASE_URL = "https://vwfzzybjjlrashioovrk.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_CVxOH_z-iZs-hmc2O6NBEw_faZRGkNI";
@@ -182,8 +182,14 @@ if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
 
 let crew = [];
 let currentUser = null;
+let maxCans = 50; // Variable globale pour le budget max
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // Charger la configuration de limite stockée localement (si existante)
+  const savedLimit = localStorage.getItem("gaslands_max_cans_limit");
+  if (savedLimit) maxCans = parseInt(savedLimit, 10);
+  document.getElementById("max-cans-display").textContent = maxCans;
+
   populateFormOptions();
 
   if (window.supabase && window.supabase.auth) {
@@ -199,6 +205,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   renderCrew();
 });
+
+// Ajuster le budget max (+5 / -5)
+function adjustMaxCans(amount) {
+  maxCans += amount;
+  if (maxCans < 5) maxCans = 5; // Sécurité plancher
+  document.getElementById("max-cans-display").textContent = maxCans;
+  localStorage.setItem("gaslands_max_cans_limit", maxCans);
+  renderCrew(); // Relance le rendu pour ajuster les couleurs d'alerte budgétaire
+}
 
 function populateFormOptions() {
   const sSelect = document.getElementById("sponsor-select");
@@ -221,7 +236,6 @@ function populateFormOptions() {
     cSelect.innerHTML = GASLANDS_DATA.cargoUpgrades.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
   }
 
-  // 💥 GÉNÉRATION DES CASES À COCHER : WEAPONS
   if (wContainer) {
     wContainer.innerHTML = GASLANDS_DATA.weapons.map(w => `
       <div class="flex items-center justify-between gap-2 hover:bg-zinc-900/40 p-1 rounded transition">
@@ -229,7 +243,6 @@ function populateFormOptions() {
           <input type="checkbox" name="weapon-checkbox" value="${w.id}" onchange="toggleTurretCheckbox('${w.id}')" class="accent-amber-500 w-4 h-4 cursor-pointer">
           <span>${w.name} <span class="text-[10px] text-zinc-500">[${w.slots}S]</span> <span class="text-amber-500 font-bold text-xs">(+${w.cost})</span></span>
         </label>
-        <!-- Petite case bonus pour monter individuellement CETTE arme sur tourelle ! -->
         <label class="text-[10px] text-zinc-500 hover:text-amber-400 flex items-center gap-1 opacity-40" id="turret-lbl-${w.id}">
           <input type="checkbox" id="turret-cb-${w.id}" disabled class="accent-amber-500 w-3 h-3"> Tourelle (x3)
         </label>
@@ -237,7 +250,6 @@ function populateFormOptions() {
     `).join("");
   }
 
-  // 🔧 GÉNÉRATION DES CASES À COCHER : UPGRADES
   if (uContainer) {
     uContainer.innerHTML = GASLANDS_DATA.upgrades.map(u => `
       <label class="flex items-center gap-2 cursor-pointer hover:text-amber-400 transition py-0.5">
@@ -251,7 +263,6 @@ function populateFormOptions() {
   handleTrailerChange();
 }
 
-// Active/Désactive la case tourelle à côté de l'arme si l'arme est cochée
 function toggleTurretCheckbox(weaponId) {
   const wBox = document.querySelector(`input[name="weapon-checkbox"][value="${weaponId}"]`);
   const tBox = document.getElementById(`turret-cb-${weaponId}`);
@@ -260,12 +271,7 @@ function toggleTurretCheckbox(weaponId) {
   if (wBox && tBox && tLbl) {
     tBox.disabled = !wBox.checked;
     if (!wBox.checked) tBox.checked = false;
-
-    if (wBox.checked) {
-      tLbl.classList.remove("opacity-40");
-    } else {
-      tLbl.classList.add("opacity-40");
-    }
+    tBox.checked ? tLbl.classList.remove("opacity-40") : tLbl.classList.add("opacity-40");
   }
 }
 
@@ -316,6 +322,8 @@ function handleSponsorChange() {
   `).join("");
 }
 
+function handleChassisChange() { }
+
 function addVehicleToCrew() {
   const chassisKey = document.getElementById("vehicle-type").value;
   const customName = document.getElementById("vehicle-name").value.trim();
@@ -326,7 +334,6 @@ function addVehicleToCrew() {
   const trailer = GASLANDS_DATA.trailers.find(t => t.id === trailerId);
   const cargo = GASLANDS_DATA.cargoUpgrades.find(c => c.id === cargoId);
 
-  // 💥 CUMUL DE TOUTES LES ARMES COCHÉES ET DES TOURELLES ACCUMULÉES
   const weaponBoxes = document.querySelectorAll('input[name="weapon-checkbox"]:checked');
   let totalWeaponsCost = 0;
   let totalSlotsUsed = 0;
@@ -337,10 +344,7 @@ function addVehicleToCrew() {
     if (wObj) {
       const isTurret = document.getElementById(`turret-cb-${wObj.id}`).checked;
       let costForThisWeapon = wObj.cost;
-
-      if (isTurret && wObj.cost > 0) {
-        costForThisWeapon = wObj.cost * 3; // Règle officielle Tourelle x3
-      }
+      if (isTurret && wObj.cost > 0) costForThisWeapon = wObj.cost * 3;
 
       totalWeaponsCost += costForThisWeapon;
       totalSlotsUsed += wObj.slots;
@@ -348,7 +352,6 @@ function addVehicleToCrew() {
     }
   });
 
-  // 🔧 CUMUL DE TOUTES LES AMÉLIORATIONS MATÉRIELLES COCHÉES
   const upgradeBoxes = document.querySelectorAll('input[name="upgrade-checkbox"]:checked');
   let totalUpgradesCost = 0;
   let selectedUpgradesNames = [];
@@ -363,7 +366,6 @@ function addVehicleToCrew() {
     }
   });
 
-  // 🔥 CUMUL DE TOUS LES PERKS COCHÉS
   const perkBoxes = document.querySelectorAll('input[name="perk-checkbox"]:checked');
   let totalPerksCost = 0;
   let selectedPerksNames = [];
@@ -402,16 +404,13 @@ function addVehicleToCrew() {
   saveData();
   renderCrew();
 
-  // RESET COMPLET DU GARAGE
   document.getElementById("vehicle-name").value = "";
   document.getElementById("trailer-select").value = "none";
   weaponBoxes.forEach(cb => cb.checked = false);
   upgradeBoxes.forEach(cb => cb.checked = false);
   perkBoxes.forEach(cb => cb.checked = false);
 
-  // Désactiver de force tous les boutons tourelle
   GASLANDS_DATA.weapons.forEach(w => toggleTurretCheckbox(w.id));
-
   handleTrailerChange();
 }
 
@@ -473,7 +472,8 @@ function renderCrew() {
 
   totalCansEl.textContent = totalCans;
 
-  if (totalCans > 50) {
+  // Déclencheur d'alerte basé sur la variable globale maxCans choisie à l'écran
+  if (totalCans > maxCans) {
     totalCansEl.className = "text-5xl font-black text-red-500 font-sans tracking-tight animate-pulse";
   } else {
     totalCansEl.className = "text-5xl font-black text-amber-500 font-sans tracking-tight drop-shadow-[0_4px_12px_rgba(245,158,11,0.2)]";
