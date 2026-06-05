@@ -3,12 +3,20 @@
 // ==========================================
 const GASLANDS_DATA = {
   sponsors: [
-    { id: "none", name: "Aucun Sponsor (Alignement Libre)", perkClasses: ["Badass", "Rocker"] },
-    { id: "idris", name: "Idris (Vitesse & Tech)", perkClasses: ["Speed", "Precision"] },
-    { id: "rutherford", name: "Rutherford (Militaire & Armes)", perkClasses: ["Military", "Firepower"] },
-    { id: "slime", name: "Slime (Punks & Pièges)", perkClasses: ["Aggro", "CrowdPleaser"] },
-    { id: "miyazaki", name: "Miyazaki (Drift & Tuning)", perkClasses: ["Speed", "Precision"] },
-    { id: "verney", name: "Verney (Ingénieurs)", perkClasses: ["Engineering", "Gadgets"] }
+    { id: "none", name: "Aucun Sponsor (Alignement Libre)", perkClasses: ["Badass", "Speed", "Engineering", "Audace", "Agression", "DurACuire", "Horreur", "Militaire", "Optimisation", "Poursuite", "Precision", "Technologie"] },
+    { id: "rustys", name: "Rusty's Bootleggers", perkClasses: ["Badass", "Engineering"] },
+    { id: "rutherford", name: "Anatolia Rutherford", perkClasses: ["DurACuire", "Militaire"] },
+    { id: "miyazaki", name: "Miyazaki", perkClasses: ["Audace", "Precision"] },
+    { id: "mishkin", name: "Mishkin", perkClasses: ["Militaire", "Technologie"] },
+    { id: "idris", name: "Idris", perkClasses: ["Precision", "Speed"] },
+    { id: "slime", name: "Slime", perkClasses: ["Optimisation", "Badass"] },
+    { id: "geoliere", name: "La Geôlière (The Warden)", perkClasses: ["Agression", "DurACuire"] },
+    { id: "scarlett", name: "Scarlett", perkClasses: ["Optimisation", "Agression"] },
+    { id: "patrouille", name: "Patrouille de l'Autoroute", perkClasses: ["Speed", "Poursuite"] },
+    { id: "verney", name: "Arthur Verney", perkClasses: ["Technologie", "Engineering"] },
+    { id: "maxxine", name: "Maxxine", perkClasses: ["Optimisation", "Poursuite"] },
+    { id: "ordre_infernal", name: "L'Ordre Infernal", perkClasses: ["Horreur", "Speed"] },
+    { id: "beverly", name: "Beverly", perkClasses: ["Horreur", "Engineering"] }
   ],
   vehicles: {
     bike: { name: "Moto", baseCost: 5, hull: 4, slots: 1 },
@@ -38,14 +46,102 @@ const GASLANDS_DATA = {
   ],
   perks: [
     { id: "none", name: "Aucun avantage sélectionné", cost: 0, class: "All" },
-    // Classe Speed / Daredevil
-    { id: "trompe_la_mort", name: "Trompe-la-mort (Daredevil — Relance de dé)", cost: 2, class: "Speed" },
-    { id: "expert_drift", name: "Roi du Drift", cost: 1, class: "Speed" },
-    // Classe Engineering / Mécanique
-    { id: "mecanicien", name: "Mécanicien de Génie (Réparation live)", cost: 3, class: "Engineering" },
-    { id: "bricolage", name: "Système D / Bricolage", cost: 2, class: "Engineering" },
-    // Classe Firepower
-    { id: "gachette_facile", name: "Gâchette Facile", cost: 2, class: "Firepower" }
+
+    // 🔧 CLASSE : MÉCANIQUE (Engineering) - Réf: 52a21705-7ebc-4d36-ad09-ab777056b39f
+    { id: "poids_mort", name: "Poids Mort", cost: 2, class: "Engineering" },
+    { id: "expert_tonneaux", name: "Expert en Tonneaux", cost: 2, class: "Engineering" },
+    { id: "cogneur", name: "Cogneur", cost: 4, class: "Engineering" },
+    { id: "retour_de_flamme", name: "Retour de Flamme", cost: 5, class: "Engineering" },
+    { id: "concasseur", name: "Concasseur", cost: 7, class: "Engineering" },
+    { id: "meme_pas_mal", name: "Même pas Mal !", cost: 8, class: "Engineering" },
+
+    // ⚡ CLASSE : RAPIDITÉ (Speed) - Réf: f1d9bebf-7b7a-483b-82f4-8802de38b50a
+    { id: "depart_eclair", name: "Départ Éclair", cost: 1, class: "Speed" },
+    { id: "sillage", name: "Sillage", cost: 2, class: "Speed" },
+    { id: "surcharge", name: "Surcharge", cost: 2, class: "Speed" },
+    { id: "retrograder", name: "Rétrograder", cost: 3, class: "Speed" },
+    { id: "temps_additionnel", name: "Temps Additionnel !", cost: 3, class: "Speed" },
+    { id: "a_fond_la_caisse", name: "À Fond la Caisse", cost: 5, class: "Speed" },
+
+    // 🔥 CLASSE : TROMPE-LA-MORT (Badass) - Réf: d5ecf7be-bb9e-4b0d-81d5-6ce92d9e4f97
+    { id: "rage_au_volant", name: "Rage au Volant", cost: 1, class: "Badass" },
+    { id: "frenesie", name: "Frénésie", cost: 2, class: "Badass" },
+    { id: "foutu_pour_foutu", name: "Foutu pour Foutu", cost: 2, class: "Badass" },
+    { id: "intouchable", name: "Intouchable", cost: 4, class: "Badass" },
+    { id: "plus_balaise_que_toi", name: "Plus Balaise que Toi", cost: 4, class: "Badass" },
+    { id: "biereserker", name: "Bièreserker", cost: 5, class: "Badass" },
+
+    // 🎯 CLASSE : PRÉCISION (Precision) - Réf: ce65e45c-ba38-40dd-98fe-e4dcf05d074a
+    { id: "mister_fahrenheit", name: "Mister Fahrenheit", cost: 2, class: "Precision" },
+    { id: "heure_de_gloire", name: "Heure de Gloire", cost: 2, class: "Precision" },
+    { id: "prudence", name: "Prudence", cost: 2, class: "Precision" },
+    { id: "expertise", name: "Expertise", cost: 3, class: "Precision" },
+    { id: "art_de_la_route", name: "Art de la Route", cost: 3, class: "Precision" },
+    { id: "pilote_ne", name: "Pilote-Né", cost: 5, class: "Precision" },
+
+    // 🤠 CLASSE : AUDACE (Audace) - Réf: 1000026185.jpg
+    { id: "symbiose", name: "Symbiose", cost: 2, class: "Audace" },
+    { id: "insaisissable", name: "Insaisissable", cost: 3, class: "Audace" },
+    { id: "as_du_frein_a_main", name: "As du Frein à Main", cost: 3, class: "Audace" },
+    { id: "feinte", name: "Feinte", cost: 5, class: "Audace" },
+    { id: "derapage_controle", name: "Dérapage Contrôlé", cost: 5, class: "Audace" },
+    { id: "cascadeur", name: "Cascadeur", cost: 7, class: "Audace" },
+
+    // 💥 CLASSE : AGRESSION (Agression) - Réf: 1000026185.jpg
+    { id: "double_canon", name: "Double Canon", cost: 2, class: "Agression" },
+    { id: "abordage", name: "Abordage", cost: 2, class: "Agression" },
+    { id: "marteau_de_guerre", name: "Marteau de Guerre", cost: 4, class: "Agression" },
+    { id: "psychopathe", name: "Psychopathe", cost: 5, class: "Agression" },
+    { id: "broyeur", name: "Broyeur", cost: 5, class: "Agression" },
+    { id: "engin_de_la_mort", name: "Engin de la Mort", cost: 5, class: "Agression" },
+
+    // 🛡️ CLASSE : DUR À CUIRE (DurACuire) - Réf: 2b84b894-e13f-4b1e-8747-23eac0b5a4c4
+    { id: "baril_de_poudre", name: "Baril de Poudre", cost: 1, class: "DurACuire" },
+    { id: "sens_du_spectacle", name: "Sens du Spectacle", cost: 1, class: "DurACuire" },
+    { id: "guerrier_de_la_route", name: "Guerrier de la Route", cost: 2, class: "DurACuire" },
+    { id: "couvrez_moi", name: "Couvrez-Moi !", cost: 2, class: "DurACuire" },
+    { id: "fou_furieux", name: "Fou Furieux", cost: 3, class: "DurACuire" },
+    { id: "pluie_de_balles", name: "Pluie de Balles", cost: 3, class: "DurACuire" },
+
+    // 💀 CLASSE : HORREUR (Horreur) - Réf: 75f49b9e-987d-4a2a-a882-5b47a3f6602f
+    { id: "flammes_purificatrices", name: "Flammes Purificatrices", cost: 1, class: "Horreur" },
+    { id: "visions_extatiques", name: "Visions Extatiques", cost: 1, class: "Horreur" },
+    { id: "pacte_avec_le_diable", name: "Pacte avec le Diable", cost: 1, class: "Horreur" },
+    { id: "autoroute_vers_lenfer", name: "Autoroute vers l'Enfer", cost: 2, class: "Horreur" },
+    { id: "manifestation_diabolique", name: "Manifestation Diabolique", cost: 3, class: "Horreur" },
+    { id: "ange_de_la_mort", name: "Ange de la Mort", cost: 4, class: "Horreur" },
+
+    // ⚔️ CLASSE : MILITAIRE (Militaire) - Réf: 2cbd2f66-d8e1-4aa8-b78f-010529a3856c
+    { id: "tireur_delite", name: "Tireur d'Élite", cost: 2, class: "Militaire" },
+    { id: "servant_dartillerie", name: "Servant d'Artillerie", cost: 2, class: "Militaire" },
+    { id: "charge_a_bloc", name: "Chargé à Bloc", cost: 2, class: "Militaire" },
+    { id: "tirs_rapides", name: "Tirs Rapides", cost: 2, class: "Militaire" },
+    { id: "tir_a_la_tete", name: "Tir à la Tête", cost: 4, class: "Militaire" },
+    { id: "riposte", name: "Riposte", cost: 5, class: "Militaire" },
+
+    // ⚙️ CLASSE : OPTIMISATION (Optimisation) - Réf: 8062496c-174e-4420-b816-fe721b041c70
+    { id: "fenderkiss", name: "Fenderkiss", cost: 2, class: "Optimisation" },
+    { id: "propulsion", name: "Propulsion", cost: 2, class: "Optimisation" },
+    { id: "doigte", name: "Doigté", cost: 3, class: "Optimisation" },
+    { id: "momentum", name: "Momentum", cost: 3, class: "Optimisation" },
+    { id: "ronronnement", name: "Ronronnement", cost: 6, class: "Optimisation" },
+    { id: "sur_deux_roues", name: "Sur Deux Roues", cost: 6, class: "Optimisation" },
+
+    // 🏁 CLASSE : POURSUITE (Poursuite) - Réf: b307f5d8-9aea-49ae-8220-6fdf2763461e
+    { id: "a_tes_trousses", name: "À Tes Trousses", cost: 2, class: "Poursuite" },
+    { id: "le_malheur_des_uns", name: "Le Malheur des Uns...", cost: 2, class: "Poursuite" },
+    { id: "provocation", name: "Provocation", cost: 2, class: "Poursuite" },
+    { id: "distancer", name: "Distancer", cost: 2, class: "Poursuite" },
+    { id: "tip", name: "Tip", cost: 4, class: "Poursuite" },
+    { id: "regard_destabilisant", name: "Regard Déstabilisant", cost: 5, class: "Poursuite" },
+
+    // 💻 CLASSE : TECHNOLOGIE (Technologie) - Réf: b4c35181-ce87-42fc-99b4-936bb8aedb22
+    { id: "moteurs_fusee", name: "Moteurs-Fusée", cost: 1, class: "Technologie" },
+    { id: "survolte", name: "Survolté", cost: 1, class: "Technologie" },
+    { id: "gyroscope", name: "Gyroscope", cost: 1, class: "Technologie" },
+    { id: "navigation_satellite", name: "Navigation Satellite", cost: 2, class: "Technologie" },
+    { id: "mecano_de_bord", name: "Mécano de Bord", cost: 3, class: "Technologie" },
+    { id: "eureka", name: "Eurêka !", cost: 4, class: "Technologie" }
   ]
 };
 
@@ -62,7 +158,6 @@ if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
 let crew = [];
 let currentUser = null;
 
-// Initialisation au chargement
 document.addEventListener("DOMContentLoaded", async () => {
   populateFormOptions();
 
@@ -80,13 +175,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderCrew();
 });
 
-// Injection dynamique des nouvelles options
 function populateFormOptions() {
   const sSelect = document.getElementById("sponsor-select");
   const vSelect = document.getElementById("vehicle-type");
   const wSelect = document.getElementById("weapon-select");
   const uSelect = document.getElementById("upgrade-select");
-  const pSelect = document.getElementById("perk-select");
 
   if (sSelect) {
     sSelect.innerHTML = GASLANDS_DATA.sponsors.map(s =>
@@ -112,23 +205,30 @@ function populateFormOptions() {
     ).join("");
   }
 
-  if (pSelect) {
-    pSelect.innerHTML = GASLANDS_DATA.perks.map(p =>
-      `<option value="${p.id}">${p.name} [${p.class}] ${p.cost > 0 ? `(+${p.cost} Cans)` : ''}</option>`
-    ).join("");
-  }
+  handleSponsorChange();
 }
 
-// Changement de Sponsor -> Optionnel: pour filtrer visuellement plus tard
 function handleSponsorChange() {
-  console.log("Nouveau sponsor d'écurie sélectionné :", document.getElementById("sponsor-select").value);
+  const sponsorId = document.getElementById("sponsor-select").value;
+  const pSelect = document.getElementById("perk-select");
+
+  if (!pSelect) return;
+
+  const selectedSponsor = GASLANDS_DATA.sponsors.find(s => s.id === sponsorId);
+
+  const allowedPerks = GASLANDS_DATA.perks.filter(perk => {
+    return perk.id === "none" ||
+      perk.class === "All" ||
+      selectedSponsor.perkClasses.includes(perk.class);
+  });
+
+  pSelect.innerHTML = allowedPerks.map(p =>
+    `<option value="${p.id}">${p.name} [${p.class}] ${p.cost > 0 ? `(+${p.cost} Cans)` : ''}</option>`
+  ).join("");
 }
 
-function handleChassisChange() {
-  // Évite l'ancienne erreur manquante
-}
+function handleChassisChange() { }
 
-// Ajout d'un véhicule configuré
 function addVehicleToCrew() {
   const chassisKey = document.getElementById("vehicle-type").value;
   const customName = document.getElementById("vehicle-name").value.trim();
@@ -144,7 +244,7 @@ function addVehicleToCrew() {
 
   let finalWeaponCost = weapon.cost;
   if (weaponId !== "none" && weaponFacing.includes("Tourelle")) {
-    finalWeaponCost += 3; // Règle Tourelle (+3 Cans)
+    finalWeaponCost += 3;
   }
 
   const totalVehicleCost = chassis.baseCost + finalWeaponCost + upgrade.cost + perk.cost;
@@ -252,7 +352,6 @@ async function loadCrewFromSupabase() {
   if (data && data.data) crew = data.data;
 }
 
-// Auth Modals
 function toggleAuthModal(mode = "signin") {
   const modal = document.getElementById("auth-modal");
   if (!modal) return;
