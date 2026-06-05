@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wasteland Garage — Gaslands Crew Builder</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Chargement des données de jeu puis de la logique de l'application -->
+  <script src="data.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+
+<body
+  class="bg-zinc-950 text-zinc-100 font-mono min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-black">
+
+  <!-- HEADER POST-APO -->
+  <header
+    class="border-b-4 border-double border-zinc-800 bg-zinc-900/50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
+    <div class="flex items-center gap-3">
+      <span
+        class="text-2xl font-black tracking-wider text-amber-500 uppercase drop-shadow-[0_2px_4px_rgba(245,158,11,0.3)]">🛠️
+        Wasteland Garage</span>
+      <span
+        class="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded border border-zinc-700 tracking-widest font-sans">GASLANDS
+        ADVANCED</span>
+    </div>
+
+    <div id="auth-zone" class="flex items-center gap-4 text-sm">
+      <div id="auth-logged-out" class="flex gap-3">
+        <button onclick="toggleAuthModal('signin')"
+          class="hover:text-amber-500 transition uppercase font-bold tracking-tight cursor-pointer">Connexion</button>
+        <span class="text-zinc-700">|</span>
+        <button onclick="toggleAuthModal('signup')"
+          class="bg-amber-600 hover:bg-amber-500 text-zinc-950 font-black px-3 py-1.5 rounded uppercase tracking-tight transition cursor-pointer">S'enregistrer</button>
+      </div>
+      <div id="auth-logged-in" class="hidden flex items-center gap-3">
+        <span id="user-email" class="text-zinc-400 text-xs truncate max-w-[150px]">pilote@wasteland.com</span>
+        <button onclick="handleLogout()"
+          class="text-xs text-red-400 hover:text-red-300 underline uppercase cursor-pointer">Abandonner le crew</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="w-full max-w-7xl mx-auto px-4 py-8 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+    <!-- PANNEAU DE GAUCHE : FORMULAIRE DE CONFIGURATION AVANCÉE -->
+    <section
+      class="lg:col-span-5 bg-zinc-900/40 border-2 border-zinc-800 rounded-xl p-6 shadow-2xl backdrop-blur-sm flex flex-col gap-5">
+
+      <div class="border-b border-zinc-800 pb-3">
+        <h2 class="text-lg font-black uppercase text-amber-500 tracking-wide">⚙️ Customisation du Bolide</h2>
+        <p class="text-zinc-500 text-xs">Monte ton équipement dans la limite des emplacements disponibles.</p>
+      </div>
+
+      <!-- Nom du véhicule -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Nom du véhicule / Pilote</label>
+        <input type="text" id="vehicle-name" placeholder="Ex: Interceptor, War Rig..."
+          class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 transition">
+      </div>
+
+      <!-- Châssis -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Choix du Châssis</label>
+        <select id="vehicle-type" onchange="handleChassisChange()"
+          class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 font-sans transition">
+          <!-- Injecté dynamiquement par JS -->
+        </select>
+      </div>
+
+      <!-- Système d'Armement -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Système d'Armes</label>
+          <select id="weapon-select"
+            class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 font-sans transition">
+            <!-- Injecté dynamiquement par JS -->
+          </select>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Orientation de tir</label>
+          <select id="weapon-facing"
+            class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 font-sans transition">
+            <option value="Avant">Avant (Front)</option>
+            <option value="Arrière">Arrière (Rear)</option>
+            <option value="Tourelle (+3 Cans)">Tourelle (Turret +3 Cans)</option>
+            <option value="Gauche/Droite">Flancs (Left/Right)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Amélioration mécanique -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Amélioration ou Perk</label>
+        <select id="upgrade-select"
+          class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 font-sans transition">
+          <!-- Injecté dynamiquement par JS -->
+        </select>
+      </div>
+
+      <!-- Bouton d'envoi mécanique -->
+      <button onclick="addVehicleToCrew()"
+        class="w-full bg-zinc-800 border-2 border-amber-500/40 hover:border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-zinc-950 font-black py-3 rounded uppercase tracking-wider transition-all duration-300 cursor-pointer text-sm">
+        💥 Valider et Envoyer à l'Arène
+      </button>
+
+    </section>
+
+    <!-- PANNEAU DE DROITE : VISIONNEUSE EN TEMPS RÉEL -->
+    <section class="lg:col-span-7 flex flex-col gap-6 w-full">
+
+      <!-- COMPTEUR DE BUDGET ET INFOS GANG -->
+      <div class="bg-zinc-900 border-2 border-zinc-800 rounded-xl p-6 flex items-center justify-between shadow-xl">
+        <div class="text-left">
+          <h1 class="text-xl font-black uppercase tracking-wide">Roster Officiel</h1>
+          <p id="crew-status-text" class="text-zinc-500 text-xs font-sans">Sauvegarde locale active. Connecte-toi pour
+            sauvegarder sur le Cloud.</p>
+        </div>
+        <div class="text-right flex items-baseline gap-2">
+          <span id="total-cans"
+            class="text-5xl font-black text-amber-500 font-sans tracking-tight drop-shadow-[0_4px_12px_rgba(245,158,11,0.2)]">0</span>
+          <span class="text-zinc-500 font-bold uppercase text-xs tracking-widest">/ 50 Cans</span>
+        </div>
+      </div>
+
+      <!-- COMPOSANT DE LA FEUILLE DE LISTE -->
+      <div class="bg-zinc-900/20 border-2 border-zinc-800 rounded-xl p-6 min-h-[350px] flex flex-col gap-4">
+        <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
+          <h3 class="text-xs font-black uppercase text-zinc-400 tracking-widest">Machines de Guerre Engagées</h3>
+          <button onclick="clearRoster()"
+            class="text-[10px] text-zinc-600 hover:text-red-400 font-bold uppercase tracking-wider">Vider
+            l'écurie</button>
+        </div>
+
+        <div id="crew-list" class="flex flex-col gap-4">
+          <!-- Injecté dynamiquement par app.js -->
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- MODAL AUTH -->
+  <div id="auth-modal"
+    class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div
+      class="bg-zinc-900 border-4 border-zinc-800 w-full max-w-md p-6 rounded-xl shadow-2xl flex flex-col gap-4 relative">
+      <button onclick="toggleAuthModal()"
+        class="absolute top-4 right-4 text-zinc-500 hover:text-zinc-200 font-bold">✕</button>
+      <h2 id="modal-title" class="text-xl font-black uppercase text-amber-500 tracking-wider">Identification Fréquence
+      </h2>
+
+      <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="flex flex-col gap-4">
+        <input type="hidden" id="auth-mode" value="signin">
+        <div class="flex flex-col gap-1">
+          <label class="text-xs uppercase font-bold text-zinc-400">Canal Radio (Email)</label>
+          <input type="email" id="auth-email" required
+            class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs uppercase font-bold text-zinc-400">Code d'autorisation (Password)</label>
+          <input type="password" id="auth-password" required
+            class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500">
+        </div>
+        <button type="submit"
+          class="w-full bg-amber-600 hover:bg-amber-500 text-zinc-950 font-black py-2.5 rounded uppercase tracking-wide transition cursor-pointer mt-2">
+          Établir la liaison
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <footer
+    class="border-t border-zinc-900 bg-zinc-950 px-6 py-3 text-center text-[10px] text-zinc-600 tracking-wider font-sans uppercase">
+    Wasteland Garage is an independent fan-tool for Gaslands • 2026
+  </footer>
+
+</body>
+
+</html>
