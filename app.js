@@ -18,17 +18,25 @@ const GASLANDS_DATA = {
     { id: "ordre_infernal", name: "L'Ordre Infernal", perkClasses: ["Horreur", "Speed"] },
     { id: "beverly", name: "Beverly", perkClasses: ["Horreur", "Engineering"] }
   ],
+  // 🏎️ LE TABLEAU COMPLET EXTRACTÉ DE TA PHOTO e6adb174-fcbb-4b48-bffc-f48b82b80047
   vehicles: {
-    bike: { name: "Moto", baseCost: 5, hull: 4, slots: 1 },
+    dragster: { name: "Dragster", baseCost: 5, hull: 4, slots: 2 },
+    moto: { name: "Moto", baseCost: 5, hull: 4, slots: 1 },
     buggy: { name: "Buggy", baseCost: 6, hull: 6, slots: 2 },
-    car: { name: "Voiture Standard", baseCost: 12, hull: 10, slots: 2 },
-    "perf-car": { name: "Voiture de Course (Performance Car)", baseCost: 15, hull: 8, slots: 1 },
-    truck: { name: "Camionette / Pick-up", baseCost: 15, hull: 12, slots: 3 },
-    "monster-truck": { name: "Monster Truck", baseCost: 25, hull: 12, slots: 2 },
-    "heavy-truck": { name: "Poids Lourd", baseCost: 25, hull: 14, slots: 5 },
-    bus: { name: "Bus de ligne", baseCost: 30, hull: 16, slots: 3 }
+    moto_sidecar: { name: "Moto avec side-car", baseCost: 8, hull: 4, slots: 2 },
+    camion_glaces: { name: "Camion à glaces", baseCost: 8, hull: 10, slots: 2 },
+    voiture: { name: "Voiture", baseCost: 12, hull: 10, slots: 2 },
+    voiture_sport: { name: "Voiture de sport", baseCost: 15, hull: 8, slots: 2 },
+    camion: { name: "Camion", baseCost: 15, hull: 12, slots: 3 },
+    gyrocoptere: { name: "Gyrocoptère", baseCost: 10, hull: 4, slots: 0 },
+    ambulance: { name: "Ambulance", baseCost: 20, hull: 12, slots: 3 },
+    monster_truck: { name: "Monster Truck", baseCost: 25, hull: 10, slots: 2 },
+    camion_lourd: { name: "Camion Lourd", baseCost: 25, hull: 14, slots: 5 },
+    bus: { name: "Bus", baseCost: 30, hull: 16, slots: 3 },
+    helicoptere: { name: "Hélicoptère", baseCost: 30, hull: 8, slots: 4 },
+    char_assaut: { name: "Char d'assaut", baseCost: 40, hull: 20, slots: 4 },
+    forteresse_mobile: { name: "Forteresse Mobile", baseCost: 40, hull: 26, slots: 5 }
   },
-  // 💥 AJOUT DE LA PROPRIÉTÉ crew: true SUR LES ARMES D'ÉQUIPAGE CONCERNÉES (Réf pages 190-191)
   weapons: [
     { id: "auto_tourelle", name: "Auto-Tourelle", cost: 3, slots: 0, crew: false },
     { id: "bfg", name: "BFG", cost: 4, slots: 3, crew: false },
@@ -40,11 +48,11 @@ const GASLANDS_DATA = {
     { id: "canon_125", name: "Canon de 125 mm", cost: 6, slots: 3, crew: false },
     { id: "canon_gravitationnel", name: "Canon Gravitationnel", cost: 4, slots: 1, crew: false },
     { id: "canon_laser", name: "Canon Laser", cost: 5, slots: 1, crew: false },
-    { id: "cocktails_molotov", name: "Cocktails Molotov", cost: 1, slots: 0, crew: true }, // Arme d'Équipage
-    { id: "filet_metallique", name: "Filet Métallique", cost: 1, slots: 0, crew: true },     // Arme d'Équipage
-    { id: "fusil_pompe", name: "Fusil à Pompe", cost: 0, slots: 0, crew: true },           // Arme d'Équipage
-    { id: "grenades", name: "Grenades", cost: 1, slots: 0, crew: true },                   // Arme d'Équipage
-    { id: "grenades_lacrymo", name: "Grenades Lacrymogènes", cost: 1, slots: 0, crew: true }, // Arme d'Équipage
+    { id: "cocktails_molotov", name: "Cocktails Molotov", cost: 1, slots: 0, crew: true },
+    { id: "filet_metallique", name: "Filet Métallique", cost: 1, slots: 0, crew: true },
+    { id: "fusil_pompe", name: "Fusil à Pompe", cost: 0, slots: 0, crew: true },
+    { id: "grenades", name: "Grenades", cost: 1, slots: 0, crew: true },
+    { id: "grenades_lacrymo", name: "Grenades Lacrymogènes", cost: 1, slots: 0, crew: true },
     { id: "lance_carcasse", name: "Lance-Carcasse", cost: 4, slots: 4, crew: false },
     { id: "flamethrower", name: "Lance-Flammes", cost: 4, slots: 2, crew: false },
     { id: "lance_missiles", name: "Lance-missiles", cost: 5, slots: 2, crew: false },
@@ -56,18 +64,18 @@ const GASLANDS_DATA = {
     { id: "largueur_mines", name: "Largueur de Mines", cost: 1, slots: 1, crew: false },
     { id: "largueur_napalm", name: "Largueur de Napalm", cost: 1, slots: 1, crew: false },
     { id: "harpon", name: "Harpon", cost: 2, slots: 1, crew: false },
-    { id: "magnum", name: "Magnum", cost: 1, slots: 0, crew: true },                       // Arme d'Équipage
+    { id: "magnum", name: "Magnum", cost: 1, slots: 0, crew: true },
     { id: "marteleur", name: "Marteleur (Mishkin)", cost: 4, slots: 2, crew: false },
     { id: "mini_gun", name: "Minigun", cost: 5, slots: 1, crew: false },
     { id: "machine_gun", name: "Mitrailleuse", cost: 2, slots: 1, crew: false },
     { id: "heavy_machine_gun", name: "Mitrailleuse Lourde", cost: 3, slots: 1, crew: false },
     { id: "mortar", name: "Mortier", cost: 4, slots: 1, crew: false },
     { id: "mur_haut_parleurs", name: "Mur de haut-parleurs", cost: 4, slots: 3, crew: false },
-    { id: "pistolet", name: "Pistolet", cost: 0, slots: 0, crew: true },                   // Arme d'Équipage
-    { id: "pistolet_mitrailleur", name: "Pistolet Mitralleur", cost: 5, slots: 0, crew: true }, // Arme d'Équipage
+    { id: "pistolet", name: "Pistolet", cost: 0, slots: 0, crew: true },
+    { id: "pistolet_mitrailleur", name: "Pistolet Mitralleur", cost: 5, slots: 0, crew: true },
     { id: "rayon_desintegrateur", name: "Rayon Désintégrateur", cost: 3, slots: 1, crew: false },
     { id: "super_ampli_cinetique", name: "Super Amplificateur Cinétique (Mishkin)", cost: 6, slots: 2, crew: false },
-    { id: "tromblon", name: "Tromblon", cost: 2, slots: 0, crew: true }                     // Arme d'Équipage
+    { id: "tromblon", name: "Tromblon", cost: 2, slots: 0, crew: true }
   ],
   upgrades: [
     { id: "arceaux", name: "Arceaux", cost: 4, slots: 1, directional: false },
@@ -232,7 +240,6 @@ function populateFormOptions() {
     cSelect.innerHTML = GASLANDS_DATA.cargoUpgrades.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
   }
 
-  // 💥 MASQUAGE AUTOMATIQUE DU SÉLECTEUR S'IL S'AGIT D'UNE ARME D'ÉQUIPAGE (crew: true)
   if (wContainer) {
     wContainer.innerHTML = GASLANDS_DATA.weapons.map(w => `
       <div class="flex flex-col gap-1 bg-zinc-900/20 border border-zinc-900 p-2 rounded hover:border-zinc-800 transition">
@@ -350,6 +357,8 @@ function handleSponsorChange() {
   `).join("");
 }
 
+function handleChassisChange() { }
+
 function addVehicleToCrew() {
   const chassisKey = document.getElementById("vehicle-type").value;
   const customName = document.getElementById("vehicle-name").value.trim();
@@ -362,6 +371,7 @@ function addVehicleToCrew() {
 
   let totalSlotsUsed = 0;
 
+  // Calcul des armes cochées
   const weaponBoxes = document.querySelectorAll('input[name="weapon-checkbox"]:checked');
   let totalWeaponsCost = 0;
   let selectedWeaponsNames = [];
@@ -372,7 +382,6 @@ function addVehicleToCrew() {
       let costForThisWeapon = wObj.cost;
       let displayFacing = "Équipement Équipage";
 
-      // On applique la tourelle et l'orientation uniquement si ce n'est pas une arme d'équipage
       if (!wObj.crew) {
         const facing = document.getElementById(`w-facing-${wObj.id}`).value;
         displayFacing = facing;
@@ -387,6 +396,7 @@ function addVehicleToCrew() {
     }
   });
 
+  // Calcul des améliorations matérielles cochées
   const upgradeBoxes = document.querySelectorAll('input[name="upgrade-checkbox"]:checked');
   let totalUpgradesCost = 0;
   let selectedUpgradesNames = [];
@@ -408,6 +418,15 @@ function addVehicleToCrew() {
     }
   });
 
+  // 💥 BLOCKER REQUIS : Vérification de la capacité maximale autorisée en soute (Slots)
+  const maxSlotsAvailable = chassis.slots + trailer.extraSlots;
+
+  if (totalSlotsUsed > maxSlotsAvailable) {
+    alert(`🚨 TRANSMISSION BLOQUÉE : Cette machine est surchargée ! Ton choix de châssis (${chassis.name}) n'offre que ${maxSlotsAvailable} emplacements (Slots) au total. Ton équipement actuel en demande ${totalSlotsUsed}. Retire une arme ou ajoute une remorque !`);
+    return; // Évite l'insertion du véhicule invalide
+  }
+
+  // Calcul des Perks
   const perkBoxes = document.querySelectorAll('input[name="perk-checkbox"]:checked');
   let totalPerksCost = 0;
   let selectedPerksNames = [];
@@ -423,9 +442,6 @@ function addVehicleToCrew() {
   const totalVehicleCost = chassis.baseCost + totalWeaponsCost + totalUpgradesCost + totalPerksCost + trailer.cost + cargo.cost;
   const finalName = customName || `${chassis.name} de Combat`;
 
-  const maxSlotsAvailable = chassis.slots + trailer.extraSlots;
-  const slotsExceeded = totalSlotsUsed > maxSlotsAvailable;
-
   const newVehicle = {
     id: crypto.randomUUID(),
     name: finalName,
@@ -439,13 +455,14 @@ function addVehicleToCrew() {
     trailerName: trailerId !== "none" ? trailer.name : "Aucune",
     cargoName: cargoId !== "none" ? cargo.name : "Aucune",
     cost: totalVehicleCost,
-    invalid: slotsExceeded
+    invalid: false
   };
 
   crew.push(newVehicle);
   saveData();
   renderCrew();
 
+  // Reset des champs
   document.getElementById("vehicle-name").value = "";
   document.getElementById("trailer-select").value = "none";
   weaponBoxes.forEach(cb => cb.checked = false);
@@ -490,10 +507,10 @@ function renderCrew() {
   container.innerHTML = crew.map(v => {
     totalCans += v.cost;
     return `
-            <div class="bg-zinc-950 border-2 ${v.invalid ? 'border-red-600/60 bg-red-950/10' : 'border-zinc-800'} rounded p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition">
+            <div class="bg-zinc-950 border-2 border-zinc-800 rounded p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition">
                 <div class="flex-grow">
                     <div class="flex items-center gap-2">
-                        <h4 class="font-black text-sm uppercase ${v.invalid ? 'text-red-400' : 'text-zinc-100'}">${v.name}</h4>
+                        <h4 class="font-black text-sm uppercase text-zinc-100">${v.name}</h4>
                         <span class="text-[10px] bg-zinc-900 text-zinc-400 border border-zinc-700 px-1.5 py-0.5 rounded uppercase font-sans">${v.chassisName}</span>
                     </div>
                     
@@ -502,8 +519,8 @@ function renderCrew() {
                         <div>🔧 <span class="font-bold text-zinc-500">Matériel :</span> ${v.upgradeName}</div>
                         <div>🔥 <span class="font-bold text-zinc-500">Avantage / Perk :</span> ${v.perkName}</div>
                         ${v.trailerName !== "Aucune" ? `<div>🚛 <span class="font-bold text-zinc-500">Attelage :</span> ${v.trailerName} ${v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</div>` : ''}
-                        <div class="${v.invalid ? 'text-red-400 font-bold' : 'text-zinc-500'} text-[11px] pt-1 border-t border-t-zinc-900/60">
-                            Structure Coque : ${v.hull} | Emplacements Slots : ${v.slotsUsed} / ${v.maxSlots} ${v.invalid ? '(Attention : Soute surchargée !)' : ''}
+                        <div class="text-zinc-500 text-[11px] pt-1 border-t border-t-zinc-900/60">
+                            Structure Coque : ${v.hull} | Emplacements Slots : ${v.slotsUsed} / ${v.maxSlots}
                         </div>
                     </div>
                 </div>
