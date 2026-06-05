@@ -7,14 +7,12 @@
   <title>Wasteland Garage — Gaslands Crew Builder</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Chargement des données de jeu puis de la logique de l'application -->
   <script src="app.js" defer></script>
 </head>
 
 <body
   class="bg-zinc-950 text-zinc-100 font-mono min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-black">
 
-  <!-- HEADER POST-APO -->
   <header
     class="border-b-4 border-double border-zinc-800 bg-zinc-900/50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
     <div class="flex items-center gap-3">
@@ -42,10 +40,8 @@
     </div>
   </header>
 
-  <!-- MAIN WORKSPACE -->
   <main class="w-full max-w-7xl mx-auto px-4 py-8 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-    <!-- PANNEAU DE GAUCHE : FORMULAIRE DE CONFIGURATION AVANCÉE -->
     <section
       class="lg:col-span-5 bg-zinc-900/40 border-2 border-zinc-800 rounded-xl p-6 shadow-2xl backdrop-blur-sm flex flex-col gap-5">
 
@@ -54,29 +50,31 @@
         <p class="text-zinc-500 text-xs">Monte ton équipement dans la limite des emplacements disponibles.</p>
       </div>
 
-      <!-- Nom du véhicule -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Alignement de l'Écurie (Sponsor)</label>
+        <select id="sponsor-select" onchange="handleSponsorChange()"
+          class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 font-sans transition">
+        </select>
+      </div>
+
       <div class="flex flex-col gap-1.5">
         <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Nom du véhicule / Pilote</label>
         <input type="text" id="vehicle-name" placeholder="Ex: Interceptor, War Rig..."
           class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 transition">
       </div>
 
-      <!-- Châssis -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Choix du Châssis</label>
-        <select id="vehicle-type" onchange="handleChassisChange()"
+        <select id="vehicle-type"
           class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 font-sans transition">
-          <!-- Injecté dynamiquement par JS -->
         </select>
       </div>
 
-      <!-- Système d'Armement -->
       <div class="grid grid-cols-2 gap-4">
         <div class="flex flex-col gap-1.5">
           <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Système d'Armes</label>
           <select id="weapon-select"
             class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 font-sans transition">
-            <!-- Injecté dynamiquement par JS -->
           </select>
         </div>
         <div class="flex flex-col gap-1.5">
@@ -91,16 +89,20 @@
         </div>
       </div>
 
-      <!-- Amélioration mécanique -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Amélioration ou Perk</label>
+        <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Amélioration Matérielle</label>
         <select id="upgrade-select"
           class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 font-sans transition">
-          <!-- Injecté dynamiquement par JS -->
         </select>
       </div>
 
-      <!-- Bouton d'envoi mécanique -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Avantage Tactique (Perk)</label>
+        <select id="perk-select"
+          class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 font-sans transition">
+        </select>
+      </div>
+
       <button onclick="addVehicleToCrew()"
         class="w-full bg-zinc-800 border-2 border-amber-500/40 hover:border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-zinc-950 font-black py-3 rounded uppercase tracking-wider transition-all duration-300 cursor-pointer text-sm">
         💥 Valider et Envoyer à l'Arène
@@ -108,10 +110,8 @@
 
     </section>
 
-    <!-- PANNEAU DE DROITE : VISIONNEUSE EN TEMPS RÉEL -->
     <section class="lg:col-span-7 flex flex-col gap-6 w-full">
 
-      <!-- COMPTEUR DE BUDGET ET INFOS GANG -->
       <div class="bg-zinc-900 border-2 border-zinc-800 rounded-xl p-6 flex items-center justify-between shadow-xl">
         <div class="text-left">
           <h1 class="text-xl font-black uppercase tracking-wide">Roster Officiel</h1>
@@ -125,30 +125,29 @@
         </div>
       </div>
 
-      <!-- COMPOSANT DE LA FEUILLE DE LISTE -->
       <div class="bg-zinc-900/20 border-2 border-zinc-800 rounded-xl p-6 min-h-[350px] flex flex-col gap-4">
         <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
           <h3 class="text-xs font-black uppercase text-zinc-400 tracking-widest">Machines de Guerre Engagées</h3>
           <button onclick="clearRoster()"
-            class="text-[10px] text-zinc-600 hover:text-red-400 font-bold uppercase tracking-wider">Vider
+            class="text-[10px] text-zinc-600 hover:text-red-400 font-bold uppercase tracking-wider cursor-pointer transition">Vider
             l'écurie</button>
         </div>
 
         <div id="crew-list" class="flex flex-col gap-4">
-          <!-- Injecté dynamiquement par app.js -->
+          <p class="text-zinc-600 text-sm italic text-center py-12">Aucun véhicule blindé dans le garage pour le
+            moment...</p>
         </div>
       </div>
 
     </section>
   </main>
 
-  <!-- MODAL AUTH -->
   <div id="auth-modal"
     class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
     <div
       class="bg-zinc-900 border-4 border-zinc-800 w-full max-w-md p-6 rounded-xl shadow-2xl flex flex-col gap-4 relative">
       <button onclick="toggleAuthModal()"
-        class="absolute top-4 right-4 text-zinc-500 hover:text-zinc-200 font-bold">✕</button>
+        class="absolute top-4 right-4 text-zinc-500 hover:text-zinc-200 font-bold cursor-pointer">✕</button>
       <h2 id="modal-title" class="text-xl font-black uppercase text-amber-500 tracking-wider">Identification Fréquence
       </h2>
 
