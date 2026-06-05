@@ -21,64 +21,65 @@ const GASLANDS_DATA = {
   vehicles: {
     bike: { name: "Moto", baseCost: 5, hull: 4, slots: 1 },
     buggy: { name: "Buggy", baseCost: 6, hull: 6, slots: 2 },
-    car: { name: "Voiture Standard", baseCost: 12, hull: 10, slots: 2 }, // 💥 CORRECTIF : 12 CANS
+    car: { name: "Voiture Standard", baseCost: 12, hull: 10, slots: 2 },
     "perf-car": { name: "Voiture de Course (Performance Car)", baseCost: 15, hull: 8, slots: 1 },
     truck: { name: "Camionette / Pick-up", baseCost: 15, hull: 12, slots: 3 },
     "monster-truck": { name: "Monster Truck", baseCost: 25, hull: 12, slots: 2 },
     "heavy-truck": { name: "Poids Lourd", baseCost: 25, hull: 14, slots: 5 },
     bus: { name: "Bus de ligne", baseCost: 30, hull: 16, slots: 3 }
   },
+  // 💥 AJOUT DE LA PROPRIÉTÉ crew: true SUR LES ARMES D'ÉQUIPAGE CONCERNÉES (Réf pages 190-191)
   weapons: [
-    { id: "auto_tourelle", name: "Auto-Tourelle", cost: 3, slots: 0 },
-    { id: "bfg", name: "BFG", cost: 4, slots: 3 },
-    { id: "bras_mecanique", name: "Bras Mécanique", cost: 6, slots: 1 },
-    { id: "brouilleur_em", name: "Brouilleur Électromagnétique", cost: 2, slots: 0 },
-    { id: "bombes_teleguidees", name: "Bombes Téléguidées", cost: 3, slots: 0 },
-    { id: "boule_demolition", name: "Boule de démolition", cost: 2, slots: 3 },
-    { id: "canon_arc", name: "Canon à Arc Électrique", cost: 6, slots: 2 },
-    { id: "canon_125", name: "Canon de 125 mm", cost: 6, slots: 3 },
-    { id: "canon_gravitationnel", name: "Canon Gravitationnel", cost: 4, slots: 1 },
-    { id: "canon_laser", name: "Canon Laser", cost: 5, slots: 1 },
-    { id: "cocktails_molotov", name: "Cocktails Molotov", cost: 1, slots: 0 },
-    { id: "filet_metallique", name: "Filet Métallique", cost: 1, slots: 0 },
-    { id: "fusil_pompe", name: "Fusil à Pompe", cost: 0, slots: 0 },
-    { id: "grenades", name: "Grenades", cost: 1, slots: 0 },
-    { id: "grenades_lacrymo", name: "Grenades Lacrymogènes", cost: 1, slots: 0 },
-    { id: "lance_carcasse", name: "Lance-Carcasse", cost: 4, slots: 4 },
-    { id: "flamethrower", name: "Lance-Flammes", cost: 4, slots: 2 },
-    { id: "lance_missiles", name: "Lance-missiles", cost: 5, slots: 2 },
-    { id: "rockets", name: "Lance-Roquettes", cost: 4, slots: 2 },
-    { id: "largueur_chausse_trapes", name: "Largueur de Chausse-Trapes", cost: 1, slots: 1 },
-    { id: "largueur_colle", name: "Largueur de Colle", cost: 1, slots: 1 },
-    { id: "largueur_fumigenes", name: "Largueur de Fumigènes", cost: 1, slots: 0 },
-    { id: "largueur_huile", name: "Largueur d'Huile", cost: 2, slots: 0 },
-    { id: "largueur_mines", name: "Largueur de Mines", cost: 1, slots: 1 },
-    { id: "largueur_napalm", name: "Largueur de Napalm", cost: 1, slots: 1 },
-    { id: "harpon", name: "Harpon", cost: 2, slots: 1 },
-    { id: "magnum", name: "Magnum", cost: 1, slots: 0 },
-    { id: "marteleur", name: "Marteleur (Mishkin)", cost: 4, slots: 2 },
-    { id: "mini_gun", name: "Minigun", cost: 5, slots: 1 },
-    { id: "machine_gun", name: "Mitrailleuse", cost: 2, slots: 1 },
-    { id: "heavy_machine_gun", name: "Mitrailleuse Lourde", cost: 3, slots: 1 },
-    { id: "mortar", name: "Mortier", cost: 4, slots: 1 },
-    { id: "mur_haut_parleurs", name: "Mur de haut-parleurs", cost: 4, slots: 3 },
-    { id: "pistolet", name: "Pistolet", cost: 0, slots: 0 },
-    { id: "pistolet_mitrailleur", name: "Pistolet Mitralleur", cost: 5, slots: 0 },
-    { id: "rayon_desintegrateur", name: "Rayon Désintégrateur", cost: 3, slots: 1 },
-    { id: "super_ampli_cinetique", name: "Super Amplificateur Cinétique (Mishkin)", cost: 6, slots: 2 },
-    { id: "tromblon", name: "Tromblon", cost: 2, slots: 0 }
+    { id: "auto_tourelle", name: "Auto-Tourelle", cost: 3, slots: 0, crew: false },
+    { id: "bfg", name: "BFG", cost: 4, slots: 3, crew: false },
+    { id: "bras_mecanique", name: "Bras Mécanique", cost: 6, slots: 1, crew: false },
+    { id: "brouilleur_em", name: "Brouilleur Électromagnétique", cost: 2, slots: 0, crew: false },
+    { id: "bombes_teleguidees", name: "Bombes Téléguidées", cost: 3, slots: 0, crew: false },
+    { id: "boule_demolition", name: "Boule de démolition", cost: 2, slots: 3, crew: false },
+    { id: "canon_arc", name: "Canon à Arc Électrique", cost: 6, slots: 2, crew: false },
+    { id: "canon_125", name: "Canon de 125 mm", cost: 6, slots: 3, crew: false },
+    { id: "canon_gravitationnel", name: "Canon Gravitationnel", cost: 4, slots: 1, crew: false },
+    { id: "canon_laser", name: "Canon Laser", cost: 5, slots: 1, crew: false },
+    { id: "cocktails_molotov", name: "Cocktails Molotov", cost: 1, slots: 0, crew: true }, // Arme d'Équipage
+    { id: "filet_metallique", name: "Filet Métallique", cost: 1, slots: 0, crew: true },     // Arme d'Équipage
+    { id: "fusil_pompe", name: "Fusil à Pompe", cost: 0, slots: 0, crew: true },           // Arme d'Équipage
+    { id: "grenades", name: "Grenades", cost: 1, slots: 0, crew: true },                   // Arme d'Équipage
+    { id: "grenades_lacrymo", name: "Grenades Lacrymogènes", cost: 1, slots: 0, crew: true }, // Arme d'Équipage
+    { id: "lance_carcasse", name: "Lance-Carcasse", cost: 4, slots: 4, crew: false },
+    { id: "flamethrower", name: "Lance-Flammes", cost: 4, slots: 2, crew: false },
+    { id: "lance_missiles", name: "Lance-missiles", cost: 5, slots: 2, crew: false },
+    { id: "rockets", name: "Lance-Roquettes", cost: 4, slots: 2, crew: false },
+    { id: "largueur_chausse_trapes", name: "Largueur de Chausse-Trapes", cost: 1, slots: 1, crew: false },
+    { id: "largueur_colle", name: "Largueur de Colle", cost: 1, slots: 1, crew: false },
+    { id: "largueur_fumigenes", name: "Largueur de Fumigènes", cost: 1, slots: 0, crew: false },
+    { id: "largueur_huile", name: "Largueur d'Huile", cost: 2, slots: 0, crew: false },
+    { id: "largueur_mines", name: "Largueur de Mines", cost: 1, slots: 1, crew: false },
+    { id: "largueur_napalm", name: "Largueur de Napalm", cost: 1, slots: 1, crew: false },
+    { id: "harpon", name: "Harpon", cost: 2, slots: 1, crew: false },
+    { id: "magnum", name: "Magnum", cost: 1, slots: 0, crew: true },                       // Arme d'Équipage
+    { id: "marteleur", name: "Marteleur (Mishkin)", cost: 4, slots: 2, crew: false },
+    { id: "mini_gun", name: "Minigun", cost: 5, slots: 1, crew: false },
+    { id: "machine_gun", name: "Mitrailleuse", cost: 2, slots: 1, crew: false },
+    { id: "heavy_machine_gun", name: "Mitrailleuse Lourde", cost: 3, slots: 1, crew: false },
+    { id: "mortar", name: "Mortier", cost: 4, slots: 1, crew: false },
+    { id: "mur_haut_parleurs", name: "Mur de haut-parleurs", cost: 4, slots: 3, crew: false },
+    { id: "pistolet", name: "Pistolet", cost: 0, slots: 0, crew: true },                   // Arme d'Équipage
+    { id: "pistolet_mitrailleur", name: "Pistolet Mitralleur", cost: 5, slots: 0, crew: true }, // Arme d'Équipage
+    { id: "rayon_desintegrateur", name: "Rayon Désintégrateur", cost: 3, slots: 1, crew: false },
+    { id: "super_ampli_cinetique", name: "Super Amplificateur Cinétique (Mishkin)", cost: 6, slots: 2, crew: false },
+    { id: "tromblon", name: "Tromblon", cost: 2, slots: 0, crew: true }                     // Arme d'Équipage
   ],
   upgrades: [
-    { id: "arceaux", name: "Arceaux", cost: 4 },
-    { id: "belier", name: "Bélier", cost: 4 },
-    { id: "belier_explosif", name: "Bélier Explosif", cost: 3 },
-    { id: "armor_plating", name: "Blindage (+2 Coque)", cost: 4 },
-    { id: "catapulte_improvisee", name: "Catapulte Improvisée", cost: 2 },
-    { id: "chenilles", name: "Chenilles", cost: 4 },
-    { id: "equipage_supp", name: "Membre d'Équipage Supplémentaire", cost: 4 },
-    { id: "nitro", name: "Nitro", cost: 6 },
-    { id: "reacteur_nucleaire", name: "Réacteur Nucléaire Expérimental (Mishkin)", cost: 5 },
-    { id: "teleporteur", name: "Téléporteur Expérimental (Mishkin)", cost: 7 }
+    { id: "arceaux", name: "Arceaux", cost: 4, slots: 1, directional: false },
+    { id: "belier", name: "Bélier", cost: 4, slots: 1, directional: true },
+    { id: "belier_explosif", name: "Bélier Explosif", cost: 3, slots: 0, directional: true },
+    { id: "armor_plating", name: "Blindage (+2 Coque)", cost: 4, slots: 1, directional: false },
+    { id: "catapulte_improvisee", name: "Catapulte Improvisée", cost: 2, slots: 1, directional: false },
+    { id: "chenilles", name: "Chenilles", cost: 4, slots: 1, directional: false },
+    { id: "equipage_supp", name: "Membre d'Équipage Supplémentaire", cost: 4, slots: 0, directional: false },
+    { id: "nitro", name: "Nitro", cost: 6, slots: 0, directional: false },
+    { id: "reacteur_nucleaire", name: "Réacteur Nucléaire Expérimental (Mishkin)", cost: 5, slots: 0, directional: false },
+    { id: "teleporteur", name: "Téléporteur Expérimental (Mishkin)", cost: 7, slots: 0, directional: false }
   ],
   trailers: [
     { id: "none", name: "Aucune remorque", cost: 0, extraSlots: 0 },
@@ -170,9 +171,6 @@ const GASLANDS_DATA = {
   ]
 };
 
-// ==========================================
-// 2. CONFIGURATION SUPABASE & BUDGET GLOBAL
-// ==========================================
 const SUPABASE_URL = "https://vwfzzybjjlrashioovrk.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_CVxOH_z-iZs-hmc2O6NBEw_faZRGkNI";
 
@@ -182,10 +180,9 @@ if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
 
 let crew = [];
 let currentUser = null;
-let maxCans = 50; // Variable globale pour le budget max
+let maxCans = 50;
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // Charger la configuration de limite stockée localement (si existante)
   const savedLimit = localStorage.getItem("gaslands_max_cans_limit");
   if (savedLimit) maxCans = parseInt(savedLimit, 10);
   document.getElementById("max-cans-display").textContent = maxCans;
@@ -206,13 +203,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderCrew();
 });
 
-// Ajuster le budget max (+5 / -5)
 function adjustMaxCans(amount) {
   maxCans += amount;
-  if (maxCans < 5) maxCans = 5; // Sécurité plancher
+  if (maxCans < 5) maxCans = 5;
   document.getElementById("max-cans-display").textContent = maxCans;
   localStorage.setItem("gaslands_max_cans_limit", maxCans);
-  renderCrew(); // Relance le rendu pour ajuster les couleurs d'alerte budgétaire
+  renderCrew();
 }
 
 function populateFormOptions() {
@@ -236,26 +232,48 @@ function populateFormOptions() {
     cSelect.innerHTML = GASLANDS_DATA.cargoUpgrades.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
   }
 
+  // 💥 MASQUAGE AUTOMATIQUE DU SÉLECTEUR S'IL S'AGIT D'UNE ARME D'ÉQUIPAGE (crew: true)
   if (wContainer) {
     wContainer.innerHTML = GASLANDS_DATA.weapons.map(w => `
-      <div class="flex items-center justify-between gap-2 hover:bg-zinc-900/40 p-1 rounded transition">
-        <label class="flex items-center gap-2 cursor-pointer flex-grow">
-          <input type="checkbox" name="weapon-checkbox" value="${w.id}" onchange="toggleTurretCheckbox('${w.id}')" class="accent-amber-500 w-4 h-4 cursor-pointer">
-          <span>${w.name} <span class="text-[10px] text-zinc-500">[${w.slots}S]</span> <span class="text-amber-500 font-bold text-xs">(+${w.cost})</span></span>
+      <div class="flex flex-col gap-1 bg-zinc-900/20 border border-zinc-900 p-2 rounded hover:border-zinc-800 transition">
+        <label class="flex items-center gap-2 cursor-pointer w-full">
+          <input type="checkbox" name="weapon-checkbox" value="${w.id}" onchange="toggleWeaponOrientationState('${w.id}')" class="accent-amber-500 w-4 h-4 cursor-pointer">
+          <span class="flex-grow font-bold text-zinc-200">${w.name} ${w.crew ? '<span class="text-[9px] text-amber-500/70 bg-amber-950/40 border border-amber-900/50 px-1 py-0.5 rounded font-sans ml-1 uppercase">Équipage</span>' : `<span class="text-[10px] text-zinc-500">[${w.slots}S]</span>`} <span class="text-amber-500 text-xs font-black">(+${w.cost} Cans)</span></span>
         </label>
-        <label class="text-[10px] text-zinc-500 hover:text-amber-400 flex items-center gap-1 opacity-40" id="turret-lbl-${w.id}">
-          <input type="checkbox" id="turret-cb-${w.id}" disabled class="accent-amber-500 w-3 h-3"> Tourelle (x3)
-        </label>
+        ${!w.crew ? `
+        <div class="flex items-center justify-end gap-2 mt-1 text-[11px] opacity-40 transition" id="w-orient-zone-${w.id}">
+          <span class="text-zinc-500">Fixation :</span>
+          <select id="w-facing-${w.id}" disabled class="bg-zinc-950 border border-zinc-800 rounded px-1.5 py-0.5 text-zinc-300 font-sans outline-none focus:border-amber-500">
+            <option value="Avant">Avant</option>
+            <option value="Arrière">Arrière</option>
+            <option value="Flanc Gauche">Flanc Gauche</option>
+            <option value="Flanc Droit">Flanc Droit</option>
+            <option value="Tourelle">Tourelle (Coût x3)</option>
+          </select>
+        </div>
+        ` : ''}
       </div>
     `).join("");
   }
 
   if (uContainer) {
     uContainer.innerHTML = GASLANDS_DATA.upgrades.map(u => `
-      <label class="flex items-center gap-2 cursor-pointer hover:text-amber-400 transition py-0.5">
-        <input type="checkbox" name="upgrade-checkbox" value="${u.id}" class="accent-amber-500 w-4 h-4 cursor-pointer">
-        <span>${u.name} <span class="text-amber-500 font-bold text-xs">(+${u.cost})</span></span>
-      </label>
+      <div class="flex flex-col gap-1 bg-zinc-900/10 border border-zinc-900/60 p-2 rounded hover:border-zinc-800 transition">
+        <label class="flex items-center gap-2 cursor-pointer w-full">
+          <input type="checkbox" name="upgrade-checkbox" value="${u.id}" onchange="toggleUpgradeOrientationState('${u.id}')" class="accent-amber-500 w-4 h-4 cursor-pointer">
+          <span class="flex-grow text-zinc-300">${u.name} <span class="text-[10px] text-zinc-500">[${u.slots}S]</span> <span class="text-amber-500 font-bold text-xs">(+${u.cost})</span></span>
+        </label>
+        ${u.directional ? `
+        <div class="flex items-center justify-end gap-2 mt-1 text-[11px] opacity-40 transition" id="u-orient-zone-${u.id}">
+          <span class="text-zinc-500">Emplacement :</span>
+          <select id="u-facing-${u.id}" disabled class="bg-zinc-950 border border-zinc-800 rounded px-1.5 py-0.5 text-zinc-300 font-sans outline-none focus:border-amber-500">
+            <option value="Avant">Avant (Standard)</option>
+            <option value="Arrière">Arrière</option>
+            <option value="Latéral">Latéral</option>
+          </select>
+        </div>
+        ` : ''}
+      </div>
     `).join("");
   }
 
@@ -263,15 +281,25 @@ function populateFormOptions() {
   handleTrailerChange();
 }
 
-function toggleTurretCheckbox(weaponId) {
+function toggleWeaponOrientationState(weaponId) {
   const wBox = document.querySelector(`input[name="weapon-checkbox"][value="${weaponId}"]`);
-  const tBox = document.getElementById(`turret-cb-${weaponId}`);
-  const tLbl = document.getElementById(`turret-lbl-${weaponId}`);
+  const zone = document.getElementById(`w-orient-zone-${weaponId}`);
+  const select = document.getElementById(`w-facing-${weaponId}`);
 
-  if (wBox && tBox && tLbl) {
-    tBox.disabled = !wBox.checked;
-    if (!wBox.checked) tBox.checked = false;
-    tBox.checked ? tLbl.classList.remove("opacity-40") : tLbl.classList.add("opacity-40");
+  if (wBox && zone && select) {
+    select.disabled = !wBox.checked;
+    wBox.checked ? zone.classList.remove("opacity-40") : zone.classList.add("opacity-40");
+  }
+}
+
+function toggleUpgradeOrientationState(upgradeId) {
+  const uBox = document.querySelector(`input[name="upgrade-checkbox"][value="${upgradeId}"]`);
+  const zone = document.getElementById(`u-orient-zone-${upgradeId}`);
+  const select = document.getElementById(`u-facing-${upgradeId}`);
+
+  if (uBox && zone && select) {
+    select.disabled = !uBox.checked;
+    uBox.checked ? zone.classList.remove("opacity-40") : zone.classList.add("opacity-40");
   }
 }
 
@@ -322,8 +350,6 @@ function handleSponsorChange() {
   `).join("");
 }
 
-function handleChassisChange() { }
-
 function addVehicleToCrew() {
   const chassisKey = document.getElementById("vehicle-type").value;
   const customName = document.getElementById("vehicle-name").value.trim();
@@ -334,21 +360,30 @@ function addVehicleToCrew() {
   const trailer = GASLANDS_DATA.trailers.find(t => t.id === trailerId);
   const cargo = GASLANDS_DATA.cargoUpgrades.find(c => c.id === cargoId);
 
+  let totalSlotsUsed = 0;
+
   const weaponBoxes = document.querySelectorAll('input[name="weapon-checkbox"]:checked');
   let totalWeaponsCost = 0;
-  let totalSlotsUsed = 0;
   let selectedWeaponsNames = [];
 
   weaponBoxes.forEach(cb => {
     const wObj = GASLANDS_DATA.weapons.find(w => w.id === cb.value);
     if (wObj) {
-      const isTurret = document.getElementById(`turret-cb-${wObj.id}`).checked;
       let costForThisWeapon = wObj.cost;
-      if (isTurret && wObj.cost > 0) costForThisWeapon = wObj.cost * 3;
+      let displayFacing = "Équipement Équipage";
+
+      // On applique la tourelle et l'orientation uniquement si ce n'est pas une arme d'équipage
+      if (!wObj.crew) {
+        const facing = document.getElementById(`w-facing-${wObj.id}`).value;
+        displayFacing = facing;
+        if (facing === "Tourelle" && wObj.cost > 0) {
+          costForThisWeapon = wObj.cost * 3;
+        }
+      }
 
       totalWeaponsCost += costForThisWeapon;
       totalSlotsUsed += wObj.slots;
-      selectedWeaponsNames.push(`${wObj.name}${isTurret ? ' (Tourelle)' : ''}`);
+      selectedWeaponsNames.push(`${wObj.name} (${displayFacing})`);
     }
   });
 
@@ -361,7 +396,14 @@ function addVehicleToCrew() {
     const uObj = GASLANDS_DATA.upgrades.find(u => u.id === cb.value);
     if (uObj) {
       totalUpgradesCost += uObj.cost;
-      selectedUpgradesNames.push(uObj.name);
+      totalSlotsUsed += uObj.slots;
+
+      let facingText = "";
+      if (uObj.directional) {
+        facingText = ` (${document.getElementById(`u-facing-${uObj.id}`).value})`;
+      }
+
+      selectedUpgradesNames.push(`${uObj.name}${facingText}`);
       if (uObj.id === "armor_plating") extraArmorHull += 2;
     }
   });
@@ -410,7 +452,10 @@ function addVehicleToCrew() {
   upgradeBoxes.forEach(cb => cb.checked = false);
   perkBoxes.forEach(cb => cb.checked = false);
 
-  GASLANDS_DATA.weapons.forEach(w => toggleTurretCheckbox(w.id));
+  GASLANDS_DATA.weapons.forEach(w => {
+    if (!w.crew) toggleWeaponOrientationState(w.id);
+  });
+  GASLANDS_DATA.upgrades.forEach(u => toggleUpgradeOrientationState(u.id));
   handleTrailerChange();
 }
 
@@ -457,8 +502,8 @@ function renderCrew() {
                         <div>🔧 <span class="font-bold text-zinc-500">Matériel :</span> ${v.upgradeName}</div>
                         <div>🔥 <span class="font-bold text-zinc-500">Avantage / Perk :</span> ${v.perkName}</div>
                         ${v.trailerName !== "Aucune" ? `<div>🚛 <span class="font-bold text-zinc-500">Attelage :</span> ${v.trailerName} ${v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</div>` : ''}
-                        <div class="${v.invalid ? 'text-red-400 font-bold' : 'text-zinc-500'} text-[11px] pt-1 border-t border-zinc-900/60">
-                            Structure Coque : ${v.hull} | Équipement Slots : ${v.slotsUsed} / ${v.maxSlots} ${v.invalid ? '(Attention : Emplacements insuffisants !)' : ''}
+                        <div class="${v.invalid ? 'text-red-400 font-bold' : 'text-zinc-500'} text-[11px] pt-1 border-t border-t-zinc-900/60">
+                            Structure Coque : ${v.hull} | Emplacements Slots : ${v.slotsUsed} / ${v.maxSlots} ${v.invalid ? '(Attention : Soute surchargée !)' : ''}
                         </div>
                     </div>
                 </div>
@@ -472,11 +517,10 @@ function renderCrew() {
 
   totalCansEl.textContent = totalCans;
 
-  // Déclencheur d'alerte basé sur la variable globale maxCans choisie à l'écran
   if (totalCans > maxCans) {
     totalCansEl.className = "text-5xl font-black text-red-500 font-sans tracking-tight animate-pulse";
   } else {
-    totalCansEl.className = "text-5xl font-black text-amber-500 font-sans tracking-tight drop-shadow-[0_4px_12px_rgba(245,158,11,0.2)]";
+    totalCansEl.className = "text-5xl font-black text-amber-500 font-sans tracking-tight";
   }
 }
 
