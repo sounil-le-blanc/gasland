@@ -29,14 +29,15 @@ const GASLANDS_DATA = {
 };
 
 // ==========================================
-// 2. CONFIGURATION SUPABASE
+// 2. CONFIGURATION CONFIGURATION SUPABASE
 // ==========================================
 const SUPABASE_URL = "https://vwfzzybjjlrashioovrk.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_CVxOH_z-iZs-hmc2O6NBEw_faZRGkNI";
 
-let supabase = null;
-if (typeof window.supabase !== 'undefined') {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ON NE RE-DÉCLARE PAS 'supabase', ON L'INITIALISE DIRECTEMENT S'IL EXISTE
+if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+  // On écrase l'objet global avec l'instance connectée à ton projet
+  window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
 let crew = [];
