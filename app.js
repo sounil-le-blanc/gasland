@@ -28,9 +28,7 @@ const GASLANDS_DATA = {
     "heavy-truck": { name: "Poids Lourd", baseCost: 25, hull: 14, slots: 5 },
     bus: { name: "Bus de ligne", baseCost: 30, hull: 16, slots: 3 }
   },
-  // 💥 TOUTES LES ARMES EXTRAITES DE TES PAGES (ea696d1c-2325-4fe7-81c9-0dd162f0da83 & 184ce3ee-f889-49dc-8b04-13b5cf731dfb)
   weapons: [
-    { id: "none", name: "Aucune arme additionnelle", cost: 0, slots: 0 },
     { id: "auto_tourelle", name: "Auto-Tourelle", cost: 3, slots: 0 },
     { id: "bfg", name: "BFG", cost: 4, slots: 3 },
     { id: "bras_mecanique", name: "Bras Mécanique", cost: 6, slots: 1 },
@@ -70,9 +68,7 @@ const GASLANDS_DATA = {
     { id: "super_ampli_cinetique", name: "Super Amplificateur Cinétique (Mishkin)", cost: 6, slots: 2 },
     { id: "tromblon", name: "Tromblon", cost: 2, slots: 0 }
   ],
-  // 🔧 TOUTES LES AMÉLIORATIONS EXTRAITES DE TA PAGE (184ce3ee-f889-49dc-8b04-13b5cf731dfb)
   upgrades: [
-    { id: "none", name: "Aucune amélioration matérielle", cost: 0 },
     { id: "arceaux", name: "Arceaux", cost: 4 },
     { id: "belier", name: "Bélier", cost: 4 },
     { id: "belier_explosif", name: "Bélier Explosif", cost: 3 },
@@ -207,29 +203,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 function populateFormOptions() {
   const sSelect = document.getElementById("sponsor-select");
   const vSelect = document.getElementById("vehicle-type");
-  const wSelect = document.getElementById("weapon-select");
-  const uSelect = document.getElementById("upgrade-select");
   const tSelect = document.getElementById("trailer-select");
   const cSelect = document.getElementById("cargo-select");
+  const wContainer = document.getElementById("weapon-checkboxes-container");
+  const uContainer = document.getElementById("upgrade-checkboxes-container");
 
   if (sSelect) {
     sSelect.innerHTML = GASLANDS_DATA.sponsors.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
   }
   if (vSelect) {
     vSelect.innerHTML = Object.entries(GASLANDS_DATA.vehicles).map(([key, v]) => `<option value="${key}">${v.name} (${v.baseCost} Cans — Slots: ${v.slots})</option>`).join("");
-  }
-  if (wSelect) {
-    wSelect.innerHTML = GASLANDS_DATA.weapons.map(w => `<option value="${w.id}">${w.name} [${w.slots} Slot${w.slots > 1 ? 's' : ''}] ${w.cost > 0 ? `(+${w.cost} Cans)` : ''}</option>`).join("");
-    wSelect.addEventListener("change", handleWeaponChange);
-  }
-
-  const wfSelect = document.getElementById("weapon-facing");
-  if (wfSelect) {
-    wfSelect.addEventListener("change", updateLiveWeaponCosts);
-  }
-
-  if (uSelect) {
-    uSelect.innerHTML = GASLANDS_DATA.upgrades.map(u => `<option value="${u.id}">${u.name} ${u.cost > 0 ? `(+${u.cost} Cans)` : ''}</option>`).join("");
   }
   if (tSelect) {
     tSelect.innerHTML = GASLANDS_DATA.trailers.map(t => `<option value="${t.id}">${t.name} ${t.cost > 0 ? `(+${t.cost} Cans)` : ''}</option>`).join("");
@@ -238,42 +221,50 @@ function populateFormOptions() {
     cSelect.innerHTML = GASLANDS_DATA.cargoUpgrades.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
   }
 
-  handleSponsorChange();
-  handleTrailerChange();
-  handleWeaponChange();
-}
-
-function handleWeaponChange() {
-  const weaponId = document.getElementById("weapon-select").value;
-  const wfSelect = document.getElementById("weapon-facing");
-
-  if (!wfSelect) return;
-
-  if (weaponId === "none") {
-    wfSelect.value = "Avant";
-    wfSelect.disabled = true;
-  } else {
-    wfSelect.disabled = false;
+  // 💥 GÉNÉRATION DES CASES À COCHER : WEAPONS
+  if (wContainer) {
+    wContainer.innerHTML = GASLANDS_DATA.weapons.map(w => `
+      <div class="flex items-center justify-between gap-2 hover:bg-zinc-900/40 p-1 rounded transition">
+        <label class="flex items-center gap-2 cursor-pointer flex-grow">
+          <input type="checkbox" name="weapon-checkbox" value="${w.id}" onchange="toggleTurretCheckbox('${w.id}')" class="accent-amber-500 w-4 h-4 cursor-pointer">
+          <span>${w.name} <span class="text-[10px] text-zinc-500">[${w.slots}S]</span> <span class="text-amber-500 font-bold text-xs">(+${w.cost})</span></span>
+        </label>
+        <!-- Petite case bonus pour monter individuellement CETTE arme sur tourelle ! -->
+        <label class="text-[10px] text-zinc-500 hover:text-amber-400 flex items-center gap-1 opacity-40" id="turret-lbl-${w.id}">
+          <input type="checkbox" id="turret-cb-${w.id}" disabled class="accent-amber-500 w-3 h-3"> Tourelle (x3)
+        </label>
+      </div>
+    `).join("");
   }
 
-  updateLiveWeaponCosts();
+  // 🔧 GÉNÉRATION DES CASES À COCHER : UPGRADES
+  if (uContainer) {
+    uContainer.innerHTML = GASLANDS_DATA.upgrades.map(u => `
+      <label class="flex items-center gap-2 cursor-pointer hover:text-amber-400 transition py-0.5">
+        <input type="checkbox" name="upgrade-checkbox" value="${u.id}" class="accent-amber-500 w-4 h-4 cursor-pointer">
+        <span>${u.name} <span class="text-amber-500 font-bold text-xs">(+${u.cost})</span></span>
+      </label>
+    `).join("");
+  }
+
+  handleSponsorChange();
+  handleTrailerChange();
 }
 
-function updateLiveWeaponCosts() {
-  const weaponId = document.getElementById("weapon-select").value;
-  const wfSelect = document.getElementById("weapon-facing");
+// Active/Désactive la case tourelle à côté de l'arme si l'arme est cochée
+function toggleTurretCheckbox(weaponId) {
+  const wBox = document.querySelector(`input[name="weapon-checkbox"][value="${weaponId}"]`);
+  const tBox = document.getElementById(`turret-cb-${weaponId}`);
+  const tLbl = document.getElementById(`turret-lbl-${weaponId}`);
 
-  if (!wfSelect) return;
+  if (wBox && tBox && tLbl) {
+    tBox.disabled = !wBox.checked;
+    if (!wBox.checked) tBox.checked = false;
 
-  const weapon = GASLANDS_DATA.weapons.find(w => w.id === weaponId);
-  const currentWeaponCost = weapon ? weapon.cost : 0;
-
-  const turretOption = wfSelect.querySelector('option[value*="Tourelle"]');
-  if (turretOption) {
-    if (weaponId !== "none" && currentWeaponCost > 0) {
-      turretOption.textContent = `Tourelle (Turret — Vrai coût : +${currentWeaponCost * 3} Cans)`;
+    if (wBox.checked) {
+      tLbl.classList.remove("opacity-40");
     } else {
-      turretOption.textContent = "Tourelle (Turret — Multiplie le coût x3)";
+      tLbl.classList.add("opacity-40");
     }
   }
 }
@@ -325,56 +316,81 @@ function handleSponsorChange() {
   `).join("");
 }
 
-function handleChassisChange() { }
-
 function addVehicleToCrew() {
   const chassisKey = document.getElementById("vehicle-type").value;
   const customName = document.getElementById("vehicle-name").value.trim();
-  const weaponId = document.getElementById("weapon-select").value;
-  const weaponFacing = document.getElementById("weapon-facing").value;
-  const upgradeId = document.getElementById("upgrade-select").value;
   const trailerId = document.getElementById("trailer-select").value;
   const cargoId = document.getElementById("cargo-select").value;
 
   const chassis = GASLANDS_DATA.vehicles[chassisKey];
-  const weapon = GASLANDS_DATA.weapons.find(w => w.id === weaponId);
-  const upgrade = GASLANDS_DATA.upgrades.find(u => u.id === upgradeId);
   const trailer = GASLANDS_DATA.trailers.find(t => t.id === trailerId);
   const cargo = GASLANDS_DATA.cargoUpgrades.find(c => c.id === cargoId);
 
-  let finalWeaponCost = weapon.cost;
-  if (weaponId !== "none" && weaponFacing.includes("Tourelle")) {
-    finalWeaponCost = weapon.cost * 3;
-  }
+  // 💥 CUMUL DE TOUTES LES ARMES COCHÉES ET DES TOURELLES ACCUMULÉES
+  const weaponBoxes = document.querySelectorAll('input[name="weapon-checkbox"]:checked');
+  let totalWeaponsCost = 0;
+  let totalSlotsUsed = 0;
+  let selectedWeaponsNames = [];
 
-  const checkboxes = document.querySelectorAll('input[name="perk-checkbox"]:checked');
-  let totalPerksCost = 0;
-  let selectedPerksNames = [];
+  weaponBoxes.forEach(cb => {
+    const wObj = GASLANDS_DATA.weapons.find(w => w.id === cb.value);
+    if (wObj) {
+      const isTurret = document.getElementById(`turret-cb-${wObj.id}`).checked;
+      let costForThisWeapon = wObj.cost;
 
-  checkboxes.forEach(cb => {
-    const perkObj = GASLANDS_DATA.perks.find(p => p.id === cb.value);
-    if (perkObj) {
-      totalPerksCost += perkObj.cost;
-      selectedPerksNames.push(perkObj.name);
+      if (isTurret && wObj.cost > 0) {
+        costForThisWeapon = wObj.cost * 3; // Règle officielle Tourelle x3
+      }
+
+      totalWeaponsCost += costForThisWeapon;
+      totalSlotsUsed += wObj.slots;
+      selectedWeaponsNames.push(`${wObj.name}${isTurret ? ' (Tourelle)' : ''}`);
     }
   });
 
-  const totalVehicleCost = chassis.baseCost + finalWeaponCost + upgrade.cost + totalPerksCost + trailer.cost + cargo.cost;
+  // 🔧 CUMUL DE TOUTES LES AMÉLIORATIONS MATÉRIELLES COCHÉES
+  const upgradeBoxes = document.querySelectorAll('input[name="upgrade-checkbox"]:checked');
+  let totalUpgradesCost = 0;
+  let selectedUpgradesNames = [];
+  let extraArmorHull = 0;
+
+  upgradeBoxes.forEach(cb => {
+    const uObj = GASLANDS_DATA.upgrades.find(u => u.id === cb.value);
+    if (uObj) {
+      totalUpgradesCost += uObj.cost;
+      selectedUpgradesNames.push(uObj.name);
+      if (uObj.id === "armor_plating") extraArmorHull += 2;
+    }
+  });
+
+  // 🔥 CUMUL DE TOUS LES PERKS COCHÉS
+  const perkBoxes = document.querySelectorAll('input[name="perk-checkbox"]:checked');
+  let totalPerksCost = 0;
+  let selectedPerksNames = [];
+
+  perkBoxes.forEach(cb => {
+    const pObj = GASLANDS_DATA.perks.find(p => p.id === cb.value);
+    if (pObj) {
+      totalPerksCost += pObj.cost;
+      selectedPerksNames.push(pObj.name);
+    }
+  });
+
+  const totalVehicleCost = chassis.baseCost + totalWeaponsCost + totalUpgradesCost + totalPerksCost + trailer.cost + cargo.cost;
   const finalName = customName || `${chassis.name} de Combat`;
 
-  const slotsUsed = weapon.slots;
   const maxSlotsAvailable = chassis.slots + trailer.extraSlots;
-  const slotsExceeded = slotsUsed > maxSlotsAvailable;
+  const slotsExceeded = totalSlotsUsed > maxSlotsAvailable;
 
   const newVehicle = {
     id: crypto.randomUUID(),
     name: finalName,
     chassisName: chassis.name,
-    hull: upgradeId === "armor_plating" ? chassis.hull + 2 : chassis.hull,
+    hull: chassis.hull + extraArmorHull,
     maxSlots: maxSlotsAvailable,
-    slotsUsed: slotsUsed,
-    weaponName: weaponId !== "none" ? `${weapon.name} (${weaponFacing.split(" ")[0]})` : "Aucune",
-    upgradeName: upgradeId !== "none" ? upgrade.name : "Aucune",
+    slotsUsed: totalSlotsUsed,
+    weaponName: selectedWeaponsNames.length > 0 ? selectedWeaponsNames.join(", ") : "Aucune",
+    upgradeName: selectedUpgradesNames.length > 0 ? selectedUpgradesNames.join(", ") : "Aucune",
     perkName: selectedPerksNames.length > 0 ? selectedPerksNames.join(", ") : "Aucun",
     trailerName: trailerId !== "none" ? trailer.name : "Aucune",
     cargoName: cargoId !== "none" ? cargo.name : "Aucune",
@@ -386,11 +402,17 @@ function addVehicleToCrew() {
   saveData();
   renderCrew();
 
+  // RESET COMPLET DU GARAGE
   document.getElementById("vehicle-name").value = "";
   document.getElementById("trailer-select").value = "none";
-  checkboxes.forEach(cb => cb.checked = false);
+  weaponBoxes.forEach(cb => cb.checked = false);
+  upgradeBoxes.forEach(cb => cb.checked = false);
+  perkBoxes.forEach(cb => cb.checked = false);
+
+  // Désactiver de force tous les boutons tourelle
+  GASLANDS_DATA.weapons.forEach(w => toggleTurretCheckbox(w.id));
+
   handleTrailerChange();
-  handleWeaponChange();
 }
 
 function removeVehicle(id) {

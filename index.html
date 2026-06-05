@@ -50,6 +50,7 @@
         <p class="text-zinc-500 text-xs">Monte ton équipement dans la limite des emplacements disponibles.</p>
       </div>
 
+      <!-- Sponsor -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Alignement de l'Écurie (Sponsor)</label>
         <select id="sponsor-select" onchange="handleSponsorChange()"
@@ -57,12 +58,14 @@
         </select>
       </div>
 
+      <!-- Nom -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Nom du véhicule / Pilote</label>
         <input type="text" id="vehicle-name" placeholder="Ex: Interceptor, War Rig..."
           class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 transition">
       </div>
 
+      <!-- Châssis -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Choix du Châssis</label>
         <select id="vehicle-type"
@@ -70,41 +73,36 @@
         </select>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Système d'Armes</label>
-          <select id="weapon-select"
-            class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 font-sans transition">
-          </select>
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Orientation de tir</label>
-          <select id="weapon-facing"
-            class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 font-sans transition">
-            <option value="Avant">Avant (Front)</option>
-            <option value="Arrière">Arrière (Rear)</option>
-            <option value="Tourelle (x3 Cans)">Tourelle (Turret +3 Cans)</option>
-            <option value="Gauche/Droite">Flancs (Left/Right)</option>
-          </select>
-        </div>
-      </div>
-
+      <!-- MULTI-SELECTION : Arsenal d'Armes -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Amélioration Matérielle</label>
-        <select id="upgrade-select"
-          class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 font-sans transition">
-        </select>
+        <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Arsenal d'Armes (Sélection
+          Multiple)</label>
+        <div id="weapon-checkboxes-container"
+          class="bg-zinc-950 border-2 border-zinc-800 rounded p-3 max-h-56 overflow-y-auto flex flex-col gap-2 font-sans text-sm text-zinc-300 scrollbar-thin scrollbar-thumb-zinc-800">
+          <!-- Injecté par JS -->
+        </div>
       </div>
 
+      <!-- MULTI-SELECTION : Améliorations Matérielles -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Améliorations Matérielles (Sélection
+          Multiple)</label>
+        <div id="upgrade-checkboxes-container"
+          class="bg-zinc-950 border-2 border-zinc-800 rounded p-3 max-h-44 overflow-y-auto flex flex-col gap-2 font-sans text-sm text-zinc-300 scrollbar-thin scrollbar-thumb-zinc-800">
+          <!-- Injecté par JS -->
+        </div>
+      </div>
+
+      <!-- Avantages Tactiques (Perks) -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Avantages Tactiques (Perks)</label>
         <div id="perk-checkboxes-container"
-          class="bg-zinc-950 border-2 border-zinc-800 rounded p-3 max-h-48 overflow-y-auto flex flex-col gap-2 font-sans text-sm text-zinc-300 scrollbar-thin scrollbar-thumb-zinc-800">
-          <!-- Injecté dynamiquement par app.js -->
+          class="bg-zinc-950 border-2 border-zinc-800 rounded p-3 max-h-44 overflow-y-auto flex flex-col gap-2 font-sans text-sm text-zinc-300 scrollbar-thin scrollbar-thumb-zinc-800">
+          <!-- Injecté par JS -->
         </div>
       </div>
 
-      <!-- 🚛 ZONE EXTENSION REMORQUE ET CARGAISON DE CONTREBANDE (RUSTY) -->
+      <!-- Zone exclusive d'attelage (Rusty) -->
       <div id="trailer-zone" class="hidden flex flex-col gap-4 border-t border-zinc-800/60 pt-4">
         <div class="flex flex-col gap-1.5">
           <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Attelage de Remorque</label>
