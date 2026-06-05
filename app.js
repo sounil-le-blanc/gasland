@@ -59,96 +59,72 @@ const GASLANDS_DATA = {
     { id: "marteau_bovins", name: "Marteau à Bovins", cost: 0 }
   ],
   perks: [
-    // On retire le choix "none" inutile en mode checkbox
-    // 🔧 CLASSE : MÉCANIQUE (Engineering)
     { id: "poids_mort", name: "Poids Mort", cost: 2, class: "Engineering" },
     { id: "expert_tonneaux", name: "Expert en Tonneaux", cost: 2, class: "Engineering" },
     { id: "cogneur", name: "Cogneur", cost: 4, class: "Engineering" },
     { id: "retour_de_flamme", name: "Retour de Flamme", cost: 5, class: "Engineering" },
     { id: "concasseur", name: "Concasseur", cost: 7, class: "Engineering" },
     { id: "meme_pas_mal", name: "Même pas Mal !", cost: 8, class: "Engineering" },
-
-    // ⚡ CLASSE : RAPIDITÉ (Speed)
     { id: "depart_eclair", name: "Départ Éclair", cost: 1, class: "Speed" },
     { id: "sillage", name: "Sillage", cost: 2, class: "Speed" },
     { id: "surcharge", name: "Surcharge", cost: 2, class: "Speed" },
     { id: "retrograder", name: "Rétrograder", cost: 3, class: "Speed" },
     { id: "temps_additionnel", name: "Temps Additionnel !", cost: 3, class: "Speed" },
     { id: "a_fond_la_caisse", name: "À Fond la Caisse", cost: 5, class: "Speed" },
-
-    // 🔥 CLASSE : TROMPE-LA-MORT (Badass)
     { id: "rage_au_volant", name: "Rage au Volant", cost: 1, class: "Badass" },
     { id: "frenesie", name: "Frénésie", cost: 2, class: "Badass" },
     { id: "foutu_pour_foutu", name: "Foutu pour Foutu", cost: 2, class: "Badass" },
     { id: "intouchable", name: "Intouchable", cost: 4, class: "Badass" },
     { id: "plus_balaise_que_toi", name: "Plus Balaise que Toi", cost: 4, class: "Badass" },
     { id: "biereserker", name: "Bièreserker", cost: 5, class: "Badass" },
-
-    // 🎯 CLASSE : PRÉCISION (Precision)
     { id: "mister_fahrenheit", name: "Mister Fahrenheit", cost: 2, class: "Precision" },
     { id: "heure_de_gloire", name: "Heure de Gloire", cost: 2, class: "Precision" },
     { id: "prudence", name: "Prudence", cost: 2, class: "Precision" },
     { id: "expertise", name: "Expertise", cost: 3, class: "Precision" },
     { id: "art_de_la_route", name: "Art de la Route", cost: 3, class: "Precision" },
     { id: "pilote_ne", name: "Pilote-Né", cost: 5, class: "Precision" },
-
-    // 🤠 CLASSE : AUDACE (Audace)
     { id: "symbiose", name: "Symbiose", cost: 2, class: "Audace" },
     { id: "insaisissable", name: "Insaisissable", cost: 3, class: "Audace" },
     { id: "as_du_frein_a_main", name: "As du Frein à Main", cost: 3, class: "Audace" },
     { id: "feinte", name: "Feinte", cost: 5, class: "Audace" },
     { id: "derapage_controle", name: "Dérapage Contrôlé", cost: 5, class: "Audace" },
     { id: "cascadeur", name: "Cascadeur", cost: 7, class: "Audace" },
-
-    // 💥 CLASSE : AGRESSION (Agression)
     { id: "double_canon", name: "Double Canon", cost: 2, class: "Agression" },
     { id: "abordage", name: "Abordage", cost: 2, class: "Agression" },
     { id: "marteau_de_guerre", name: "Marteau de Guerre", cost: 4, class: "Agression" },
     { id: "psychopathe", name: "Psychopathe", cost: 5, class: "Agression" },
     { id: "broyeur", name: "Broyeur", cost: 5, class: "Agression" },
     { id: "engin_de_la_mort", name: "Engin de la Mort", cost: 5, class: "Agression" },
-
-    // 🛡️ CLASSE : DUR À CUIRE (DurACuire)
     { id: "baril_de_poudre", name: "Baril de Poudre", cost: 1, class: "DurACuire" },
     { id: "sens_du_spectacle", name: "Sens du Spectacle", cost: 1, class: "DurACuire" },
     { id: "guerrier_de_la_route", name: "Guerrier de la Route", cost: 2, class: "DurACuire" },
     { id: "couvrez_moi", name: "Couvrez-Moi !", cost: 2, class: "DurACuire" },
     { id: "fou_furieux", name: "Fou Furieux", cost: 3, class: "DurACuire" },
     { id: "pluie_de_balles", name: "Pluie de Balles", cost: 3, class: "DurACuire" },
-
-    // 💀 CLASSE : HORREUR (Horreur)
     { id: "flammes_purificatrices", name: "Flammes Purificatrices", cost: 1, class: "Horreur" },
     { id: "visions_extatiques", name: "Visions Extatiques", cost: 1, class: "Horreur" },
     { id: "pacte_avec_le_diable", name: "Pacte avec le Diable", cost: 1, class: "Horreur" },
     { id: "autoroute_vers_lenfer", name: "Autoroute vers l'Enfer", cost: 2, class: "Horreur" },
     { id: "manifestation_diabolique", name: "Manifestation Diabolique", cost: 3, class: "Horreur" },
     { id: "ange_de_la_mort", name: "Ange de la Mort", cost: 4, class: "Horreur" },
-
-    // ⚔️ CLASSE : MILITAIRE (Militaire)
     { id: "tireur_delite", name: "Tireur d'Élite", cost: 2, class: "Militaire" },
     { id: "servant_dartillerie", name: "Servant d'Artillerie", cost: 2, class: "Militaire" },
     { id: "charge_a_bloc", name: "Chargé à Bloc", cost: 2, class: "Militaire" },
     { id: "tirs_rapides", name: "Tirs Rapides", cost: 2, class: "Militaire" },
     { id: "tir_a_la_tete", name: "Tir à la Tête", cost: 4, class: "Militaire" },
     { id: "riposte", name: "Riposte", cost: 5, class: "Militaire" },
-
-    // ⚙️ CLASSE : OPTIMISATION (Optimisation)
     { id: "fenderkiss", name: "Fenderkiss", cost: 2, class: "Optimisation" },
     { id: "propulsion", name: "Propulsion", cost: 2, class: "Optimisation" },
     { id: "doigte", name: "Doigté", cost: 3, class: "Optimisation" },
     { id: "momentum", name: "Momentum", cost: 3, class: "Optimisation" },
     { id: "ronronnement", name: "Ronronnement", cost: 6, class: "Optimisation" },
     { id: "sur_deux_roues", name: "Sur Deux Roues", cost: 6, class: "Optimisation" },
-
-    // 🏁 CLASSE : POURSUITE (Poursuite)
     { id: "a_tes_trousses", name: "À Tes Trousses", cost: 2, class: "Poursuite" },
     { id: "le_malheur_des_uns", name: "Le Malheur des Uns...", cost: 2, class: "Poursuite" },
     { id: "provocation", name: "Provocation", cost: 2, class: "Poursuite" },
     { id: "distancer", name: "Distancer", cost: 2, class: "Poursuite" },
     { id: "tip", name: "Tip", cost: 4, class: "Poursuite" },
     { id: "regard_destabilisant", name: "Regard Déstabilisant", cost: 5, class: "Poursuite" },
-
-    // 💻 CLASSE : TECHNOLOGIE (Technologie)
     { id: "moteurs_fusee", name: "Moteurs-Fusée", cost: 1, class: "Technologie" },
     { id: "survolte", name: "Survolté", cost: 1, class: "Technologie" },
     { id: "gyroscope", name: "Gyroscope", cost: 1, class: "Technologie" },
@@ -202,9 +178,18 @@ function populateFormOptions() {
   if (vSelect) {
     vSelect.innerHTML = Object.entries(GASLANDS_DATA.vehicles).map(([key, v]) => `<option value="${key}">${v.name} (${v.baseCost} Cans — Slots: ${v.slots})</option>`).join("");
   }
+
+  // Attacher l'écouteur de changement d'arme pour recalculer l'interface en direct
   if (wSelect) {
-    wSelect.innerHTML = GASLANDS_DATA.weapons.map(w => `<option value="${w.id}">${w.name} ${w.cost > 0 ? `(+${w.cost} Cans)` : ''}</option>`).join("");
+    wSelect.addEventListener("change", handleWeaponChange);
   }
+
+  // Attacher l'écouteur de changement d'orientation pour recalculer l'affichage des points
+  const wfSelect = document.getElementById("weapon-facing");
+  if (wfSelect) {
+    wfSelect.addEventListener("change", updateLiveWeaponCosts);
+  }
+
   if (uSelect) {
     uSelect.innerHTML = GASLANDS_DATA.upgrades.map(u => `<option value="${u.id}">${u.name} ${u.cost > 0 ? `(+${u.cost} Cans)` : ''}</option>`).join("");
   }
@@ -217,6 +202,48 @@ function populateFormOptions() {
 
   handleSponsorChange();
   handleTrailerChange();
+  handleWeaponChange(); // Initialisation au démarrage
+}
+
+// 💥 SURVEILLANCE DE L'ARME SELECTIONNÉE (Sécurité Tourelle)
+function handleWeaponChange() {
+  const weaponId = document.getElementById("weapon-select").value;
+  const wfSelect = document.getElementById("weapon-facing");
+
+  if (!wfSelect) return;
+
+  if (weaponId === "none") {
+    // Si pas d'arme, on force "Avant" et on bloque le menu d'orientation
+    wfSelect.value = "Avant";
+    wfSelect.disabled = true;
+  } else {
+    // Si une arme est choisie, on libère les choix d'orientations
+    wfSelect.disabled = false;
+  }
+
+  // Mettre à jour l'affichage textuel du prix de la tourelle
+  updateLiveWeaponCosts();
+}
+
+// Met à jour visuellement le texte de l'option Tourelle dans le menu déroulant
+function updateLiveWeaponCosts() {
+  const weaponId = document.getElementById("weapon-select").value;
+  const wfSelect = document.getElementById("weapon-facing");
+
+  if (!wfSelect) return;
+
+  const weapon = GASLANDS_DATA.weapons.find(w => w.id === weaponId);
+  const currentWeaponCost = weapon ? weapon.cost : 0;
+
+  // On recalcule dynamiquement la valeur affichée pour l'option Tourelle (Coût x 3)
+  const turretOption = wfSelect.querySelector('option[value*="Tourelle"]');
+  if (turretOption) {
+    if (weaponId !== "none" && currentWeaponCost > 0) {
+      turretOption.textContent = `Tourelle (Turret — Vrai coût : +${currentWeaponCost * 3} Cans)`;
+    } else {
+      turretOption.textContent = "Tourelle (Turret — Multiplie le coût x3)";
+    }
+  }
 }
 
 function handleTrailerChange() {
@@ -232,7 +259,6 @@ function handleTrailerChange() {
   }
 }
 
-// GENERATION DYNAMIQUE DES CHECKBOXES DE PERKS
 function handleSponsorChange() {
   const sponsorId = document.getElementById("sponsor-select").value;
   const container = document.getElementById("perk-checkboxes-container");
@@ -252,7 +278,6 @@ function handleSponsorChange() {
     }
   }
 
-  // Filtrer les avantages autorisés
   const allowedPerks = GASLANDS_DATA.perks.filter(perk => selectedSponsor.perkClasses.includes(perk.class));
 
   if (allowedPerks.length === 0) {
@@ -260,7 +285,6 @@ function handleSponsorChange() {
     return;
   }
 
-  // Injecter la liste de checkboxes
   container.innerHTML = allowedPerks.map(p => `
     <label class="flex items-center gap-2.5 cursor-pointer hover:text-amber-400 transition py-0.5">
       <input type="checkbox" name="perk-checkbox" value="${p.id}" class="accent-amber-500 w-4 h-4 cursor-pointer">
@@ -286,13 +310,12 @@ function addVehicleToCrew() {
   const trailer = GASLANDS_DATA.trailers.find(t => t.id === trailerId);
   const cargo = GASLANDS_DATA.cargoUpgrades.find(c => c.id === cargoId);
 
-  // --- ARME EN TOURELLE (COÛT DE L'ARME X3) ---
+  // --- ARME EN TOURELLE (COÛT DE L'ARME X3 SUR LE PRÉCIPITATIF) ---
   let finalWeaponCost = weapon.cost;
   if (weaponId !== "none" && weaponFacing.includes("Tourelle")) {
     finalWeaponCost = weapon.cost * 3;
   }
 
-  // --- RECONNAISSANCE DES POUVOIRS COCHÉS ---
   const checkboxes = document.querySelectorAll('input[name="perk-checkbox"]:checked');
   let totalPerksCost = 0;
   let selectedPerksNames = [];
@@ -319,7 +342,7 @@ function addVehicleToCrew() {
     hull: upgradeId === "armor_plating" ? chassis.hull + 2 : chassis.hull,
     maxSlots: maxSlotsAvailable,
     slotsUsed: slotsUsed,
-    weaponName: weaponId !== "none" ? `${weapon.name} (${weaponFacing})` : "Aucune",
+    weaponName: weaponId !== "none" ? `${weapon.name} (${weaponFacing.split(" ")[0]})` : "Aucune",
     upgradeName: upgradeId !== "none" ? upgrade.name : "Aucune",
     perkName: selectedPerksNames.length > 0 ? selectedPerksNames.join(", ") : "Aucun",
     trailerName: trailerId !== "none" ? trailer.name : "Aucune",
@@ -332,11 +355,11 @@ function addVehicleToCrew() {
   saveData();
   renderCrew();
 
-  // Reset des champs et des checkboxes décochées
   document.getElementById("vehicle-name").value = "";
   document.getElementById("trailer-select").value = "none";
   checkboxes.forEach(cb => cb.checked = false);
   handleTrailerChange();
+  handleWeaponChange(); // Reset l'état de l'orientation
 }
 
 function removeVehicle(id) {
