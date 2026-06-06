@@ -245,7 +245,7 @@ function createNewGarage() {
 
 function deleteCurrentGarage() {
   if (garageHistory.length <= 1) {
-    alert("🚨 Action impossible : Tu devez garder au moins une écurie active !");
+    alert("🚨 Action impossible : Tu dois garder au moins une écurie active !");
     return;
   }
 
@@ -843,4 +843,99 @@ function renderCrew() {
 function toggleLoadModal() {
   const modal = document.getElementById("load-modal");
   if (modal) modal.classList.toggle("hidden");
+}
+
+// ==========================================
+// 3. MODULE D'IMPRESSION DU ROSTER (PDF)
+// ==========================================
+function printMatchSheet() {
+  if (crew.length === 0) {
+    alert("🚨 Ton garage est vide ! Ajoute au moins un véhicule avant d'imprimer la fiche de match.");
+    return;
+  }
+
+  const sponsorSelect = document.getElementById("sponsor-select");
+  const sponsorName = sponsorSelect ? sponsorSelect.options[sponsorSelect.selectedIndex].text : "Non spécifié";
+  const totalCans = crew.reduce((sum, v) => sum + v.cost, 0);
+
+  const printWindow = window.open('', '_blank');
+
+  let vehiclesHTML = crew.map((v, index) => {
+    let boxes = "";
+    for (let i = 0; i < v.hull; i++) {
+      boxes += '<div style="display:inline-block; width:16px; height:16px; border:2px solid #000; margin-right:5px; margin-bottom:5px; background:#fff;"></div>';
+    }
+
+    return `
+      <div style="border: 3px solid #000; margin-bottom: 20px; page-break-inside: avoid; background: #fff;">
+        <div style="background: #000; color: #fff; padding: 6px 10px; font-weight: bold; text-transform: uppercase; font-size: 12px;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="color:#fff; font-weight:bold; font-family:monospace;">${String(index + 1).padStart(2, '0')}. ${v.name.toUpperCase()}</td>
+              <td style="text-align: right; color:#fff; font-size: 11px; font-family:monospace;">${v.chassisName.toUpperCase()} — ${v.cost} CANS</td>
+            </tr>
+          </table>
+        </div>
+        <div style="padding: 10px;">
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px; font-family:monospace;">
+            <tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold; width: 110px;">💥 ARMEMENTS :</td><td style="padding: 4px 0;">${v.weaponName}</td></tr>
+            <tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">🔧 MATÉRIEL :</td><td style="padding: 4px 0;">${v.upgradeName}</td></tr>
+            <tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">🔥 AVANTAGES :</td><td style="padding: 4px 0;">${v.perkName}</td></tr>
+            ${v.trailerName !== "Aucune" ? `<tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">¼🚛 ATTELAGE :</td><td style="padding: 4px 0;">${v.trailerName} ${v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</td></tr>` : ''}
+          </table>
+          <div style="border-top: 2px solid #000; padding-top: 6px; margin-top: 4px;">
+            <span style="font-weight: bold; font-size: 11px; text-transform: uppercase; font-family:monospace;">Structure de la Coque (Points de vie) :</span>
+            <div style="margin-top: 6px;">${boxes} <span style="font-size: 10px; vertical-align: super; font-weight: bold; margin-left: 4px; font-family:monospace;">(${v.hull} PV)</span></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Gaslands - Roster ${myGarageCode}</title>
+      <style>
+        @page { size: A4; margin: 15mm 10mm; }
+        body { font-family: 'Courier New', Courier, monospace; color: #000; background: #fff; margin: 0; padding: 0; }
+        .header { border: 4px solid #000; padding: 12px; margin-bottom: 25px; }
+        .header-title { font-size: 24px; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 8px 0; border-bottom: 2px solid #000; padding-bottom: 4px; }
+        .quick-rules { margin-top: 30px; border: 1px solid #000; padding: 10px; font-size: 11px; page-break-inside: avoid; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="header-title">Gaslands - Roster d'Écurie</div>
+        <table style="width: 100%; font-size: 13px; font-weight: bold; font-family:monospace;">
+          <tr>
+            <td style="width: 33%;">FRÉQUENCE : ${myGarageCode}</td>
+            <td style="width: 34%; text-align: center;">SPONSOR : ${sponsorName}</td>
+            <td style="width: 33%; text-align: right;">VALEUR : ${totalCans} / ${maxCans} CANS</td>
+          </tr>
+        </table>
+      </div>
+      
+      ${vehiclesHTML}
+
+      <div class="quick-rules">
+        <div style="font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #000; padding-bottom: 2px; margin-bottom: 6px;">Aide-Mémoire - Règles de Vitesse</div>
+        <ul style="margin: 0; padding-left: 18px;">
+          <li><strong>Phases 1 à 6 :</strong> On s'active si la vitesse actuelle du bolide >= Phase en cours.</li>
+          <li><strong>Séquence :</strong> 1. Choisir Gabarit / 2. Dés de Manœuvre / 3. Résoudre Glissade/Tonneau / 4. Déplacement / 5. Étape d'Attaque.</li>
+        </ul>
+      </div>
+
+      <script>
+        window.onload = function() {
+          window.print();
+          window.close();
+        };
+      <\/script>
+    </body>
+    </html>
+  `);
+
+  printWindow.document.close();
 }
