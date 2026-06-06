@@ -26,7 +26,7 @@ const GASLANDS_DATA = {
     moto_sidecar: { name: "Moto avec side-car", baseCost: 8, hull: 4, slots: 2 },
     camion_glaces: { name: "Camion à glaces", baseCost: 8, hull: 10, slots: 2 },
     voiture: { name: "Voiture Standard", baseCost: 12, hull: 10, slots: 2 },
-    voiture_sport: { name: "Voiture de Course (Performance Car)", baseCost: 15, hull: 8, slots: 2 }, // Corrigé à 2 slots !
+    voiture_sport: { name: "Voiture de Course (Performance Car)", baseCost: 15, hull: 8, slots: 2 },
     camion: { name: "Camion", baseCost: 15, hull: 12, slots: 3 },
     gyrocoptere: { name: "Gyrocoptère", baseCost: 10, hull: 4, slots: 0 },
     ambulance: { name: "Ambulance", baseCost: 20, hull: 12, slots: 3 },
@@ -359,6 +359,76 @@ function handleSponsorChange() {
 
 function handleChassisChange() { }
 
+// 💥 FONCTION DE MODIFICATION : RECHARGE UNE VOITURE DANS LE FORMULAIRE
+function editVehicle(vehicleId) {
+  const targetVehicle = crew.find(v => v.id === vehicleId);
+  if (!targetVehicle) return;
+
+  // 1. Restaurer le nom et le châssis de base
+  document.getElementById("vehicle-name").value = targetVehicle.customNameOriginal || "";
+
+  // Retrouver la clé du châssis en fonction de son nom d'affichage
+  const chassisEntry = Object.entries(GASLANDS_DATA.vehicles).find(([key, val]) => val.name === targetVehicle.chassisName);
+  if (chassisEntry) {
+    document.getElementById("vehicle-type").value = chassisEntry[0];
+  }
+
+  // 2. Décocher toutes les checkboxes d'abord pour nettoyer le formulaire
+  document.querySelectorAll('input[name="weapon-checkbox"]').forEach(cb => cb.checked = false);
+  document.querySelectorAll('input[name="upgrade-checkbox"]').forEach(cb => cb.checked = false);
+  document.querySelectorAll('input[name="perk-checkbox"]').forEach(cb => cb.checked = false);
+
+  // 3. Restaurer les Armes et leurs fixations
+  if (targetVehicle.originalWeapons && targetVehicle.originalWeapons.length > 0) {
+    targetVehicle.originalWeapons.forEach(wData => {
+      const wBox = document.querySelector(`input[name="weapon-checkbox"][value="${wData.id}"]`);
+      if (wBox) {
+        wBox.checked = true;
+        toggleWeaponOrientationState(wData.id);
+        const facingSelect = document.getElementById(`w-facing-${wData.id}`);
+        if (facingSelect) facingSelect.value = wData.facing;
+      }
+    });
+  }
+
+  // 4. Restaurer les Améliorations Matérielles
+  if (targetVehicle.originalUpgrades && targetVehicle.originalUpgrades.length > 0) {
+    targetVehicle.originalUpgrades.forEach(uData => {
+      const uBox = document.querySelector(`input[name="upgrade-checkbox"][value="${uData.id}"]`);
+      if (uBox) {
+        uBox.checked = true;
+        toggleUpgradeOrientationState(uData.id);
+        const facingSelect = document.getElementById(`u-facing-${uData.id}`);
+        if (facingSelect) facingSelect.value = uData.facing;
+      }
+    });
+  }
+
+  // 5. Restaurer les Perks (Cases à cocher)
+  if (targetVehicle.originalPerks && targetVehicle.originalPerks.length > 0) {
+    targetVehicle.originalPerks.forEach(pId => {
+      const pBox = document.querySelector(`input[name="perk-checkbox"][value="${pId}"]`);
+      if (pBox) pBox.checked = true;
+    });
+  }
+
+  // 6. Restaurer la remorque et soute Rusty
+  const trailerEntry = GASLANDS_DATA.trailers.find(t => t.name === targetVehicle.trailerName);
+  document.getElementById("trailer-select").value = trailerEntry ? trailerEntry.id : "none";
+  handleTrailerChange();
+
+  const cargoEntry = GASLANDS_DATA.cargoUpgrades.find(c => c.name === targetVehicle.cargoName);
+  document.getElementById("cargo-select").value = cargoEntry ? cargoEntry.id : "none";
+
+  // 7. Retirer temporairement la voiture du roster (elle y retournera quand tu cliqueras sur Valider)
+  crew = crew.filter(v => v.id !== vehicleId);
+  saveData();
+  renderCrew();
+
+  // Scroll fluide vers le panneau de modification pour le confort
+  document.getElementById("vehicle-name").focus();
+}
+
 function addVehicleToCrew() {
   const chassisKey = document.getElementById("vehicle-type").value;
   const customName = document.getElementById("vehicle-name").value.trim();
@@ -371,20 +441,23 @@ function addVehicleToCrew() {
 
   let totalSlotsUsed = 0;
 
-  // Calcul des armes cochées
+  // Traitement des armes cochées
   const weaponBoxes = document.querySelectorAll('input[name="weapon-checkbox"]:checked');
   let totalWeaponsCost = 0;
   let selectedWeaponsNames = [];
+  let backupWeaponsData = []; // Stockage pour pouvoir remodifier plus tard
 
   weaponBoxes.forEach(cb => {
     const wObj = GASLANDS_DATA.weapons.find(w => w.id === cb.value);
     if (wObj) {
       let costForThisWeapon = wObj.cost;
       let displayFacing = "Équipement Équipage";
+      let actualFacing = "Équipement Équipage";
 
       if (!wObj.crew) {
         const facing = document.getElementById(`w-facing-${wObj.id}`).value;
         displayFacing = facing;
+        actualFacing = facing;
         if (facing === "Tourelle" && wObj.cost > 0) {
           costForThisWeapon = wObj.cost * 3;
         }
@@ -393,14 +466,16 @@ function addVehicleToCrew() {
       totalWeaponsCost += costForThisWeapon;
       totalSlotsUsed += wObj.slots;
       selectedWeaponsNames.push(`${wObj.name} (${displayFacing})`);
+      backupWeaponsData.push({ id: wObj.id, facing: actualFacing });
     }
   });
 
-  // Calcul des améliorations matérielles cochées
+  // Traitement des améliorations cochées
   const upgradeBoxes = document.querySelectorAll('input[name="upgrade-checkbox"]:checked');
   let totalUpgradesCost = 0;
   let selectedUpgradesNames = [];
   let extraArmorHull = 0;
+  let backupUpgradesData = []; // Stockage pour pouvoir remodifier plus tard
 
   upgradeBoxes.forEach(cb => {
     const uObj = GASLANDS_DATA.upgrades.find(u => u.id === cb.value);
@@ -409,33 +484,37 @@ function addVehicleToCrew() {
       totalSlotsUsed += uObj.slots;
 
       let facingText = "";
+      let actualFacing = "Normal";
       if (uObj.directional) {
-        facingText = ` (${document.getElementById(`u-facing-${uObj.id}`).value})`;
+        actualFacing = document.getElementById(`u-facing-${uObj.id}`).value;
+        facingText = ` (${actualFacing})`;
       }
 
       selectedUpgradesNames.push(`${uObj.name}${facingText}`);
+      backupUpgradesData.push({ id: uObj.id, facing: actualFacing });
       if (uObj.id === "armor_plating") extraArmorHull += 2;
     }
   });
 
-  // 💥 BLOCKER REQUIS : Vérification de la capacité maximale autorisée en soute (Slots)
   const maxSlotsAvailable = chassis.slots + trailer.extraSlots;
 
   if (totalSlotsUsed > maxSlotsAvailable) {
     alert(`🚨 TRANSMISSION BLOQUÉE : Cette machine est surchargée ! Ton choix de châssis (${chassis.name}) n'offre que ${maxSlotsAvailable} emplacements (Slots) au total. Ton équipement actuel en demande ${totalSlotsUsed}. Retire une arme ou ajoute une remorque !`);
-    return; // Évite l'insertion du véhicule invalide
+    return;
   }
 
-  // Calcul des Perks
+  // Traitement des Perks
   const perkBoxes = document.querySelectorAll('input[name="perk-checkbox"]:checked');
   let totalPerksCost = 0;
   let selectedPerksNames = [];
+  let backupPerksData = [];
 
   perkBoxes.forEach(cb => {
     const pObj = GASLANDS_DATA.perks.find(p => p.id === cb.value);
     if (pObj) {
       totalPerksCost += pObj.cost;
       selectedPerksNames.push(pObj.name);
+      backupPerksData.push(pObj.id);
     }
   });
 
@@ -445,6 +524,7 @@ function addVehicleToCrew() {
   const newVehicle = {
     id: crypto.randomUUID(),
     name: finalName,
+    customNameOriginal: customName,
     chassisName: chassis.name,
     hull: chassis.hull + extraArmorHull,
     maxSlots: maxSlotsAvailable,
@@ -455,7 +535,11 @@ function addVehicleToCrew() {
     trailerName: trailerId !== "none" ? trailer.name : "Aucune",
     cargoName: cargoId !== "none" ? cargo.name : "Aucune",
     cost: totalVehicleCost,
-    invalid: false
+    invalid: false,
+    // Sauvegarde des états bruts en arrière-plan pour la modification future :
+    originalWeapons: backupWeaponsData,
+    originalUpgrades: backupUpgradesData,
+    originalPerks: backupPerksData
   };
 
   crew.push(newVehicle);
@@ -524,9 +608,12 @@ function renderCrew() {
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center justify-between sm:justify-end gap-6 border-t sm:border-t-0 border-zinc-800/60 pt-2 sm:pt-0 min-w-[120px]">
-                    <span class="text-amber-500 font-black text-base font-sans">${v.cost} Cans</span>
-                    <button onclick="removeVehicle('${v.id}')" class="text-zinc-500 hover:text-red-400 font-bold text-xs uppercase cursor-pointer transition">Supprimer</button>
+                <div class="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 border-zinc-800/60 pt-2 sm:pt-0 min-w-[160px]">
+                    <span class="text-amber-500 font-black text-base font-sans mr-2">${v.cost} Cans</span>
+                    <div class="flex gap-3">
+                      <button onclick="editVehicle('${v.id}')" class="text-zinc-400 hover:text-amber-500 font-bold text-xs uppercase cursor-pointer transition">Modifier</button>
+                      <button onclick="removeVehicle('${v.id}')" class="text-zinc-500 hover:text-red-400 font-bold text-xs uppercase cursor-pointer transition">Supprimer</button>
+                    </div>
                 </div>
             </div>
         `;
