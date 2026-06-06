@@ -191,14 +191,12 @@ if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
 let crew = [];
 let maxCans = 50;
 let myGarageCode = "";
-let garageHistory = []; // Liste de tous les codes connus du navigateur
+let garageHistory = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // 1. Charger l'historique des codes créés
   const savedHistory = localStorage.getItem("gaslands_garage_history_list");
   if (savedHistory) garageHistory = JSON.parse(savedHistory);
 
-  // 2. Charger ou Générer le Code Actif
   let savedCode = localStorage.getItem("gaslands_garage_unique_code");
   if (!savedCode) {
     savedCode = "GANG-" + Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -211,19 +209,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("garage-code-display").textContent = myGarageCode;
 
-  // 3. Charger le budget max
   const savedLimit = localStorage.getItem("gaslands_max_cans_limit");
   if (savedLimit) maxCans = parseInt(savedLimit, 10);
   document.getElementById("max-cans-display").textContent = maxCans;
 
   populateFormOptions();
   updateHistoryDropdownUI();
-
-  // 4. Charger le roster spécifique à CE code depuis le LocalStorage
   loadLocalCrewForCode(myGarageCode);
 });
 
-// Ajoute un code à l'historique local
 function addToHistory(code) {
   if (!garageHistory.includes(code)) {
     garageHistory.push(code);
@@ -232,7 +226,6 @@ function addToHistory(code) {
   }
 }
 
-// Rafraîchit le menu déroulant de l'historique
 function updateHistoryDropdownUI() {
   const select = document.getElementById("garage-history-select");
   if (!select) return;
@@ -240,7 +233,6 @@ function updateHistoryDropdownUI() {
     garageHistory.map(code => `<option value="${code}" ${code === myGarageCode ? 'selected' : ''}>${code}</option>`).join("");
 }
 
-// Bouton (+), crée une nouvelle team vide
 function createNewGarage() {
   const newCode = "GANG-" + Math.random().toString(36).substring(2, 6).toUpperCase();
   localStorage.setItem("gaslands_garage_unique_code", newCode);
@@ -259,7 +251,43 @@ function createNewGarage() {
   updateHistoryDropdownUI();
 }
 
-// Permet de zapper d'une écurie à une autre via l'historique
+// ✕ SUPPRESSION PROPRE DE L'ÉCURIE EN COURS 
+function deleteCurrentGarage() {
+  if (garageHistory.length <= 1) {
+    alert("🚨 Action impossible : Tu dois garder au moins une fréquence de garage active !");
+    return;
+  }
+
+  if (confirm(`⚠️ Supprimer définitivement l'écurie locale ${myGarageCode} ?`)) {
+    const codeToDelete = myGarageCode;
+
+    // 1. Retirer de la liste d'historique
+    garageHistory = garageHistory.filter(code => code !== codeToDelete);
+    localStorage.setItem("gaslands_garage_history_list", JSON.stringify(garageHistory));
+
+    // 2. Nettoyer les données d'écurie associées
+    const allGarages = localStorage.getItem("gaslands_multi_garages_data");
+    if (allGarages) {
+      let multiData = JSON.parse(allGarages);
+      delete multiData[codeToDelete];
+      localStorage.setItem("gaslands_multi_garages_data", JSON.stringify(multiData));
+    }
+
+    // 3. Basculer sur l'écurie restante la plus proche
+    myGarageCode = garageHistory[0];
+    localStorage.setItem("gaslands_garage_unique_code", myGarageCode);
+    document.getElementById("garage-code-display").textContent = myGarageCode;
+
+    // 4. Mettre à jour l'affichage de l'interface
+    loadLocalCrewForCode(myGarageCode);
+    updateHistoryDropdownUI();
+
+    const statusText = document.getElementById("crew-status-text");
+    statusText.textContent = "🗑️ Écurie supprimée. Fréquence recalée sur : " + myGarageCode;
+    statusText.className = "text-red-400 text-xs font-sans font-bold";
+  }
+}
+
 function switchGarageFromHistory(selectedCode) {
   if (!selectedCode) return;
   myGarageCode = selectedCode;
@@ -281,13 +309,10 @@ function loadLocalCrewForCode(code) {
 }
 
 function localSave() {
-  // Sauvegarde globale triée par code
   const allGarages = localStorage.getItem("gaslands_multi_garages_data");
   let multiData = allGarages ? JSON.parse(allGarages) : {};
   multiData[myGarageCode] = crew;
   localStorage.setItem("gaslands_multi_garages_data", JSON.stringify(multiData));
-
-  // Rétrocompatibilité
   localStorage.setItem("gaslands_advanced_crew", JSON.stringify(crew));
 }
 
