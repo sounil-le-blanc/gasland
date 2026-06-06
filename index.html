@@ -24,18 +24,20 @@
         ADVANCED</span>
     </div>
 
-    <div id="auth-zone" class="flex items-center gap-4 text-sm">
-      <div id="auth-logged-out" class="flex gap-3">
-        <button onclick="toggleAuthModal('signin')"
-          class="hover:text-amber-500 transition uppercase font-bold tracking-tight cursor-pointer">Connexion</button>
-        <span class="text-zinc-700">|</span>
-        <button onclick="toggleAuthModal('signup')"
-          class="bg-amber-600 hover:bg-amber-500 text-zinc-950 font-black px-3 py-1.5 rounded uppercase tracking-tight transition cursor-pointer">S'enregistrer</button>
+    <div id="save-sync-zone"
+      class="flex flex-col sm:flex-row items-center gap-3 text-xs bg-zinc-950 border border-zinc-800 p-2 rounded w-full sm:w-auto">
+      <div class="flex items-center gap-2">
+        <span class="text-zinc-500 uppercase font-bold">Fréquence :</span>
+        <span id="garage-code-display"
+          class="bg-zinc-900 border border-zinc-700 text-amber-500 font-black px-2 py-0.5 rounded tracking-wider select-all">GÉNÉRATION...</span>
       </div>
-      <div id="auth-logged-in" class="hidden flex items-center gap-3">
-        <span id="user-email" class="text-zinc-400 text-xs truncate max-w-[150px]">pilote@wasteland.com</span>
-        <button onclick="handleLogout()"
-          class="text-xs text-red-400 hover:text-red-300 underline uppercase cursor-pointer">Abandonner le crew</button>
+      <div class="flex gap-2 w-full sm:w-auto">
+        <button onclick="cloudSaveGarage()"
+          class="flex-grow sm:flex-none bg-amber-600 hover:bg-amber-500 text-zinc-950 font-black px-2.5 py-1 rounded uppercase tracking-tight transition cursor-pointer">📟
+          Synchroniser Cloud</button>
+        <button onclick="toggleLoadModal()"
+          class="flex-grow sm:flex-none hover:text-amber-500 text-zinc-400 border border-zinc-800 hover:border-amber-500 transition px-2.5 py-1 rounded uppercase font-bold tracking-tight cursor-pointer">📡
+          Charger Code</button>
       </div>
     </div>
   </header>
@@ -50,7 +52,6 @@
         <p class="text-zinc-500 text-xs">Monte ton équipement dans la limite des emplacements disponibles.</p>
       </div>
 
-      <!-- Sponsor -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Alignement de l'Écurie (Sponsor)</label>
         <select id="sponsor-select" onchange="handleSponsorChange()"
@@ -58,14 +59,12 @@
         </select>
       </div>
 
-      <!-- Nom -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Nom du véhicule / Pilote</label>
         <input type="text" id="vehicle-name" placeholder="Ex: Interceptor, War Rig..."
           class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 transition">
       </div>
 
-      <!-- Châssis -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Choix du Châssis</label>
         <select id="vehicle-type"
@@ -73,7 +72,6 @@
         </select>
       </div>
 
-      <!-- MULTI-SELECTION : Arsenal d'Armes -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Arsenal d'Armes (Sélection
           Multiple)</label>
@@ -82,16 +80,14 @@
         </div>
       </div>
 
-      <!-- MULTI-SELECTION : Améliorations Matérielles -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Améliorations Matérielles (Sélection
           Multiple)</label>
         <div id="upgrade-checkboxes-container"
-          class="bg-zinc-950 border-2 border-zinc-800 rounded p-3 max-h-44 overflow-y-auto flex flex-col gap-2 font-sans text-sm text-zinc-300 scrollbar-thin scrollbar-thumb-zinc-800">
+          class="bg-zinc-950 border-2 border-zinc-800 rounded p-3 max-h-48 overflow-y-auto flex flex-col gap-2 font-sans text-sm text-zinc-300 scrollbar-thin scrollbar-thumb-zinc-800">
         </div>
       </div>
 
-      <!-- Avantages Tactiques (Perks) -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Avantages Tactiques (Perks)</label>
         <div id="perk-checkboxes-container"
@@ -99,7 +95,6 @@
         </div>
       </div>
 
-      <!-- Zone exclusive d'attelage (Rusty) -->
       <div id="trailer-zone" class="hidden flex flex-col gap-4 border-t border-zinc-800/60 pt-4">
         <div class="flex flex-col gap-1.5">
           <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Attelage de Remorque</label>
@@ -125,12 +120,11 @@
 
     <section class="lg:col-span-7 flex flex-col gap-6 w-full">
 
-      <!-- COMPTEUR DE BUDGET MIS À JOUR AVEC OPTIONS PLUS / MOINS -->
       <div
         class="bg-zinc-900 border-2 border-zinc-800 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between shadow-xl gap-4">
         <div class="text-left w-full sm:w-auto">
           <h1 class="text-xl font-black uppercase tracking-wide">Roster Officiel</h1>
-          <p id="crew-status-text" class="text-zinc-500 text-xs font-sans">Sauvegarde locale active.</p>
+          <p id="crew-status-text" class="text-emerald-500 text-xs font-sans font-bold">Garage local actif.</p>
         </div>
 
         <div
@@ -141,7 +135,6 @@
                 id="max-cans-display">50</span> Cans</span>
           </div>
 
-          <!-- Contrôleur du Budget Maximal -->
           <div class="flex flex-col gap-1 items-center bg-zinc-950 border border-zinc-800 rounded p-1.5">
             <span class="text-[9px] uppercase font-bold text-zinc-500 tracking-wider">Limite</span>
             <div class="flex items-center gap-2">
@@ -171,30 +164,25 @@
     </section>
   </main>
 
-  <div id="auth-modal"
+  <div id="load-modal"
     class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
     <div
       class="bg-zinc-900 border-4 border-zinc-800 w-full max-w-md p-6 rounded-xl shadow-2xl flex flex-col gap-4 relative">
-      <button onclick="toggleAuthModal()"
+      <button onclick="toggleLoadModal()"
         class="absolute top-4 right-4 text-zinc-500 hover:text-zinc-200 font-bold cursor-pointer">✕</button>
-      <h2 id="modal-title" class="text-xl font-black uppercase text-amber-500 tracking-wider">Identification Fréquence
-      </h2>
+      <h2 class="text-xl font-black uppercase text-amber-500 tracking-wider">📡 Capter Fréquence Cloud</h2>
+      <p class="text-zinc-400 text-xs font-sans">Saisis le code unique d'une écurie pour importer instantanément sa
+        composition depuis la liaison satellite.</p>
 
-      <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="flex flex-col gap-4">
-        <input type="hidden" id="auth-mode" value="signin">
+      <form id="load-form" onsubmit="cloudLoadGarage(event)" class="flex flex-col gap-4">
         <div class="flex flex-col gap-1">
-          <label class="text-xs uppercase font-bold text-zinc-400">Canal Radio (Email)</label>
-          <input type="email" id="auth-email" required
-            class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500">
-        </div>
-        <div class="flex flex-col gap-1">
-          <label class="text-xs uppercase font-bold text-zinc-400">Code d'autorisation (Password)</label>
-          <input type="password" id="auth-password" required
-            class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500">
+          <label class="text-xs uppercase font-bold text-zinc-400">Code de sauvegarde (Ex: GANG-XXXX)</label>
+          <input type="text" id="load-code-input" required placeholder="GANG-"
+            class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 uppercase tracking-widest outline-none focus:border-amber-500 font-black text-center">
         </div>
         <button type="submit"
           class="w-full bg-amber-600 hover:bg-amber-500 text-zinc-950 font-black py-2.5 rounded uppercase tracking-wide transition cursor-pointer mt-2">
-          Établir la liaison
+          Intercepter les plans du garage
         </button>
       </form>
     </div>
