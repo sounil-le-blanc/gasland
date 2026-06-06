@@ -43,9 +43,9 @@ const GASLANDS_DATA = {
     { id: "brouilleur_em", name: "Brouilleur Électromagnétique", cost: 2, slots: 0, crew: false, mishkinOnly: false },
     { id: "bombes_teleguidees", name: "Bombes Téléguidées", cost: 3, slots: 0, crew: false, mishkinOnly: false },
     { id: "boule_demolition", name: "Boule de démolition", cost: 2, slots: 3, crew: false, mishkinOnly: false },
-    { id: "canon_arc", name: "Canon à Arc Électrique", cost: 6, slots: 2, crew: false, mishkinOnly: false },
+    { id: "canon_arc", name: "Canon à Arc Électrique", cost: 6, slots: 2, crew: false, mishkinOnly: true }, // Mishkin
     { id: "canon_125", name: "Canon de 125 mm", cost: 6, slots: 3, crew: false, mishkinOnly: false },
-    { id: "canon_gravitationnel", name: "Canon Gravitationnel", cost: 4, slots: 1, crew: false, mishkinOnly: false },
+    { id: "canon_gravitationnel", name: "Canon Gravitationnel", cost: 4, slots: 1, crew: false, mishkinOnly: true }, // Mishkin
     { id: "canon_laser", name: "Canon Laser", cost: 5, slots: 1, crew: false, mishkinOnly: false },
     { id: "cocktails_molotov", name: "Cocktails Molotov", cost: 1, slots: 0, crew: true, mishkinOnly: false },
     { id: "filet_metallique", name: "Filet Métallique", cost: 1, slots: 0, crew: true, mishkinOnly: false },
@@ -64,7 +64,7 @@ const GASLANDS_DATA = {
     { id: "largueur_napalm", name: "Largueur de Napalm", cost: 1, slots: 1, crew: false, mishkinOnly: false },
     { id: "harpon", name: "Harpon", cost: 2, slots: 1, crew: false, mishkinOnly: false },
     { id: "magnum", name: "Magnum", cost: 1, slots: 0, crew: true, mishkinOnly: false },
-    { id: "marteleur", name: "Marteleur (Mishkin)", cost: 4, slots: 2, crew: false, mishkinOnly: true }, // ⚡ EXCLUSIF MISHKIN
+    { id: "marteleur", name: "Marteleur (Mishkin)", cost: 4, slots: 2, crew: false, mishkinOnly: true }, // Mishkin
     { id: "mini_gun", name: "Minigun", cost: 5, slots: 1, crew: false, mishkinOnly: false },
     { id: "machine_gun", name: "Mitrailleuse", cost: 2, slots: 1, crew: false, mishkinOnly: false },
     { id: "heavy_machine_gun", name: "Mitrailleuse Lourde", cost: 3, slots: 1, crew: false, mishkinOnly: false },
@@ -73,7 +73,7 @@ const GASLANDS_DATA = {
     { id: "pistolet", name: "Pistolet", cost: 0, slots: 0, crew: true, mishkinOnly: false },
     { id: "pistolet_mitrailleur", name: "Pistolet Mitralleur", cost: 5, slots: 0, crew: true, mishkinOnly: false },
     { id: "rayon_desintegrateur", name: "Rayon Désintégrateur", cost: 3, slots: 1, crew: false, mishkinOnly: false },
-    { id: "super_ampli_cinetique", name: "Super Amplificateur Cinétique (Mishkin)", cost: 6, slots: 2, crew: false, mishkinOnly: true }, // ⚡ EXCLUSIF MISHKIN
+    { id: "super_ampli_cinetique", name: "Super Amplificateur Cinétique (Mishkin)", cost: 6, slots: 2, crew: false, mishkinOnly: true }, // Mishkin
     { id: "tromblon", name: "Tromblon", cost: 2, slots: 0, crew: true, mishkinOnly: false }
   ],
   upgrades: [
@@ -85,14 +85,14 @@ const GASLANDS_DATA = {
     { id: "chenilles", name: "Chenilles", cost: 4, slots: 1, directional: false, mishkinOnly: false },
     { id: "equipage_supp", name: "Membre d'Équipage Supplémentaire", cost: 4, slots: 0, directional: false, mishkinOnly: false },
     { id: "nitro", name: "Nitro", cost: 6, slots: 0, directional: false, mishkinOnly: false },
-    { id: "reacteur_nucleaire", name: "Réacteur Nucléaire Expérimental (Mishkin)", cost: 5, slots: 0, directional: false, mishkinOnly: true }, // ⚡ EXCLUSIF MISHKIN
-    { id: "teleporteur", name: "Téléporteur Expérimental (Mishkin)", cost: 7, slots: 0, directional: false, mishkinOnly: true }   // ⚡ EXCLUSIF MISHKIN
+    { id: "reacteur_nucleaire", name: "Réacteur Nucléaire Expérimental (Mishkin)", cost: 5, slots: 0, directional: false, mishkinOnly: true }, // Mishkin
+    { id: "teleporteur", name: "Téléporteur Expérimental (Mishkin)", cost: 7, slots: 0, directional: false, mishkinOnly: true }   // Mishkin
   ],
   trailers: [
     { id: "none", name: "Aucune remorque", cost: 0, extraSlots: 0 },
     { id: "trailer_light", name: "Remorque (Poids Léger)", cost: 4, extraSlots: 0 },
-    { id: "trailer_medium", name: "Remorque (Poids Moyen)", cost: 8, extraSlots: 1 }, // +1 Slot Ok
-    { id: "trailer_heavy", name: "Remorque (Poids Lourd)", cost: 12, extraSlots: 3 }  // +3 Slots Ok
+    { id: "trailer_medium", name: "Remorque (Poids Moyen)", cost: 8, extraSlots: 1 },
+    { id: "trailer_heavy", name: "Remorque (Poids Lourd)", cost: 12, extraSlots: 3 }
   ],
   cargoUpgrades: [
     { id: "none", name: "Aucune amélioration de transport", cost: 0 },
@@ -122,7 +122,7 @@ const GASLANDS_DATA = {
     { id: "plus_balaise_que_toi", name: "Plus Balaise que Toi", cost: 4, class: "Badass" },
     { id: "biereserker", name: "Bièreserker", cost: 5, class: "Badass" },
     { id: "mister_fahrenheit", name: "Mister Fahrenheit", cost: 2, class: "Precision" },
-    { id: "heure_de_gloire", name: "Heure de Gloire", cost: 2, class: "Precision" },
+    { id: "heure_de_gloire", name: "Heure de Glory", cost: 2, class: "Precision" },
     { id: "prudence", name: "Prudence", cost: 2, class: "Precision" },
     { id: "expertise", name: "Expertise", cost: 3, class: "Precision" },
     { id: "art_de_la_route", name: "Art de la Route", cost: 3, class: "Precision" },
@@ -178,22 +178,17 @@ const GASLANDS_DATA = {
   ]
 };
 
-const SUPABASE_URL = "https://vwfzzybjjlrashioovrk.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_CVxOH_z-iZs-hmc2O6NBEw_faZRGkNI";
-
-if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-  window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-}
-
 let crew = [];
 let maxCans = 50;
 let myGarageCode = "";
 let garageHistory = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // 1. Initialiser l'historique
   const savedHistory = localStorage.getItem("gaslands_garage_history_list");
   if (savedHistory) garageHistory = JSON.parse(savedHistory);
 
+  // 2. Charger ou Générer le code actif
   let savedCode = localStorage.getItem("gaslands_garage_unique_code");
   if (!savedCode) {
     savedCode = "GANG-" + Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -203,13 +198,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   myGarageCode = savedCode;
 
   if (!garageHistory.includes(myGarageCode)) addToHistory(myGarageCode);
-
   document.getElementById("garage-code-display").textContent = myGarageCode;
 
+  // 3. Charger le budget max
   const savedLimit = localStorage.getItem("gaslands_max_cans_limit");
   if (savedLimit) maxCans = parseInt(savedLimit, 10);
   document.getElementById("max-cans-display").textContent = maxCans;
 
+  // 4. Lancer la construction initiale des menus
   populateFormOptions();
   updateHistoryDropdownUI();
   loadLocalCrewForCode(myGarageCode);
@@ -240,16 +236,13 @@ function createNewGarage() {
   crew = [];
   localSave();
   renderCrew();
-
-  const statusText = document.getElementById("crew-status-text");
-  statusText.textContent = "🆕 Nouvelle écurie créée : " + newCode;
-  statusText.className = "text-amber-500 text-xs font-sans font-bold";
+  populateFormOptions(); // Réinitialise les filtres pour la nouvelle team
   updateHistoryDropdownUI();
 }
 
 function deleteCurrentGarage() {
   if (garageHistory.length <= 1) {
-    alert("🚨 Impossible : Garde au moins un garage actif !");
+    alert("🚨 Action impossible : Tu devez garder au moins une écurie active !");
     return;
   }
 
@@ -271,6 +264,7 @@ function deleteCurrentGarage() {
     document.getElementById("garage-code-display").textContent = myGarageCode;
 
     loadLocalCrewForCode(myGarageCode);
+    populateFormOptions();
     updateHistoryDropdownUI();
   }
 }
@@ -282,7 +276,7 @@ function switchGarageFromHistory(selectedCode) {
   document.getElementById("garage-code-display").textContent = myGarageCode;
 
   loadLocalCrewForCode(myGarageCode);
-  populateFormOptions(); // Force la reconfiguration si le sponsor change
+  populateFormOptions(); // Force le re-filtrage Mishkin/Rusty à la volée !
 }
 
 function loadLocalCrewForCode(code) {
@@ -299,7 +293,7 @@ function localSave() {
   localStorage.setItem("gaslands_multi_garages_data", JSON.stringify(multiData));
   localStorage.setItem("gaslands_advanced_crew", JSON.stringify(crew));
 
-  // 🛰️ SAUVEGARDE AUTOMATIQUE EN BACKEND TRANS-SATELLITE
+  // Auto-synchro Cloud transparente
   cloudSaveGarage();
 }
 
@@ -331,7 +325,7 @@ async function cloudLoadGarage(event) {
     .maybeSingle();
 
   if (error) {
-    alert("Erreur de liaison : " + error.message);
+    alert("Erreur satellite : " + error.message);
   } else if (data && data.data) {
     crew = data.data;
     myGarageCode = codeInput;
@@ -357,7 +351,7 @@ function adjustMaxCans(amount) {
   renderCrew();
 }
 
-// 💥 FILTRAGE DYNAMIQUE MISHKIN & RECONSTRUCTION DES LISTES
+// 💥 CONSTRUCTION DES OPTIONS FORMULAIRE AVEC FILTRAGE MISHKIN EMBARQUÉ
 function populateFormOptions() {
   const sSelect = document.getElementById("sponsor-select");
   const vSelect = document.getElementById("vehicle-type");
@@ -366,12 +360,15 @@ function populateFormOptions() {
   const wContainer = document.getElementById("weapon-checkboxes-container");
   const uContainer = document.getElementById("upgrade-checkboxes-container");
 
-  // On sauvegarde le sponsor choisi pour l'exclusivité d'armement
-  const currentSponsorId = sSelect && sSelect.value ? sSelect.value : "none";
+  if (!sSelect) return;
 
-  if (sSelect && sSelect.innerHTML === "") {
+  // Injection unique du menu des sponsors si vide
+  if (sSelect.innerHTML.trim() === "") {
     sSelect.innerHTML = GASLANDS_DATA.sponsors.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
   }
+
+  const currentSponsorId = sSelect.value || "none";
+
   if (vSelect) {
     vSelect.innerHTML = Object.entries(GASLANDS_DATA.vehicles).map(([key, v]) => `<option value="${key}">${v.name} (${v.baseCost} Cans — Slots: ${v.slots})</option>`).join("");
   }
@@ -382,7 +379,7 @@ function populateFormOptions() {
     cSelect.innerHTML = GASLANDS_DATA.cargoUpgrades.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
   }
 
-  // 🛠️ FILTRAGE STRICT MISHKIN SUR LES ARMES
+  // Filtrer et injecter l'Arsenal d'armes
   if (wContainer) {
     const filteredWeapons = GASLANDS_DATA.weapons.filter(w => !w.mishkinOnly || currentSponsorId === "mishkin");
     wContainer.innerHTML = filteredWeapons.map(w => `
@@ -407,7 +404,7 @@ function populateFormOptions() {
     `).join("");
   }
 
-  // 🛠️ FILTRAGE STRICT MISHKIN SUR LES AMÉLIORATIONS MATÉRIELLES
+  // Filtrer et injecter les améliorations matérielles
   if (uContainer) {
     const filteredUpgrades = GASLANDS_DATA.upgrades.filter(u => !u.mishkinOnly || currentSponsorId === "mishkin");
     uContainer.innerHTML = filteredUpgrades.map(u => `
@@ -432,6 +429,11 @@ function populateFormOptions() {
 
   handleSponsorChange();
   handleTrailerChange();
+}
+
+// Intercepteur appelé par le HTML sur le onchange du sponsor pour actualiser l'interface de filtrage
+function handleSponsorSelectChange() {
+  populateFormOptions();
 }
 
 function toggleWeaponOrientationState(weaponId) {
@@ -468,7 +470,9 @@ function handleTrailerChange() {
 }
 
 function handleSponsorChange() {
-  const sponsorId = document.getElementById("sponsor-select").value;
+  const sSelect = document.getElementById("sponsor-select");
+  if (!sSelect) return;
+  const sponsorId = sSelect.value;
   const container = document.getElementById("perk-checkboxes-container");
   const trailerZone = document.getElementById("trailer-zone");
 
@@ -499,11 +503,6 @@ function handleSponsorChange() {
       <span>${p.name} <span class="text-[10px] text-zinc-500">[${p.class}]</span> <span class="text-amber-500 font-bold text-xs">(+${p.cost})</span></span>
     </label>
   `).join("");
-}
-
-// Déclenche le recalcul complet des options Mishkin si on change de sponsor à la volée
-function handleSponsorChangeWithFilter() {
-  populateFormOptions();
 }
 
 function editVehicle(vehicleId) {
@@ -626,7 +625,6 @@ function addVehicleToCrew() {
     }
   });
 
-  // ⚡ COMPTABILISATION PARFAITE DE LA CAPACITÉ DE SOUTE AVEC LES BONUS DE REMORQUES (+1 ou +3)
   const maxSlotsAvailable = chassis.slots + trailer.extraSlots;
 
   if (totalSlotsUsed > maxSlotsAvailable) {
