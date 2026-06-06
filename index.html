@@ -178,9 +178,14 @@
       <div class="bg-zinc-900/20 border-2 border-zinc-800 rounded-xl p-6 min-h-[350px] flex flex-col gap-4">
         <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
           <h3 class="text-xs font-black uppercase text-zinc-400 tracking-widest">Machines de Guerre Engagées</h3>
-          <button onclick="clearRoster()"
-            class="text-[10px] text-zinc-600 hover:text-red-400 font-bold uppercase tracking-wider cursor-pointer transition">Vider
-            l'écurie</button>
+          <div class="flex gap-4">
+            <button onclick="printMatchSheet()"
+              class="text-[10px] text-amber-500 hover:text-amber-400 font-bold uppercase tracking-wider cursor-pointer transition">🖨️
+              Imprimer la Fiche (PDF)</button>
+            <button onclick="clearRoster()"
+              class="text-[10px] text-zinc-600 hover:text-red-400 font-bold uppercase tracking-wider cursor-pointer transition">Vider
+              l'écurie</button>
+          </div>
         </div>
 
         <div id="crew-list" class="flex flex-col gap-4">

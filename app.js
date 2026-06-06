@@ -245,7 +245,7 @@ function createNewGarage() {
 
 function deleteCurrentGarage() {
   if (garageHistory.length <= 1) {
-    alert("🚨 Action impossible : Garde au moins un garage actif !");
+    alert("🚨 Action impossible : Tu devez garder au moins une écurie active !");
     return;
   }
 
@@ -424,7 +424,6 @@ function populateFormOptions() {
   updateLiveFormCalculations();
 }
 
-// 💥 LIVE PREVIEW ENRICHI AVEC CONTROLE STRICT DES DOUBLONS D'ORIENTATION
 function updateLiveFormCalculations() {
   const chassisKey = document.getElementById("vehicle-type").value;
   const trailerId = document.getElementById("trailer-select").value;
@@ -439,10 +438,8 @@ function updateLiveFormCalculations() {
   let currentCansTotal = chassis.baseCost + (trailer ? trailer.cost : 0) + (cargo ? cargo.cost : 0);
   let currentSlotsTotal = 0;
 
-  // Dictionnaire pour compter l'usage de chaque face (Avant, Arrière, etc.)
   let facingsUsage = { "Avant": 0, "Arrière": 0, "Flanc Gauche": 0, "Flanc Droit": 0, "Latéral": 0 };
 
-  // Calcul du coût et des orientations d'armes
   document.querySelectorAll('input[name="weapon-checkbox"]:checked').forEach(cb => {
     const wObj = GASLANDS_DATA.weapons.find(w => w.id === cb.value);
     if (wObj) {
@@ -457,7 +454,6 @@ function updateLiveFormCalculations() {
     }
   });
 
-  // Calcul du coût et des orientations d'upgrades (ex: Bélier)
   document.querySelectorAll('input[name="upgrade-checkbox"]:checked').forEach(cb => {
     const uObj = GASLANDS_DATA.upgrades.find(u => u.id === cb.value);
     if (uObj) {
@@ -476,15 +472,11 @@ function updateLiveFormCalculations() {
   });
 
   const maxSlotsAvailable = chassis.slots + (trailer ? trailer.extraSlots : 0);
-
-  // ⚡ LA LIMITE DE FIXATION : 1 par face par défaut, passe à 2 si présence d'une remorque !
   const maxPerFacing = (trailer && trailer.id !== "none") ? 2 : 1;
 
-  // Vérifier si une face dépasse la limite technique autorisée
   let facingOverloadDetected = false;
   let overloadDetails = [];
 
-  // Fusionner le compteur "Latéral" générique avec les flancs
   let finalAvant = facingsUsage["Avant"];
   let finalArriere = facingsUsage["Arrière"];
   let finalGauche = facingsUsage["Flanc Gauche"] + facingsUsage["Latéral"];
@@ -495,7 +487,6 @@ function updateLiveFormCalculations() {
   if (finalGauche > maxPerFacing) { facingOverloadDetected = true; overloadDetails.push(`Flanc G. (${finalGauche}/${maxPerFacing})`); }
   if (finalDroit > maxPerFacing) { facingOverloadDetected = true; overloadDetails.push(`Flanc D. (${finalDroit}/${maxPerFacing})`); }
 
-  // Mettre à jour l'indicateur HTML
   const cansIndicator = document.getElementById("live-cans-indicator");
   const slotsIndicator = document.getElementById("live-slots-indicator");
   const facingsIndicator = document.getElementById("live-facings-indicator");
@@ -521,7 +512,6 @@ function updateLiveFormCalculations() {
     }
   }
 
-  // On attache l'état d'erreur global au formulaire pour bloquer la validation finale
   document.getElementById("live-counter-zone").dataset.invalidFacing = facingOverloadDetected ? "true" : "false";
 }
 
@@ -656,7 +646,6 @@ function editVehicle(vehicleId) {
 }
 
 function addVehicleToCrew() {
-  // Sécurité blocage doublons d'orientations physiques s'il y a surcharge
   if (document.getElementById("live-counter-zone").dataset.invalidFacing === "true") {
     alert("🚨 ERREUR D'ASSEMBLAGE : Tu as saturé un point de fixation physique ! Tu ne peux installer qu'un seul élément directionnel par face (Avant, Arrière, Flancs), sauf si tu équipes une remorque qui double tes emplacements disponibles.");
     return;
