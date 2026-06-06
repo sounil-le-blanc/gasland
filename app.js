@@ -37,62 +37,62 @@ const GASLANDS_DATA = {
     forteresse_mobile: { name: "Forteresse Mobile", baseCost: 40, hull: 26, slots: 5 }
   },
   weapons: [
-    { id: "auto_tourelle", name: "Auto-Tourelle", cost: 3, slots: 0, crew: false },
-    { id: "bfg", name: "BFG", cost: 4, slots: 3, crew: false },
-    { id: "bras_mecanique", name: "Bras Mécanique", cost: 6, slots: 1, crew: false },
-    { id: "brouilleur_em", name: "Brouilleur Électromagnétique", cost: 2, slots: 0, crew: false },
-    { id: "bombes_teleguidees", name: "Bombes Téléguidées", cost: 3, slots: 0, crew: false },
-    { id: "boule_demolition", name: "Boule de démolition", cost: 2, slots: 3, crew: false },
-    { id: "canon_arc", name: "Canon à Arc Électrique", cost: 6, slots: 2, crew: false },
-    { id: "canon_125", name: "Canon de 125 mm", cost: 6, slots: 3, crew: false },
-    { id: "canon_gravitationnel", name: "Canon Gravitationnel", cost: 4, slots: 1, crew: false },
-    { id: "canon_laser", name: "Canon Laser", cost: 5, slots: 1, crew: false },
-    { id: "cocktails_molotov", name: "Cocktails Molotov", cost: 1, slots: 0, crew: true },
-    { id: "filet_metallique", name: "Filet Métallique", cost: 1, slots: 0, crew: true },
-    { id: "fusil_pompe", name: "Fusil à Pompe", cost: 0, slots: 0, crew: true },
-    { id: "grenades", name: "Grenades", cost: 1, slots: 0, crew: true },
-    { id: "grenades_lacrymo", name: "Grenades Lacrymogènes", cost: 1, slots: 0, crew: true },
-    { id: "lance_carcasse", name: "Lance-Carcasse", cost: 4, slots: 4, crew: false },
-    { id: "flamethrower", name: "Lance-Flammes", cost: 4, slots: 2, crew: false },
-    { id: "lance_missiles", name: "Lance-missiles", cost: 5, slots: 2, crew: false },
-    { id: "rockets", name: "Lance-Roquettes", cost: 4, slots: 2, crew: false },
-    { id: "largueur_chausse_trapes", name: "Largueur de Chausse-Trapes", cost: 1, slots: 1, crew: false },
-    { id: "largueur_colle", name: "Largueur de Colle", cost: 1, slots: 1, crew: false },
-    { id: "largueur_fumigenes", name: "Largueur de Fumigènes", cost: 1, slots: 0, crew: false },
-    { id: "largueur_huile", name: "Largueur d'Huile", cost: 2, slots: 0, crew: false },
-    { id: "largueur_mines", name: "Largueur de Mines", cost: 1, slots: 1, crew: false },
-    { id: "largueur_napalm", name: "Largueur de Napalm", cost: 1, slots: 1, crew: false },
-    { id: "harpon", name: "Harpon", cost: 2, slots: 1, crew: false },
-    { id: "magnum", name: "Magnum", cost: 1, slots: 0, crew: true },
-    { id: "marteleur", name: "Marteleur (Mishkin)", cost: 4, slots: 2, crew: false },
-    { id: "mini_gun", name: "Minigun", cost: 5, slots: 1, crew: false },
-    { id: "machine_gun", name: "Mitrailleuse", cost: 2, slots: 1, crew: false },
-    { id: "heavy_machine_gun", name: "Mitrailleuse Lourde", cost: 3, slots: 1, crew: false },
-    { id: "mortar", name: "Mortier", cost: 4, slots: 1, crew: false },
-    { id: "mur_haut_parleurs", name: "Mur de haut-parleurs", cost: 4, slots: 3, crew: false },
-    { id: "pistolet", name: "Pistolet", cost: 0, slots: 0, crew: true },
-    { id: "pistolet_mitrailleur", name: "Pistolet Mitralleur", cost: 5, slots: 0, crew: true },
-    { id: "rayon_desintegrateur", name: "Rayon Désintégrateur", cost: 3, slots: 1, crew: false },
-    { id: "super_ampli_cinetique", name: "Super Amplificateur Cinétique (Mishkin)", cost: 6, slots: 2, crew: false },
-    { id: "tromblon", name: "Tromblon", cost: 2, slots: 0, crew: true }
+    { id: "auto_tourelle", name: "Auto-Tourelle", cost: 3, slots: 0, crew: false, mishkinOnly: false },
+    { id: "bfg", name: "BFG", cost: 4, slots: 3, crew: false, mishkinOnly: false },
+    { id: "bras_mecanique", name: "Bras Mécanique", cost: 6, slots: 1, crew: false, mishkinOnly: false },
+    { id: "brouilleur_em", name: "Brouilleur Électromagnétique", cost: 2, slots: 0, crew: false, mishkinOnly: false },
+    { id: "bombes_teleguidees", name: "Bombes Téléguidées", cost: 3, slots: 0, crew: false, mishkinOnly: false },
+    { id: "boule_demolition", name: "Boule de démolition", cost: 2, slots: 3, crew: false, mishkinOnly: false },
+    { id: "canon_arc", name: "Canon à Arc Électrique", cost: 6, slots: 2, crew: false, mishkinOnly: false },
+    { id: "canon_125", name: "Canon de 125 mm", cost: 6, slots: 3, crew: false, mishkinOnly: false },
+    { id: "canon_gravitationnel", name: "Canon Gravitationnel", cost: 4, slots: 1, crew: false, mishkinOnly: false },
+    { id: "canon_laser", name: "Canon Laser", cost: 5, slots: 1, crew: false, mishkinOnly: false },
+    { id: "cocktails_molotov", name: "Cocktails Molotov", cost: 1, slots: 0, crew: true, mishkinOnly: false },
+    { id: "filet_metallique", name: "Filet Métallique", cost: 1, slots: 0, crew: true, mishkinOnly: false },
+    { id: "fusil_pompe", name: "Fusil à Pompe", cost: 0, slots: 0, crew: true, mishkinOnly: false },
+    { id: "grenades", name: "Grenades", cost: 1, slots: 0, crew: true, mishkinOnly: false },
+    { id: "grenades_lacrymo", name: "Grenades Lacrymogènes", cost: 1, slots: 0, crew: true, mishkinOnly: false },
+    { id: "lance_carcasse", name: "Lance-Carcasse", cost: 4, slots: 4, crew: false, mishkinOnly: false },
+    { id: "flamethrower", name: "Lance-Flammes", cost: 4, slots: 2, crew: false, mishkinOnly: false },
+    { id: "lance_missiles", name: "Lance-missiles", cost: 5, slots: 2, crew: false, mishkinOnly: false },
+    { id: "rockets", name: "Lance-Roquettes", cost: 4, slots: 2, crew: false, mishkinOnly: false },
+    { id: "largueur_chausse_trapes", name: "Largueur de Chausse-Trapes", cost: 1, slots: 1, crew: false, mishkinOnly: false },
+    { id: "largueur_colle", name: "Largueur de Colle", cost: 1, slots: 1, crew: false, mishkinOnly: false },
+    { id: "largueur_fumigenes", name: "Largueur de Fumigènes", cost: 1, slots: 0, crew: false, mishkinOnly: false },
+    { id: "largueur_huile", name: "Largueur d'Huile", cost: 2, slots: 0, crew: false, mishkinOnly: false },
+    { id: "largueur_mines", name: "Largueur de Mines", cost: 1, slots: 1, crew: false, mishkinOnly: false },
+    { id: "largueur_napalm", name: "Largueur de Napalm", cost: 1, slots: 1, crew: false, mishkinOnly: false },
+    { id: "harpon", name: "Harpon", cost: 2, slots: 1, crew: false, mishkinOnly: false },
+    { id: "magnum", name: "Magnum", cost: 1, slots: 0, crew: true, mishkinOnly: false },
+    { id: "marteleur", name: "Marteleur (Mishkin)", cost: 4, slots: 2, crew: false, mishkinOnly: true }, // ⚡ EXCLUSIF MISHKIN
+    { id: "mini_gun", name: "Minigun", cost: 5, slots: 1, crew: false, mishkinOnly: false },
+    { id: "machine_gun", name: "Mitrailleuse", cost: 2, slots: 1, crew: false, mishkinOnly: false },
+    { id: "heavy_machine_gun", name: "Mitrailleuse Lourde", cost: 3, slots: 1, crew: false, mishkinOnly: false },
+    { id: "mortar", name: "Mortier", cost: 4, slots: 1, crew: false, mishkinOnly: false },
+    { id: "mur_haut_parleurs", name: "Mur de haut-parleurs", cost: 4, slots: 3, crew: false, mishkinOnly: false },
+    { id: "pistolet", name: "Pistolet", cost: 0, slots: 0, crew: true, mishkinOnly: false },
+    { id: "pistolet_mitrailleur", name: "Pistolet Mitralleur", cost: 5, slots: 0, crew: true, mishkinOnly: false },
+    { id: "rayon_desintegrateur", name: "Rayon Désintégrateur", cost: 3, slots: 1, crew: false, mishkinOnly: false },
+    { id: "super_ampli_cinetique", name: "Super Amplificateur Cinétique (Mishkin)", cost: 6, slots: 2, crew: false, mishkinOnly: true }, // ⚡ EXCLUSIF MISHKIN
+    { id: "tromblon", name: "Tromblon", cost: 2, slots: 0, crew: true, mishkinOnly: false }
   ],
   upgrades: [
-    { id: "arceaux", name: "Arceaux", cost: 4, slots: 1, directional: false },
-    { id: "belier", name: "Bélier", cost: 4, slots: 1, directional: true },
-    { id: "belier_explosif", name: "Bélier Explosif", cost: 3, slots: 0, directional: true },
-    { id: "armor_plating", name: "Blindage (+2 Coque)", cost: 4, slots: 1, directional: false },
-    { id: "catapulte_improvisee", name: "Catapulte Improvisée", cost: 2, slots: 1, directional: false },
-    { id: "chenilles", name: "Chenilles", cost: 4, slots: 1, directional: false },
-    { id: "equipage_supp", name: "Membre d'Équipage Supplémentaire", cost: 4, slots: 0, directional: false },
-    { id: "nitro", name: "Nitro", cost: 6, slots: 0, directional: false },
-    { id: "reacteur_nucleaire", name: "Réacteur Nucléaire Expérimental (Mishkin)", cost: 5, slots: 0, directional: false },
-    { id: "teleporteur", name: "Téléporteur Expérimental (Mishkin)", cost: 7, slots: 0, directional: false }
+    { id: "arceaux", name: "Arceaux", cost: 4, slots: 1, directional: false, mishkinOnly: false },
+    { id: "belier", name: "Bélier", cost: 4, slots: 1, directional: true, mishkinOnly: false },
+    { id: "belier_explosif", name: "Bélier Explosif", cost: 3, slots: 0, directional: true, mishkinOnly: false },
+    { id: "armor_plating", name: "Blindage (+2 Coque)", cost: 4, slots: 1, directional: false, mishkinOnly: false },
+    { id: "catapulte_improvisee", name: "Catapulte Improvisée", cost: 2, slots: 1, directional: false, mishkinOnly: false },
+    { id: "chenilles", name: "Chenilles", cost: 4, slots: 1, directional: false, mishkinOnly: false },
+    { id: "equipage_supp", name: "Membre d'Équipage Supplémentaire", cost: 4, slots: 0, directional: false, mishkinOnly: false },
+    { id: "nitro", name: "Nitro", cost: 6, slots: 0, directional: false, mishkinOnly: false },
+    { id: "reacteur_nucleaire", name: "Réacteur Nucléaire Expérimental (Mishkin)", cost: 5, slots: 0, directional: false, mishkinOnly: true }, // ⚡ EXCLUSIF MISHKIN
+    { id: "teleporteur", name: "Téléporteur Expérimental (Mishkin)", cost: 7, slots: 0, directional: false, mishkinOnly: true }   // ⚡ EXCLUSIF MISHKIN
   ],
   trailers: [
     { id: "none", name: "Aucune remorque", cost: 0, extraSlots: 0 },
     { id: "trailer_light", name: "Remorque (Poids Léger)", cost: 4, extraSlots: 0 },
-    { id: "trailer_medium", name: "Remorque (Poids Moyen)", cost: 8, extraSlots: 1 },
-    { id: "trailer_heavy", name: "Remorque (Poids Lourd)", cost: 12, extraSlots: 3 }
+    { id: "trailer_medium", name: "Remorque (Poids Moyen)", cost: 8, extraSlots: 1 }, // +1 Slot Ok
+    { id: "trailer_heavy", name: "Remorque (Poids Lourd)", cost: 12, extraSlots: 3 }  // +3 Slots Ok
   ],
   cargoUpgrades: [
     { id: "none", name: "Aucune amélioration de transport", cost: 0 },
@@ -242,14 +242,14 @@ function createNewGarage() {
   renderCrew();
 
   const statusText = document.getElementById("crew-status-text");
-  statusText.textContent = "🆕 Nouvelle écurie vierge créée : " + newCode;
+  statusText.textContent = "🆕 Nouvelle écurie créée : " + newCode;
   statusText.className = "text-amber-500 text-xs font-sans font-bold";
   updateHistoryDropdownUI();
 }
 
 function deleteCurrentGarage() {
   if (garageHistory.length <= 1) {
-    alert("🚨 Action impossible : Tu dois garder au moins une fréquence de garage active !");
+    alert("🚨 Impossible : Garde au moins un garage actif !");
     return;
   }
 
@@ -272,10 +272,6 @@ function deleteCurrentGarage() {
 
     loadLocalCrewForCode(myGarageCode);
     updateHistoryDropdownUI();
-
-    const statusText = document.getElementById("crew-status-text");
-    statusText.textContent = "🗑️ Écurie supprimée. Fréquence recalée sur : " + myGarageCode;
-    statusText.className = "text-red-400 text-xs font-sans font-bold";
   }
 }
 
@@ -286,10 +282,7 @@ function switchGarageFromHistory(selectedCode) {
   document.getElementById("garage-code-display").textContent = myGarageCode;
 
   loadLocalCrewForCode(myGarageCode);
-
-  const statusText = document.getElementById("crew-status-text");
-  statusText.textContent = "📟 Écurie locale rechargée : " + myGarageCode;
-  statusText.className = "text-emerald-500 text-xs font-sans font-bold";
+  populateFormOptions(); // Force la reconfiguration si le sponsor change
 }
 
 function loadLocalCrewForCode(code) {
@@ -305,24 +298,21 @@ function localSave() {
   multiData[myGarageCode] = crew;
   localStorage.setItem("gaslands_multi_garages_data", JSON.stringify(multiData));
   localStorage.setItem("gaslands_advanced_crew", JSON.stringify(crew));
+
+  // 🛰️ SAUVEGARDE AUTOMATIQUE EN BACKEND TRANS-SATELLITE
+  cloudSaveGarage();
 }
 
 async function cloudSaveGarage() {
   if (!window.supabase) return;
   const statusText = document.getElementById("crew-status-text");
 
-  statusText.textContent = "📡 Envoi de la fréquence vers le satellite...";
-  statusText.className = "text-amber-500 text-xs font-sans font-bold animate-pulse";
-
   const { error } = await window.supabase
     .from("crews")
     .upsert({ user_id: myGarageCode, data: crew });
 
-  if (error) {
-    statusText.textContent = "🚨 Échec de synchro : " + error.message;
-    statusText.className = "text-red-500 text-xs font-sans font-bold";
-  } else {
-    statusText.textContent = "📟 Garage synchronisé en orbite sous le code : " + myGarageCode;
+  if (!error && statusText) {
+    statusText.textContent = "🛰️ Garage local & Cloud synchronisés — " + myGarageCode;
     statusText.className = "text-emerald-500 text-xs font-sans font-bold";
   }
 }
@@ -352,13 +342,10 @@ async function cloudLoadGarage(event) {
 
     document.getElementById("garage-code-display").textContent = myGarageCode;
     renderCrew();
+    populateFormOptions();
     toggleLoadModal();
-
-    const statusText = document.getElementById("crew-status-text");
-    statusText.textContent = "🛰️ Garage distant intercepté et mémorisé !";
-    statusText.className = "text-emerald-500 text-xs font-sans font-bold";
   } else {
-    alert("⚠️ Aucun garage actif n'a été détecté sur la fréquence : " + codeInput);
+    alert("⚠️ Aucun garage sur la fréquence : " + codeInput);
   }
 }
 
@@ -370,6 +357,7 @@ function adjustMaxCans(amount) {
   renderCrew();
 }
 
+// 💥 FILTRAGE DYNAMIQUE MISHKIN & RECONSTRUCTION DES LISTES
 function populateFormOptions() {
   const sSelect = document.getElementById("sponsor-select");
   const vSelect = document.getElementById("vehicle-type");
@@ -378,7 +366,10 @@ function populateFormOptions() {
   const wContainer = document.getElementById("weapon-checkboxes-container");
   const uContainer = document.getElementById("upgrade-checkboxes-container");
 
-  if (sSelect) {
+  // On sauvegarde le sponsor choisi pour l'exclusivité d'armement
+  const currentSponsorId = sSelect && sSelect.value ? sSelect.value : "none";
+
+  if (sSelect && sSelect.innerHTML === "") {
     sSelect.innerHTML = GASLANDS_DATA.sponsors.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
   }
   if (vSelect) {
@@ -391,8 +382,10 @@ function populateFormOptions() {
     cSelect.innerHTML = GASLANDS_DATA.cargoUpgrades.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
   }
 
+  // 🛠️ FILTRAGE STRICT MISHKIN SUR LES ARMES
   if (wContainer) {
-    wContainer.innerHTML = GASLANDS_DATA.weapons.map(w => `
+    const filteredWeapons = GASLANDS_DATA.weapons.filter(w => !w.mishkinOnly || currentSponsorId === "mishkin");
+    wContainer.innerHTML = filteredWeapons.map(w => `
       <div class="flex flex-col gap-1 bg-zinc-900/20 border border-zinc-900 p-2 rounded hover:border-zinc-800 transition">
         <label class="flex items-center gap-2 cursor-pointer w-full">
           <input type="checkbox" name="weapon-checkbox" value="${w.id}" onchange="toggleWeaponOrientationState('${w.id}')" class="accent-amber-500 w-4 h-4 cursor-pointer">
@@ -414,8 +407,10 @@ function populateFormOptions() {
     `).join("");
   }
 
+  // 🛠️ FILTRAGE STRICT MISHKIN SUR LES AMÉLIORATIONS MATÉRIELLES
   if (uContainer) {
-    uContainer.innerHTML = GASLANDS_DATA.upgrades.map(u => `
+    const filteredUpgrades = GASLANDS_DATA.upgrades.filter(u => !u.mishkinOnly || currentSponsorId === "mishkin");
+    uContainer.innerHTML = filteredUpgrades.map(u => `
       <div class="flex flex-col gap-1 bg-zinc-900/10 border border-zinc-900/60 p-2 rounded hover:border-zinc-800 transition">
         <label class="flex items-center gap-2 cursor-pointer w-full">
           <input type="checkbox" name="upgrade-checkbox" value="${u.id}" onchange="toggleUpgradeOrientationState('${u.id}')" class="accent-amber-500 w-4 h-4 cursor-pointer">
@@ -443,7 +438,6 @@ function toggleWeaponOrientationState(weaponId) {
   const wBox = document.querySelector(`input[name="weapon-checkbox"][value="${weaponId}"]`);
   const zone = document.getElementById(`w-orient-zone-${weaponId}`);
   const select = document.getElementById(`w-facing-${weaponId}`);
-
   if (wBox && zone && select) {
     select.disabled = !wBox.checked;
     wBox.checked ? zone.classList.remove("opacity-40") : zone.classList.add("opacity-40");
@@ -454,7 +448,6 @@ function toggleUpgradeOrientationState(upgradeId) {
   const uBox = document.querySelector(`input[name="upgrade-checkbox"][value="${upgradeId}"]`);
   const zone = document.getElementById(`u-orient-zone-${upgradeId}`);
   const select = document.getElementById(`u-facing-${upgradeId}`);
-
   if (uBox && zone && select) {
     select.disabled = !uBox.checked;
     uBox.checked ? zone.classList.remove("opacity-40") : zone.classList.add("opacity-40");
@@ -506,6 +499,11 @@ function handleSponsorChange() {
       <span>${p.name} <span class="text-[10px] text-zinc-500">[${p.class}]</span> <span class="text-amber-500 font-bold text-xs">(+${p.cost})</span></span>
     </label>
   `).join("");
+}
+
+// Déclenche le recalcul complet des options Mishkin si on change de sponsor à la volée
+function handleSponsorChangeWithFilter() {
+  populateFormOptions();
 }
 
 function editVehicle(vehicleId) {
@@ -628,10 +626,11 @@ function addVehicleToCrew() {
     }
   });
 
+  // ⚡ COMPTABILISATION PARFAITE DE LA CAPACITÉ DE SOUTE AVEC LES BONUS DE REMORQUES (+1 ou +3)
   const maxSlotsAvailable = chassis.slots + trailer.extraSlots;
 
   if (totalSlotsUsed > maxSlotsAvailable) {
-    alert(`🚨 TRANSMISSION BLOQUÉE : Surcharge ! Soute limitée à ${maxSlotsAvailable} emplacements.`);
+    alert(`🚨 TRANSMISSION BLOQUÉE : Surcharge ! Ton véhicule d'un gabarit de ${chassis.name} ne dispose que de ${maxSlotsAvailable} emplacements (Slots). Ton arsenal actuel en consomme ${totalSlotsUsed}. Retranche un équipement ou passe sur une remorque supérieure !`);
     return;
   }
 
