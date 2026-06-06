@@ -79,7 +79,7 @@
 
       <div class="flex flex-col gap-1.5">
         <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Choix du Châssis</label>
-        <select id="vehicle-type"
+        <select id="vehicle-type" onchange="updateLiveFormCalculations()"
           class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 font-sans transition">
         </select>
       </div>
@@ -93,8 +93,7 @@
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Améliorations Matérielles (Sélection
-          Multiple)</label>
+        <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Améliorations Matérielles</label>
         <div id="upgrade-checkboxes-container"
           class="bg-zinc-950 border-2 border-zinc-800 rounded p-3 max-h-48 overflow-y-auto flex flex-col gap-2 font-sans text-sm text-zinc-300 scrollbar-thin scrollbar-thumb-zinc-800">
         </div>
@@ -117,9 +116,21 @@
 
         <div id="cargo-upgrade-zone" class="hidden flex flex-col gap-1.5">
           <label class="text-xs uppercase font-bold tracking-wider text-zinc-400">Amélioration de Transport</label>
-          <select id="cargo-select"
+          <select id="cargo-select" onchange="updateLiveFormCalculations()"
             class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 outline-none focus:border-amber-500 font-sans transition">
           </select>
+        </div>
+      </div>
+
+      <div id="live-counter-zone"
+        class="bg-zinc-950 border-2 border-zinc-800 rounded p-3 flex justify-between items-center text-xs font-bold font-sans">
+        <div class="flex flex-col gap-0.5">
+          <span class="text-zinc-500 text-[10px] uppercase tracking-wider">Estimation Bolide</span>
+          <span id="live-cans-indicator" class="text-amber-500 text-sm font-black font-mono">12 Cans</span>
+        </div>
+        <div class="text-right flex flex-col gap-0.5">
+          <span class="text-zinc-500 text-[10px] uppercase tracking-wider">Volume Soute</span>
+          <span id="live-slots-indicator" class="text-zinc-300 font-mono">0 / 2 Slots</span>
         </div>
       </div>
 

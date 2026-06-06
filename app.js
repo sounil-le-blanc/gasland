@@ -43,9 +43,9 @@ const GASLANDS_DATA = {
     { id: "brouilleur_em", name: "Brouilleur Électromagnétique", cost: 2, slots: 0, crew: false, mishkinOnly: false },
     { id: "bombes_teleguidees", name: "Bombes Téléguidées", cost: 3, slots: 0, crew: false, mishkinOnly: false },
     { id: "boule_demolition", name: "Boule de démolition", cost: 2, slots: 3, crew: false, mishkinOnly: false },
-    { id: "canon_arc", name: "Canon à Arc Électrique", cost: 6, slots: 2, crew: false, mishkinOnly: true }, // Mishkin
+    { id: "canon_arc", name: "Canon à Arc Électrique", cost: 6, slots: 2, crew: false, mishkinOnly: true },
     { id: "canon_125", name: "Canon de 125 mm", cost: 6, slots: 3, crew: false, mishkinOnly: false },
-    { id: "canon_gravitationnel", name: "Canon Gravitationnel", cost: 4, slots: 1, crew: false, mishkinOnly: true }, // Mishkin
+    { id: "canon_gravitationnel", name: "Canon Gravitationnel", cost: 4, slots: 1, crew: false, mishkinOnly: true },
     { id: "canon_laser", name: "Canon Laser", cost: 5, slots: 1, crew: false, mishkinOnly: false },
     { id: "cocktails_molotov", name: "Cocktails Molotov", cost: 1, slots: 0, crew: true, mishkinOnly: false },
     { id: "filet_metallique", name: "Filet Métallique", cost: 1, slots: 0, crew: true, mishkinOnly: false },
@@ -64,7 +64,7 @@ const GASLANDS_DATA = {
     { id: "largueur_napalm", name: "Largueur de Napalm", cost: 1, slots: 1, crew: false, mishkinOnly: false },
     { id: "harpon", name: "Harpon", cost: 2, slots: 1, crew: false, mishkinOnly: false },
     { id: "magnum", name: "Magnum", cost: 1, slots: 0, crew: true, mishkinOnly: false },
-    { id: "marteleur", name: "Marteleur (Mishkin)", cost: 4, slots: 2, crew: false, mishkinOnly: true }, // Mishkin
+    { id: "marteleur", name: "Marteleur (Mishkin)", cost: 4, slots: 2, crew: false, mishkinOnly: true },
     { id: "mini_gun", name: "Minigun", cost: 5, slots: 1, crew: false, mishkinOnly: false },
     { id: "machine_gun", name: "Mitrailleuse", cost: 2, slots: 1, crew: false, mishkinOnly: false },
     { id: "heavy_machine_gun", name: "Mitrailleuse Lourde", cost: 3, slots: 1, crew: false, mishkinOnly: false },
@@ -73,7 +73,7 @@ const GASLANDS_DATA = {
     { id: "pistolet", name: "Pistolet", cost: 0, slots: 0, crew: true, mishkinOnly: false },
     { id: "pistolet_mitrailleur", name: "Pistolet Mitralleur", cost: 5, slots: 0, crew: true, mishkinOnly: false },
     { id: "rayon_desintegrateur", name: "Rayon Désintégrateur", cost: 3, slots: 1, crew: false, mishkinOnly: false },
-    { id: "super_ampli_cinetique", name: "Super Amplificateur Cinétique (Mishkin)", cost: 6, slots: 2, crew: false, mishkinOnly: true }, // Mishkin
+    { id: "super_ampli_cinetique", name: "Super Amplificateur Cinétique (Mishkin)", cost: 6, slots: 2, crew: false, mishkinOnly: true },
     { id: "tromblon", name: "Tromblon", cost: 2, slots: 0, crew: true, mishkinOnly: false }
   ],
   upgrades: [
@@ -85,8 +85,8 @@ const GASLANDS_DATA = {
     { id: "chenilles", name: "Chenilles", cost: 4, slots: 1, directional: false, mishkinOnly: false },
     { id: "equipage_supp", name: "Membre d'Équipage Supplémentaire", cost: 4, slots: 0, directional: false, mishkinOnly: false },
     { id: "nitro", name: "Nitro", cost: 6, slots: 0, directional: false, mishkinOnly: false },
-    { id: "reacteur_nucleaire", name: "Réacteur Nucléaire Expérimental (Mishkin)", cost: 5, slots: 0, directional: false, mishkinOnly: true }, // Mishkin
-    { id: "teleporteur", name: "Téléporteur Expérimental (Mishkin)", cost: 7, slots: 0, directional: false, mishkinOnly: true }   // Mishkin
+    { id: "reacteur_nucleaire", name: "Réacteur Nucléaire Expérimental (Mishkin)", cost: 5, slots: 0, directional: false, mishkinOnly: true },
+    { id: "teleporteur", name: "Téléporteur Expérimental (Mishkin)", cost: 7, slots: 0, directional: false, mishkinOnly: true }
   ],
   trailers: [
     { id: "none", name: "Aucune remorque", cost: 0, extraSlots: 0 },
@@ -178,17 +178,22 @@ const GASLANDS_DATA = {
   ]
 };
 
+const SUPABASE_URL = "https://vwfzzybjjlrashioovrk.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_CVxOH_z-iZs-hmc2O6NBEw_faZRGkNI";
+
+if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+  window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
 let crew = [];
 let maxCans = 50;
 let myGarageCode = "";
 let garageHistory = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // 1. Initialiser l'historique
   const savedHistory = localStorage.getItem("gaslands_garage_history_list");
   if (savedHistory) garageHistory = JSON.parse(savedHistory);
 
-  // 2. Charger ou Générer le code actif
   let savedCode = localStorage.getItem("gaslands_garage_unique_code");
   if (!savedCode) {
     savedCode = "GANG-" + Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -200,12 +205,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!garageHistory.includes(myGarageCode)) addToHistory(myGarageCode);
   document.getElementById("garage-code-display").textContent = myGarageCode;
 
-  // 3. Charger le budget max
   const savedLimit = localStorage.getItem("gaslands_max_cans_limit");
   if (savedLimit) maxCans = parseInt(savedLimit, 10);
   document.getElementById("max-cans-display").textContent = maxCans;
 
-  // 4. Lancer la construction initiale des menus
   populateFormOptions();
   updateHistoryDropdownUI();
   loadLocalCrewForCode(myGarageCode);
@@ -236,19 +239,18 @@ function createNewGarage() {
   crew = [];
   localSave();
   renderCrew();
-  populateFormOptions(); // Réinitialise les filtres pour la nouvelle team
+  populateFormOptions();
   updateHistoryDropdownUI();
 }
 
 function deleteCurrentGarage() {
   if (garageHistory.length <= 1) {
-    alert("🚨 Action impossible : Tu devez garder au moins une écurie active !");
+    alert("🚨 Action impossible : Tu dois garder au moins une écurie active !");
     return;
   }
 
   if (confirm(`⚠️ Supprimer définitivement l'écurie locale ${myGarageCode} ?`)) {
     const codeToDelete = myGarageCode;
-
     garageHistory = garageHistory.filter(code => code !== codeToDelete);
     localStorage.setItem("gaslands_garage_history_list", JSON.stringify(garageHistory));
 
@@ -274,9 +276,8 @@ function switchGarageFromHistory(selectedCode) {
   myGarageCode = selectedCode;
   localStorage.setItem("gaslands_garage_unique_code", myGarageCode);
   document.getElementById("garage-code-display").textContent = myGarageCode;
-
   loadLocalCrewForCode(myGarageCode);
-  populateFormOptions(); // Force le re-filtrage Mishkin/Rusty à la volée !
+  populateFormOptions();
 }
 
 function loadLocalCrewForCode(code) {
@@ -292,15 +293,12 @@ function localSave() {
   multiData[myGarageCode] = crew;
   localStorage.setItem("gaslands_multi_garages_data", JSON.stringify(multiData));
   localStorage.setItem("gaslands_advanced_crew", JSON.stringify(crew));
-
-  // Auto-synchro Cloud transparente
   cloudSaveGarage();
 }
 
 async function cloudSaveGarage() {
   if (!window.supabase) return;
   const statusText = document.getElementById("crew-status-text");
-
   const { error } = await window.supabase
     .from("crews")
     .upsert({ user_id: myGarageCode, data: crew });
@@ -329,11 +327,9 @@ async function cloudLoadGarage(event) {
   } else if (data && data.data) {
     crew = data.data;
     myGarageCode = codeInput;
-
     localStorage.setItem("gaslands_garage_unique_code", myGarageCode);
     addToHistory(myGarageCode);
     localSave();
-
     document.getElementById("garage-code-display").textContent = myGarageCode;
     renderCrew();
     populateFormOptions();
@@ -351,7 +347,7 @@ function adjustMaxCans(amount) {
   renderCrew();
 }
 
-// 💥 CONSTRUCTION DES OPTIONS FORMULAIRE AVEC FILTRAGE MISHKIN EMBARQUÉ
+// 💥 CONSTRUCTION DES OPTIONS AVEC ÉCOUTEURS EN TEMPS RÉEL (LIVE PREVIEW)
 function populateFormOptions() {
   const sSelect = document.getElementById("sponsor-select");
   const vSelect = document.getElementById("vehicle-type");
@@ -362,7 +358,6 @@ function populateFormOptions() {
 
   if (!sSelect) return;
 
-  // Injection unique du menu des sponsors si vide
   if (sSelect.innerHTML.trim() === "") {
     sSelect.innerHTML = GASLANDS_DATA.sponsors.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
   }
@@ -372,26 +367,27 @@ function populateFormOptions() {
   if (vSelect) {
     vSelect.innerHTML = Object.entries(GASLANDS_DATA.vehicles).map(([key, v]) => `<option value="${key}">${v.name} (${v.baseCost} Cans — Slots: ${v.slots})</option>`).join("");
   }
+
+  // 🚛 AJOUT DE L'INDICATION DYNAMIQUE DE SOUTE DANS LES TEXTES DES REMORQUES
   if (tSelect) {
-    tSelect.innerHTML = GASLANDS_DATA.trailers.map(t => `<option value="${t.id}">${t.name} ${t.cost > 0 ? `(+${t.cost} Cans)` : ''}</option>`).join("");
+    tSelect.innerHTML = GASLANDS_DATA.trailers.map(t => `<option value="${t.id}">${t.name} ${t.cost > 0 ? `(+${t.cost} Cans — Soute +${t.extraSlots} Slots)` : '(Soute +0 Slot)'}</option>`).join("");
   }
   if (cSelect) {
     cSelect.innerHTML = GASLANDS_DATA.cargoUpgrades.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
   }
 
-  // Filtrer et injecter l'Arsenal d'armes
   if (wContainer) {
     const filteredWeapons = GASLANDS_DATA.weapons.filter(w => !w.mishkinOnly || currentSponsorId === "mishkin");
     wContainer.innerHTML = filteredWeapons.map(w => `
       <div class="flex flex-col gap-1 bg-zinc-900/20 border border-zinc-900 p-2 rounded hover:border-zinc-800 transition">
         <label class="flex items-center gap-2 cursor-pointer w-full">
-          <input type="checkbox" name="weapon-checkbox" value="${w.id}" onchange="toggleWeaponOrientationState('${w.id}')" class="accent-amber-500 w-4 h-4 cursor-pointer">
+          <input type="checkbox" name="weapon-checkbox" value="${w.id}" onchange="toggleWeaponOrientationState('${w.id}'); updateLiveFormCalculations();" class="accent-amber-500 w-4 h-4 cursor-pointer">
           <span class="flex-grow font-bold text-zinc-200">${w.name} ${w.crew ? '<span class="text-[9px] text-amber-500/70 bg-amber-950/40 border border-amber-900/50 px-1 py-0.5 rounded font-sans ml-1 uppercase">Équipage</span>' : `<span class="text-[10px] text-zinc-500">[${w.slots}S]</span>`} <span class="text-amber-500 text-xs font-black">(+${w.cost} Cans)</span></span>
         </label>
         ${!w.crew ? `
         <div class="flex items-center justify-end gap-2 mt-1 text-[11px] opacity-40 transition" id="w-orient-zone-${w.id}">
           <span class="text-zinc-500">Fixation :</span>
-          <select id="w-facing-${w.id}" disabled class="bg-zinc-950 border border-zinc-800 rounded px-1.5 py-0.5 text-zinc-300 font-sans outline-none focus:border-amber-500">
+          <select id="w-facing-${w.id}" disabled onchange="updateLiveFormCalculations()" class="bg-zinc-950 border border-zinc-800 rounded px-1.5 py-0.5 text-zinc-300 font-sans outline-none focus:border-amber-500">
             <option value="Avant">Avant</option>
             <option value="Arrière">Arrière</option>
             <option value="Flanc Gauche">Flanc Gauche</option>
@@ -404,19 +400,18 @@ function populateFormOptions() {
     `).join("");
   }
 
-  // Filtrer et injecter les améliorations matérielles
   if (uContainer) {
     const filteredUpgrades = GASLANDS_DATA.upgrades.filter(u => !u.mishkinOnly || currentSponsorId === "mishkin");
     uContainer.innerHTML = filteredUpgrades.map(u => `
       <div class="flex flex-col gap-1 bg-zinc-900/10 border border-zinc-900/60 p-2 rounded hover:border-zinc-800 transition">
         <label class="flex items-center gap-2 cursor-pointer w-full">
-          <input type="checkbox" name="upgrade-checkbox" value="${u.id}" onchange="toggleUpgradeOrientationState('${u.id}')" class="accent-amber-500 w-4 h-4 cursor-pointer">
+          <input type="checkbox" name="upgrade-checkbox" value="${u.id}" onchange="toggleUpgradeOrientationState('${u.id}'); updateLiveFormCalculations();" class="accent-amber-500 w-4 h-4 cursor-pointer">
           <span class="flex-grow text-zinc-300">${u.name} <span class="text-[10px] text-zinc-500">[${u.slots}S]</span> <span class="text-amber-500 font-bold text-xs">(+${u.cost})</span></span>
         </label>
         ${u.directional ? `
         <div class="flex items-center justify-end gap-2 mt-1 text-[11px] opacity-40 transition" id="u-orient-zone-${u.id}">
           <span class="text-zinc-500">Emplacement :</span>
-          <select id="u-facing-${u.id}" disabled class="bg-zinc-950 border border-zinc-800 rounded px-1.5 py-0.5 text-zinc-300 font-sans outline-none focus:border-amber-500">
+          <select id="u-facing-${u.id}" disabled onchange="updateLiveFormCalculations()" class="bg-zinc-950 border border-zinc-800 rounded px-1.5 py-0.5 text-zinc-300 font-sans outline-none focus:border-amber-500">
             <option value="Avant">Avant (Standard)</option>
             <option value="Arrière">Arrière</option>
             <option value="Latéral">Latéral</option>
@@ -429,9 +424,71 @@ function populateFormOptions() {
 
   handleSponsorChange();
   handleTrailerChange();
+  updateLiveFormCalculations(); // Lancement du compteur à l'état initial
 }
 
-// Intercepteur appelé par le HTML sur le onchange du sponsor pour actualiser l'interface de filtrage
+// 💥 FONCTION EMBARQUÉE DE CALCUL EN TEMPS RÉEL (LIVE PREVIEW)
+function updateLiveFormCalculations() {
+  const chassisKey = document.getElementById("vehicle-type").value;
+  const trailerId = document.getElementById("trailer-select").value;
+  const cargoId = document.getElementById("cargo-select").value;
+
+  const chassis = GASLANDS_DATA.vehicles[chassisKey];
+  const trailer = GASLANDS_DATA.trailers.find(t => t.id === trailerId);
+  const cargo = GASLANDS_DATA.cargoUpgrades.find(c => c.id === cargoId);
+
+  if (!chassis) return;
+
+  let currentCansTotal = chassis.baseCost + (trailer ? trailer.cost : 0) + (cargo ? cargo.cost : 0);
+  let currentSlotsTotal = 0;
+
+  // Calcul du coût live des armes
+  document.querySelectorAll('input[name="weapon-checkbox"]:checked').forEach(cb => {
+    const wObj = GASLANDS_DATA.weapons.find(w => w.id === cb.value);
+    if (wObj) {
+      let weaponCost = wObj.cost;
+      if (!wObj.crew) {
+        const facing = document.getElementById(`w-facing-${wObj.id}`).value;
+        if (facing === "Tourelle" && wObj.cost > 0) weaponCost = wObj.cost * 3;
+      }
+      currentCansTotal += weaponCost;
+      currentSlotsTotal += wObj.slots;
+    }
+  });
+
+  // Calcul du coût live des upgrades
+  document.querySelectorAll('input[name="upgrade-checkbox"]:checked').forEach(cb => {
+    const uObj = GASLANDS_DATA.upgrades.find(u => u.id === cb.value);
+    if (uObj) {
+      currentCansTotal += uObj.cost;
+      currentSlotsTotal += uObj.slots;
+    }
+  });
+
+  // Calcul du coût live des perks
+  document.querySelectorAll('input[name="perk-checkbox"]:checked').forEach(cb => {
+    const pObj = GASLANDS_DATA.perks.find(p => p.id === cb.value);
+    if (pObj) currentCansTotal += pObj.cost;
+  });
+
+  const maxSlotsAvailable = chassis.slots + (trailer ? trailer.extraSlots : 0);
+
+  // Mise à jour de l'affichage HTML en temps réel
+  const cansIndicator = document.getElementById("live-cans-indicator");
+  const slotsIndicator = document.getElementById("live-slots-indicator");
+
+  if (cansIndicator) cansIndicator.textContent = `${currentCansTotal} Cans`;
+
+  if (slotsIndicator) {
+    slotsIndicator.textContent = `${currentSlotsTotal} / ${maxSlotsAvailable} Slots`;
+    if (currentSlotsTotal > maxSlotsAvailable) {
+      slotsIndicator.className = "text-red-500 font-mono text-sm font-black tracking-wide animate-pulse";
+    } else {
+      slotsIndicator.className = "text-zinc-300 font-mono";
+    }
+  }
+}
+
 function handleSponsorSelectChange() {
   populateFormOptions();
 }
@@ -467,6 +524,7 @@ function handleTrailerChange() {
       cargoZone.classList.remove("hidden");
     }
   }
+  updateLiveFormCalculations(); // Déclenche le live preview
 }
 
 function handleSponsorChange() {
@@ -499,7 +557,7 @@ function handleSponsorChange() {
 
   container.innerHTML = allowedPerks.map(p => `
     <label class="flex items-center gap-2.5 cursor-pointer hover:text-amber-400 transition py-0.5">
-      <input type="checkbox" name="perk-checkbox" value="${p.id}" class="accent-amber-500 w-4 h-4 cursor-pointer">
+      <input type="checkbox" name="perk-checkbox" value="${p.id}" onchange="updateLiveFormCalculations()" class="accent-amber-500 w-4 h-4 cursor-pointer">
       <span>${p.name} <span class="text-[10px] text-zinc-500">[${p.class}]</span> <span class="text-amber-500 font-bold text-xs">(+${p.cost})</span></span>
     </label>
   `).join("");
@@ -559,6 +617,7 @@ function editVehicle(vehicleId) {
   crew = crew.filter(v => v.id !== vehicleId);
   localSave();
   renderCrew();
+  populateFormOptions(); // Synchronise les compteurs live
   document.getElementById("vehicle-name").focus();
 }
 
@@ -628,7 +687,7 @@ function addVehicleToCrew() {
   const maxSlotsAvailable = chassis.slots + trailer.extraSlots;
 
   if (totalSlotsUsed > maxSlotsAvailable) {
-    alert(`🚨 TRANSMISSION BLOQUÉE : Surcharge ! Ton véhicule d'un gabarit de ${chassis.name} ne dispose que de ${maxSlotsAvailable} emplacements (Slots). Ton arsenal actuel en consomme ${totalSlotsUsed}. Retranche un équipement ou passe sur une remorque supérieure !`);
+    alert(`🚨 TRANSMISSION BLOQUÉE : Surcharge ! Soute limitée à ${maxSlotsAvailable} emplacements.`);
     return;
   }
 
@@ -682,6 +741,7 @@ function addVehicleToCrew() {
   GASLANDS_DATA.weapons.forEach(w => { if (!w.crew) toggleWeaponOrientationState(w.id); });
   GASLANDS_DATA.upgrades.forEach(u => toggleUpgradeOrientationState(u.id));
   handleTrailerChange();
+  updateLiveFormCalculations(); // Reset les compteurs live
 }
 
 function removeVehicle(id) {
