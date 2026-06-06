@@ -189,7 +189,7 @@ let crew = [];
 let maxCans = 50;
 let myGarageCode = "";
 let garageHistory = [];
-let currentLoadedEvent = null; // Stocke l'event TV en cours de visionnage
+let currentLoadedEvent = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
   const savedHistory = localStorage.getItem("gaslands_garage_history_list");
@@ -213,6 +213,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   populateFormOptions();
   updateHistoryDropdownUI();
   loadLocalCrewForCode(myGarageCode);
+  updateTournamentBadgeUI();
+
+  // Traitement automatique des URLs de partage (ex: ?tv=TV-XXXX)
+  const urlParams = new URLSearchParams(window.location.search);
+  const tvParam = urlParams.get('tv');
+  if (tvParam) {
+    loadTVEvent(tvParam);
+  }
 });
 
 function addToHistory(code) {
@@ -227,6 +235,13 @@ function updateHistoryDropdownUI() {
   if (!select) return;
   select.innerHTML = `<option value="">Écuries (${garageHistory.length})...</option>` +
     garageHistory.map(code => `<option value="${code}" ${code === myGarageCode ? 'selected' : ''}>${code}</option>`).join("");
+}
+
+function updateTournamentBadgeUI() {
+  const countEl = document.getElementById("local-tournaments-count");
+  if (!countEl) return;
+  const created = localStorage.getItem("gaslands_has_created_tournament") ? 1 : 0;
+  countEl.textContent = created;
 }
 
 function createNewGarage() {
@@ -244,7 +259,7 @@ function createNewGarage() {
 
 function deleteCurrentGarage() {
   if (garageHistory.length <= 1) {
-    alert("🚨 Action impossible : Tu dois garder au moins un garage actif !");
+    alert("🚨 Action impossible : Tu devez garder au moins une écurie active !");
     return;
   }
   if (confirm(`⚠️ Supprimer définitivement l'écurie locale ${myGarageCode} ?`)) {
@@ -331,12 +346,19 @@ async function cloudLoadGarage(event) {
 }
 
 // ==========================================
-// 🎥 LOGIQUE DU PROGRAMME TV / CHAMPIONNAT (SANS INSCRIPTION)
+// 🎥 LOGIQUE DU PROGRAMME TV / CHAMPIONNAT (AVEC LIMITATION 1 MAX)
 // ==========================================
 
-// 1. CRÉER UN ÉVÉNEMENT DE TOURNOI
 async function createNewTVEvent() {
   if (!window.supabase) return;
+
+  // 🛡️ SÉCURITÉ GUEST : Vérifier si l'utilisateur a déjà créé un tournoi en anonyme
+  const alreadyCreated = localStorage.getItem("gaslands_has_created_tournament");
+  if (alreadyCreated) {
+    alert("⛔ LIMITE ATTEINTE (Mode Invité) :\n\nVous avez déjà généré un tournoi TV sur ce navigateur. Pour ouvrir de nouvelles antennes, créer plusieurs championnats en même temps et ne pas perdre vos données de ligues, vous devez posséder un Compte Pilote.\n\n(L'inscription arrive bientôt ! En attendant, vous pouvez continuer d'utiliser ce tournoi ou rejoindre ceux de vos potes).");
+    return;
+  }
+
   const title = document.getElementById("new-event-title").value.trim();
   const cans = parseInt(document.getElementById("new-event-cans").value, 10);
 
@@ -359,13 +381,15 @@ async function createNewTVEvent() {
   if (error) {
     alert("Erreur lors du lancement TV : " + error.message);
   } else {
+    // Verrouillage de la limite locale
+    localStorage.setItem("gaslands_has_created_tournament", generatedTVCode);
+    updateTournamentBadgeUI();
     document.getElementById("new-event-title").value = "";
-    alert(`🎉 Émission lancée ! Partage le code : ${generatedTVCode} à tes joueurs.`);
+    alert(`🎉 Championnat créé avec succès ! Code d'accès : ${generatedTVCode}`);
     loadTVEvent(generatedTVCode);
   }
 }
 
-// 2. CAPTER / CHARGER UN ÉVÉNEMENT ET SA GRILLE
 async function loadTVEvent(eventCode) {
   if (!window.supabase) return;
   const code = eventCode.trim().toUpperCase();
@@ -389,18 +413,15 @@ async function loadTVEvent(eventCode) {
 
   currentLoadedEvent = data;
 
-  // Affichage de la boîte
   document.getElementById("active-tv-zone").classList.remove("hidden");
   document.getElementById("tv-event-title").textContent = data.title;
   document.getElementById("tv-event-code").textContent = data.event_id;
   document.getElementById("tv-event-limit").textContent = `${data.max_cans} CANS MAX`;
   document.getElementById("tv-code-input").value = data.event_id;
 
-  // Récupérer le détail complet des rosters inscrits
   renderTVDriversGrille(data.registered_gangs);
 }
 
-// 3. RECONSTRUIRE VISUELLEMENT LA GRILLE DES PILOTES INSERÉS
 async function renderTVDriversGrille(gangCodesArray) {
   const container = document.getElementById("tv-drivers-list");
   if (!container) return;
@@ -410,7 +431,6 @@ async function renderTVDriversGrille(gangCodesArray) {
     return;
   }
 
-  // On va chercher les détails de chaque garage sur Supabase d'un seul coup
   const { data, error } = await window.supabase
     .from("crews")
     .select("user_id, data")
@@ -424,7 +444,7 @@ async function renderTVDriversGrille(gangCodesArray) {
   container.innerHTML = data.map(garage => {
     const totalCost = garage.data.reduce((sum, v) => sum + v.cost, 0);
     const vehicleNames = garage.data.map(v => v.name).join(", ") || "Aucun véhicule";
-
+    
     return `
       <div class="bg-zinc-900 border border-zinc-800 rounded p-2 flex items-center justify-between text-xs font-sans">
         <div>
@@ -439,34 +459,27 @@ async function renderTVDriversGrille(gangCodesArray) {
   }).join("");
 }
 
-// 4. PRENDRE NOTRE SOUCHE ACTUELLE ET LA POUSSER SUR LE TOURNOI (AVEC SÉCURITÉ CONFORMITÉ)
 async function pushMyGangToActiveEvent() {
   if (!window.supabase || !currentLoadedEvent) return;
-
-  // Calcul du coût total de mon garage actuel
   const myTotalCost = crew.reduce((sum, v) => sum + v.cost, 0);
 
   if (crew.length === 0) {
-    alert("🚨 Impossible : Ton écurie est vide ! Fabrique au moins un bolide.");
+    alert("🚨 Impossible : Ton écurie est vide !");
     return;
   }
 
-  // 🛡️ ARBITRE AUTOMATIQUE : Vérification de la limite de budget de l'orga
   if (myTotalCost > currentLoadedEvent.max_cans) {
-    alert(`⛔ INSCRIPTION REFUSÉE : Ton équipe consomme ${myTotalCost} Cans. L'organisateur a limité ce tournoi à un maximum de ${currentLoadedEvent.max_cans} Cans. Modifie tes véhicules pour passer le contrôle technique !`);
+    alert(`⛔ CONTRÔLE TECHNIQUE RECALÉ : Ton équipe consomme ${myTotalCost} Cans. Ce tournoi exige un maximum de ${currentLoadedEvent.max_cans} Cans.`);
     return;
   }
 
-  // Si le code est déjà inscrit, on évite le doublon
   let updatedGangs = [...currentLoadedEvent.registered_gangs];
   if (!updatedGangs.includes(myGarageCode)) {
     updatedGangs.push(myGarageCode);
   }
 
-  // On envoie le garage sur le cloud d'abord
   await cloudSaveGarage();
 
-  // On injecte le code dans la liste de l'event
   const { error } = await window.supabase
     .from("events")
     .update({ registered_gangs: updatedGangs })
@@ -475,21 +488,14 @@ async function pushMyGangToActiveEvent() {
   if (error) {
     alert("Échec de l'envoi sur la grille : " + error.message);
   } else {
-    alert(`🚀 Écurie ${myGarageCode} alignée avec succès sur la ligne de départ !`);
-    loadTVEvent(currentLoadedEvent.event_id); // Recharger pour voir sa bagnole
+    alert(`🚀 Écurie ${myGarageCode} alignée sur la grille !`);
+    loadTVEvent(currentLoadedEvent.event_id);
   }
 }
 
 // ==========================================
-// (Le reste de tes fonctions utilitaires de calcul reste inchangé)
+// ⚙️ GESTION DU BUILDER ET COMPTEURS LIVE
 // ==========================================
-function adjustMaxCans(amount) {
-  maxCans += amount;
-  if (maxCans < 5) maxCans = 5;
-  document.getElementById("max-cans-display").textContent = maxCans;
-  localStorage.setItem("gaslands_max_cans_limit", maxCans);
-  renderCrew();
-}
 
 function populateFormOptions() {
   const sSelect = document.getElementById("sponsor-select");
@@ -990,7 +996,7 @@ function printMatchSheet() {
       ${vehiclesHTML}
       <script>
         window.onload = function() { window.print(); window.close(); };
-      <\/script>
+      </script>
     </body>
     </html>
   `);
