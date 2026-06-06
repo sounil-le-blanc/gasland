@@ -25,8 +25,8 @@ const GASLANDS_DATA = {
     buggy: { name: "Buggy", baseCost: 6, hull: 6, slots: 2 },
     moto_sidecar: { name: "Moto avec side-car", baseCost: 8, hull: 4, slots: 2 },
     camion_glaces: { name: "Camion à glaces", baseCost: 8, hull: 10, slots: 2 },
-    voiture: { name: "Voiture", baseCost: 12, hull: 10, slots: 2 },
-    voiture_sport: { name: "Voiture de sport", baseCost: 15, hull: 8, slots: 2 },
+    voiture: { name: "Voiture Standard", baseCost: 12, hull: 10, slots: 2 },
+    voiture_sport: { name: "Voiture de Course (Performance Car)", baseCost: 15, hull: 8, slots: 2 }, // Corrigé à 2 slots !
     camion: { name: "Camion", baseCost: 15, hull: 12, slots: 3 },
     gyrocoptere: { name: "Gyrocoptère", baseCost: 10, hull: 4, slots: 0 },
     ambulance: { name: "Ambulance", baseCost: 20, hull: 12, slots: 3 },
