@@ -189,6 +189,7 @@ let crew = [];
 let maxCans = 50;
 let myGarageCode = "";
 let garageHistory = [];
+let currentLoadedEvent = null; // Stocke l'event TV en cours de visionnage
 
 document.addEventListener("DOMContentLoaded", async () => {
   const savedHistory = localStorage.getItem("gaslands_garage_history_list");
@@ -232,10 +233,8 @@ function createNewGarage() {
   const newCode = "GANG-" + Math.random().toString(36).substring(2, 6).toUpperCase();
   localStorage.setItem("gaslands_garage_unique_code", newCode);
   addToHistory(newCode);
-
   myGarageCode = newCode;
   document.getElementById("garage-code-display").textContent = myGarageCode;
-
   crew = [];
   localSave();
   renderCrew();
@@ -245,26 +244,22 @@ function createNewGarage() {
 
 function deleteCurrentGarage() {
   if (garageHistory.length <= 1) {
-    alert("🚨 Action impossible : Tu dois garder au moins une écurie active !");
+    alert("🚨 Action impossible : Tu dois garder au moins un garage actif !");
     return;
   }
-
   if (confirm(`⚠️ Supprimer définitivement l'écurie locale ${myGarageCode} ?`)) {
     const codeToDelete = myGarageCode;
     garageHistory = garageHistory.filter(code => code !== codeToDelete);
     localStorage.setItem("gaslands_garage_history_list", JSON.stringify(garageHistory));
-
     const allGarages = localStorage.getItem("gaslands_multi_garages_data");
     if (allGarages) {
       let multiData = JSON.parse(allGarages);
       delete multiData[codeToDelete];
       localStorage.setItem("gaslands_multi_garages_data", JSON.stringify(multiData));
     }
-
     myGarageCode = garageHistory[0];
     localStorage.setItem("gaslands_garage_unique_code", myGarageCode);
     document.getElementById("garage-code-display").textContent = myGarageCode;
-
     loadLocalCrewForCode(myGarageCode);
     populateFormOptions();
     updateHistoryDropdownUI();
@@ -302,7 +297,6 @@ async function cloudSaveGarage() {
   const { error } = await window.supabase
     .from("crews")
     .upsert({ user_id: myGarageCode, data: crew });
-
   if (!error && statusText) {
     statusText.textContent = "🛰️ Garage local & Cloud synchronisés — " + myGarageCode;
     statusText.className = "text-emerald-500 text-xs font-sans font-bold";
@@ -312,16 +306,13 @@ async function cloudSaveGarage() {
 async function cloudLoadGarage(event) {
   event.preventDefault();
   if (!window.supabase) return;
-
   const codeInput = document.getElementById("load-code-input").value.trim().toUpperCase();
   if (!codeInput) return;
-
   const { data, error } = await window.supabase
     .from("crews")
     .select("data")
     .eq("user_id", codeInput)
     .maybeSingle();
-
   if (error) {
     alert("Erreur satellite : " + error.message);
   } else if (data && data.data) {
@@ -339,6 +330,159 @@ async function cloudLoadGarage(event) {
   }
 }
 
+// ==========================================
+// 🎥 LOGIQUE DU PROGRAMME TV / CHAMPIONNAT (SANS INSCRIPTION)
+// ==========================================
+
+// 1. CRÉER UN ÉVÉNEMENT DE TOURNOI
+async function createNewTVEvent() {
+  if (!window.supabase) return;
+  const title = document.getElementById("new-event-title").value.trim();
+  const cans = parseInt(document.getElementById("new-event-cans").value, 10);
+
+  if (!title) {
+    alert("⚠️ Donne un titre à ton émission TV / Championnat !");
+    return;
+  }
+
+  const generatedTVCode = "TV-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+
+  const { error } = await window.supabase
+    .from("events")
+    .insert({
+      event_id: generatedTVCode,
+      title: title,
+      max_cans: cans,
+      registered_gangs: []
+    });
+
+  if (error) {
+    alert("Erreur lors du lancement TV : " + error.message);
+  } else {
+    document.getElementById("new-event-title").value = "";
+    alert(`🎉 Émission lancée ! Partage le code : ${generatedTVCode} à tes joueurs.`);
+    loadTVEvent(generatedTVCode);
+  }
+}
+
+// 2. CAPTER / CHARGER UN ÉVÉNEMENT ET SA GRILLE
+async function loadTVEvent(eventCode) {
+  if (!window.supabase) return;
+  const code = eventCode.trim().toUpperCase();
+  if (!code) return;
+
+  const { data, error } = await window.supabase
+    .from("events")
+    .select("*")
+    .eq("event_id", code)
+    .maybeSingle();
+
+  if (error) {
+    alert("Erreur réseau TV : " + error.message);
+    return;
+  }
+
+  if (!data) {
+    alert("📡 Fréquence TV introuvable ou éteinte.");
+    return;
+  }
+
+  currentLoadedEvent = data;
+
+  // Affichage de la boîte
+  document.getElementById("active-tv-zone").classList.remove("hidden");
+  document.getElementById("tv-event-title").textContent = data.title;
+  document.getElementById("tv-event-code").textContent = data.event_id;
+  document.getElementById("tv-event-limit").textContent = `${data.max_cans} CANS MAX`;
+  document.getElementById("tv-code-input").value = data.event_id;
+
+  // Récupérer le détail complet des rosters inscrits
+  renderTVDriversGrille(data.registered_gangs);
+}
+
+// 3. RECONSTRUIRE VISUELLEMENT LA GRILLE DES PILOTES INSERÉS
+async function renderTVDriversGrille(gangCodesArray) {
+  const container = document.getElementById("tv-drivers-list");
+  if (!container) return;
+
+  if (!gangCodesArray || gangCodesArray.length === 0) {
+    container.innerHTML = `<p class="text-zinc-600 text-xs italic py-2">La grille de départ est vide. Aucun pilote inscrit...</p>`;
+    return;
+  }
+
+  // On va chercher les détails de chaque garage sur Supabase d'un seul coup
+  const { data, error } = await window.supabase
+    .from("crews")
+    .select("user_id, data")
+    .in("user_id", gangCodesArray);
+
+  if (error || !data) {
+    container.innerHTML = `<p class="text-red-400 text-xs py-2">Erreur de chargement de la grille.</p>`;
+    return;
+  }
+
+  container.innerHTML = data.map(garage => {
+    const totalCost = garage.data.reduce((sum, v) => sum + v.cost, 0);
+    const vehicleNames = garage.data.map(v => v.name).join(", ") || "Aucun véhicule";
+
+    return `
+      <div class="bg-zinc-900 border border-zinc-800 rounded p-2 flex items-center justify-between text-xs font-sans">
+        <div>
+          <span class="font-bold text-amber-500 font-mono tracking-wider">${garage.user_id}</span>
+          <p class="text-zinc-400 text-[11px] font-mono mt-0.5">${vehicleNames}</p>
+        </div>
+        <div class="text-right shrink-0">
+          <span class="bg-zinc-950 px-2 py-0.5 rounded font-mono text-zinc-300 font-bold">${totalCost} Cans</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// 4. PRENDRE NOTRE SOUCHE ACTUELLE ET LA POUSSER SUR LE TOURNOI (AVEC SÉCURITÉ CONFORMITÉ)
+async function pushMyGangToActiveEvent() {
+  if (!window.supabase || !currentLoadedEvent) return;
+
+  // Calcul du coût total de mon garage actuel
+  const myTotalCost = crew.reduce((sum, v) => sum + v.cost, 0);
+
+  if (crew.length === 0) {
+    alert("🚨 Impossible : Ton écurie est vide ! Fabrique au moins un bolide.");
+    return;
+  }
+
+  // 🛡️ ARBITRE AUTOMATIQUE : Vérification de la limite de budget de l'orga
+  if (myTotalCost > currentLoadedEvent.max_cans) {
+    alert(`⛔ INSCRIPTION REFUSÉE : Ton équipe consomme ${myTotalCost} Cans. L'organisateur a limité ce tournoi à un maximum de ${currentLoadedEvent.max_cans} Cans. Modifie tes véhicules pour passer le contrôle technique !`);
+    return;
+  }
+
+  // Si le code est déjà inscrit, on évite le doublon
+  let updatedGangs = [...currentLoadedEvent.registered_gangs];
+  if (!updatedGangs.includes(myGarageCode)) {
+    updatedGangs.push(myGarageCode);
+  }
+
+  // On envoie le garage sur le cloud d'abord
+  await cloudSaveGarage();
+
+  // On injecte le code dans la liste de l'event
+  const { error } = await window.supabase
+    .from("events")
+    .update({ registered_gangs: updatedGangs })
+    .eq("event_id", currentLoadedEvent.event_id);
+
+  if (error) {
+    alert("Échec de l'envoi sur la grille : " + error.message);
+  } else {
+    alert(`🚀 Écurie ${myGarageCode} alignée avec succès sur la ligne de départ !`);
+    loadTVEvent(currentLoadedEvent.event_id); // Recharger pour voir sa bagnole
+  }
+}
+
+// ==========================================
+// (Le reste de tes fonctions utilitaires de calcul reste inchangé)
+// ==========================================
 function adjustMaxCans(amount) {
   maxCans += amount;
   if (maxCans < 5) maxCans = 5;
@@ -354,15 +498,11 @@ function populateFormOptions() {
   const cSelect = document.getElementById("cargo-select");
   const wContainer = document.getElementById("weapon-checkboxes-container");
   const uContainer = document.getElementById("upgrade-checkboxes-container");
-
   if (!sSelect) return;
-
   if (sSelect.innerHTML.trim() === "") {
     sSelect.innerHTML = GASLANDS_DATA.sponsors.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
   }
-
   const currentSponsorId = sSelect.value || "none";
-
   if (vSelect) {
     vSelect.innerHTML = Object.entries(GASLANDS_DATA.vehicles).map(([key, v]) => `<option value="${key}">${v.name} (${v.baseCost} Cans — Slots: ${v.slots})</option>`).join("");
   }
@@ -372,7 +512,6 @@ function populateFormOptions() {
   if (cSelect) {
     cSelect.innerHTML = GASLANDS_DATA.cargoUpgrades.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
   }
-
   if (wContainer) {
     const filteredWeapons = GASLANDS_DATA.weapons.filter(w => !w.mishkinOnly || currentSponsorId === "mishkin");
     wContainer.innerHTML = filteredWeapons.map(w => `
@@ -396,7 +535,6 @@ function populateFormOptions() {
       </div>
     `).join("");
   }
-
   if (uContainer) {
     const filteredUpgrades = GASLANDS_DATA.upgrades.filter(u => !u.mishkinOnly || currentSponsorId === "mishkin");
     uContainer.innerHTML = filteredUpgrades.map(u => `
@@ -418,7 +556,6 @@ function populateFormOptions() {
       </div>
     `).join("");
   }
-
   handleSponsorChange();
   handleTrailerChange();
   updateLiveFormCalculations();
@@ -428,18 +565,13 @@ function updateLiveFormCalculations() {
   const chassisKey = document.getElementById("vehicle-type").value;
   const trailerId = document.getElementById("trailer-select").value;
   const cargoId = document.getElementById("cargo-select").value;
-
   const chassis = GASLANDS_DATA.vehicles[chassisKey];
   const trailer = GASLANDS_DATA.trailers.find(t => t.id === trailerId);
   const cargo = GASLANDS_DATA.cargoUpgrades.find(c => c.id === cargoId);
-
   if (!chassis) return;
-
   let currentCansTotal = chassis.baseCost + (trailer ? trailer.cost : 0) + (cargo ? cargo.cost : 0);
   let currentSlotsTotal = 0;
-
   let facingsUsage = { "Avant": 0, "Arrière": 0, "Flanc Gauche": 0, "Flanc Droit": 0, "Latéral": 0 };
-
   document.querySelectorAll('input[name="weapon-checkbox"]:checked').forEach(cb => {
     const wObj = GASLANDS_DATA.weapons.find(w => w.id === cb.value);
     if (wObj) {
@@ -453,7 +585,6 @@ function updateLiveFormCalculations() {
       currentSlotsTotal += wObj.slots;
     }
   });
-
   document.querySelectorAll('input[name="upgrade-checkbox"]:checked').forEach(cb => {
     const uObj = GASLANDS_DATA.upgrades.find(u => u.id === cb.value);
     if (uObj) {
@@ -465,41 +596,30 @@ function updateLiveFormCalculations() {
       }
     }
   });
-
   document.querySelectorAll('input[name="perk-checkbox"]:checked').forEach(cb => {
     const pObj = GASLANDS_DATA.perks.find(p => p.id === cb.value);
     if (pObj) currentCansTotal += pObj.cost;
   });
-
   const maxSlotsAvailable = chassis.slots + (trailer ? trailer.extraSlots : 0);
   const maxPerFacing = (trailer && trailer.id !== "none") ? 2 : 1;
-
   let facingOverloadDetected = false;
   let overloadDetails = [];
-
   let finalAvant = facingsUsage["Avant"];
   let finalArriere = facingsUsage["Arrière"];
   let finalGauche = facingsUsage["Flanc Gauche"] + facingsUsage["Latéral"];
   let finalDroit = facingsUsage["Flanc Droit"] + facingsUsage["Latéral"];
-
   if (finalAvant > maxPerFacing) { facingOverloadDetected = true; overloadDetails.push(`Avant (${finalAvant}/${maxPerFacing})`); }
   if (finalArriere > maxPerFacing) { facingOverloadDetected = true; overloadDetails.push(`Arrière (${finalArriere}/${maxPerFacing})`); }
   if (finalGauche > maxPerFacing) { facingOverloadDetected = true; overloadDetails.push(`Flanc G. (${finalGauche}/${maxPerFacing})`); }
   if (finalDroit > maxPerFacing) { facingOverloadDetected = true; overloadDetails.push(`Flanc D. (${finalDroit}/${maxPerFacing})`); }
-
   const cansIndicator = document.getElementById("live-cans-indicator");
   const slotsIndicator = document.getElementById("live-slots-indicator");
   const facingsIndicator = document.getElementById("live-facings-indicator");
-
   if (cansIndicator) cansIndicator.textContent = `${currentCansTotal} Cans`;
-
   if (slotsIndicator) {
     slotsIndicator.textContent = `${currentSlotsTotal} / ${maxSlotsAvailable} Slots`;
-    slotsIndicator.className = (currentSlotsTotal > maxSlotsAvailable)
-      ? "text-red-500 font-mono text-sm font-black tracking-wide animate-pulse"
-      : "text-zinc-300 font-mono";
+    slotsIndicator.className = (currentSlotsTotal > maxSlotsAvailable) ? "text-red-500 font-mono text-sm font-black tracking-wide animate-pulse" : "text-zinc-300 font-mono";
   }
-
   if (facingsIndicator) {
     if (facingOverloadDetected) {
       facingsIndicator.innerHTML = `<span class="text-red-500 font-black animate-pulse">⚠️ FIXATION SATURÉE : ${overloadDetails.join(", ")}</span>`;
@@ -511,7 +631,6 @@ function updateLiveFormCalculations() {
       `;
     }
   }
-
   document.getElementById("live-counter-zone").dataset.invalidFacing = facingOverloadDetected ? "true" : "false";
 }
 
@@ -557,11 +676,8 @@ function handleSponsorChange() {
   const sponsorId = sSelect.value;
   const container = document.getElementById("perk-checkboxes-container");
   const trailerZone = document.getElementById("trailer-zone");
-
   if (!container) return;
-
   const selectedSponsor = GASLANDS_DATA.sponsors.find(s => s.id === sponsorId);
-
   if (trailerZone) {
     if (sponsorId === "rustys" || sponsorId === "none") {
       trailerZone.classList.remove("hidden");
@@ -571,14 +687,11 @@ function handleSponsorChange() {
       handleTrailerChange();
     }
   }
-
   const allowedPerks = GASLANDS_DATA.perks.filter(perk => selectedSponsor.perkClasses.includes(perk.class));
-
   if (allowedPerks.length === 0) {
     container.innerHTML = `<p class="text-xs text-zinc-600 italic">Aucun avantage pour ce sponsor.</p>`;
     return;
   }
-
   container.innerHTML = allowedPerks.map(p => `
     <label class="flex items-center gap-2.5 cursor-pointer hover:text-amber-400 transition py-0.5">
       <input type="checkbox" name="perk-checkbox" value="${p.id}" onchange="updateLiveFormCalculations()" class="accent-amber-500 w-4 h-4 cursor-pointer">
@@ -590,16 +703,12 @@ function handleSponsorChange() {
 function editVehicle(vehicleId) {
   const targetVehicle = crew.find(v => v.id === vehicleId);
   if (!targetVehicle) return;
-
   document.getElementById("vehicle-name").value = targetVehicle.customNameOriginal || "";
-
   const chassisEntry = Object.entries(GASLANDS_DATA.vehicles).find(([key, val]) => val.name === targetVehicle.chassisName);
   if (chassisEntry) document.getElementById("vehicle-type").value = chassisEntry[0];
-
   document.querySelectorAll('input[name="weapon-checkbox"]').forEach(cb => cb.checked = false);
   document.querySelectorAll('input[name="upgrade-checkbox"]').forEach(cb => cb.checked = false);
   document.querySelectorAll('input[name="perk-checkbox"]').forEach(cb => cb.checked = false);
-
   if (targetVehicle.originalWeapons) {
     targetVehicle.originalWeapons.forEach(wData => {
       const wBox = document.querySelector(`input[name="weapon-checkbox"][value="${wData.id}"]`);
@@ -611,7 +720,6 @@ function editVehicle(vehicleId) {
       }
     });
   }
-
   if (targetVehicle.originalUpgrades) {
     targetVehicle.originalUpgrades.forEach(uData => {
       const uBox = document.querySelector(`input[name="upgrade-checkbox"][value="${uData.id}"]`);
@@ -623,21 +731,17 @@ function editVehicle(vehicleId) {
       }
     });
   }
-
   if (targetVehicle.originalPerks) {
     targetVehicle.originalPerks.forEach(pId => {
       const pBox = document.querySelector(`input[name="perk-checkbox"][value="${pId}"]`);
       if (pBox) pBox.checked = true;
     });
   }
-
   const trEntry = GASLANDS_DATA.trailers.find(t => t.name === targetVehicle.trailerName);
   document.getElementById("trailer-select").value = trEntry ? trEntry.id : "none";
   handleTrailerChange();
-
   const cgEntry = GASLANDS_DATA.cargoUpgrades.find(c => c.name === targetVehicle.cargoName);
   document.getElementById("cargo-select").value = cgEntry ? cgEntry.id : "none";
-
   crew = crew.filter(v => v.id !== vehicleId);
   localSave();
   renderCrew();
@@ -647,84 +751,69 @@ function editVehicle(vehicleId) {
 
 function addVehicleToCrew() {
   if (document.getElementById("live-counter-zone").dataset.invalidFacing === "true") {
-    alert("🚨 ERREUR D'ASSEMBLAGE : Tu as saturé un point de fixation physique ! Tu ne peux installer qu'un seul élément directionnel par face (Avant, Arrière, Flancs), sauf si tu équipes une remorque qui double tes emplacements disponibles.");
+    alert("🚨 ERREUR D'ASSEMBLAGE : Fixation saturée !");
     return;
   }
-
   const chassisKey = document.getElementById("vehicle-type").value;
   const customName = document.getElementById("vehicle-name").value.trim();
   const trailerId = document.getElementById("trailer-select").value;
   const cargoId = document.getElementById("cargo-select").value;
-
   const chassis = GASLANDS_DATA.vehicles[chassisKey];
   const trailer = GASLANDS_DATA.trailers.find(t => t.id === trailerId);
   const cargo = GASLANDS_DATA.cargoUpgrades.find(c => c.id === cargoId);
-
   let totalSlotsUsed = 0;
-
   const weaponBoxes = document.querySelectorAll('input[name="weapon-checkbox"]:checked');
   let totalWeaponsCost = 0;
   let selectedWeaponsNames = [];
   let backupWeaponsData = [];
-
   weaponBoxes.forEach(cb => {
     const wObj = GASLANDS_DATA.weapons.find(w => w.id === cb.value);
     if (wObj) {
       let costForThisWeapon = wObj.cost;
       let displayFacing = "Équipement Équipage";
       let actualFacing = "Équipement Équipage";
-
       if (!wObj.crew) {
         const facing = document.getElementById(`w-facing-${wObj.id}`).value;
         displayFacing = facing;
         actualFacing = facing;
         if (facing === "Tourelle" && wObj.cost > 0) costForThisWeapon = wObj.cost * 3;
       }
-
       totalWeaponsCost += costForThisWeapon;
       totalSlotsUsed += wObj.slots;
       selectedWeaponsNames.push(`${wObj.name} (${displayFacing})`);
       backupWeaponsData.push({ id: wObj.id, facing: actualFacing });
     }
   });
-
   const upgradeBoxes = document.querySelectorAll('input[name="upgrade-checkbox"]:checked');
   let totalUpgradesCost = 0;
   let selectedUpgradesNames = [];
   let extraArmorHull = 0;
   let backupUpgradesData = [];
-
   upgradeBoxes.forEach(cb => {
     const uObj = GASLANDS_DATA.upgrades.find(u => u.id === cb.value);
     if (uObj) {
       totalUpgradesCost += uObj.cost;
       totalSlotsUsed += uObj.slots;
-
       let facingText = "";
       let actualFacing = "Normal";
       if (uObj.directional) {
         actualFacing = document.getElementById(`u-facing-${uObj.id}`).value;
         facingText = ` (${actualFacing})`;
       }
-
       selectedUpgradesNames.push(`${uObj.name}${facingText}`);
       backupUpgradesData.push({ id: uObj.id, facing: actualFacing });
       if (uObj.id === "armor_plating") extraArmorHull += 2;
     }
   });
-
   const maxSlotsAvailable = chassis.slots + trailer.extraSlots;
-
   if (totalSlotsUsed > maxSlotsAvailable) {
     alert(`🚨 TRANSMISSION BLOQUÉE : Surcharge ! Soute limitée à ${maxSlotsAvailable} emplacements.`);
     return;
   }
-
   const perkBoxes = document.querySelectorAll('input[name="perk-checkbox"]:checked');
   let totalPerksCost = 0;
   let selectedPerksNames = [];
   let backupPerksData = [];
-
   perkBoxes.forEach(cb => {
     const pObj = GASLANDS_DATA.perks.find(p => p.id === cb.value);
     if (pObj) {
@@ -733,10 +822,8 @@ function addVehicleToCrew() {
       backupPerksData.push(pObj.id);
     }
   });
-
   const totalVehicleCost = chassis.baseCost + totalWeaponsCost + totalUpgradesCost + totalPerksCost + trailer.cost + cargo.cost;
   const finalName = customName || `${chassis.name} de Combat`;
-
   const newVehicle = {
     id: crypto.randomUUID(),
     name: finalName,
@@ -756,17 +843,14 @@ function addVehicleToCrew() {
     originalUpgrades: backupUpgradesData,
     originalPerks: backupPerksData
   };
-
   crew.push(newVehicle);
   localSave();
   renderCrew();
-
   document.getElementById("vehicle-name").value = "";
   document.getElementById("trailer-select").value = "none";
   weaponBoxes.forEach(cb => cb.checked = false);
   upgradeBoxes.forEach(cb => cb.checked = false);
   perkBoxes.forEach(cb => cb.checked = false);
-
   GASLANDS_DATA.weapons.forEach(w => { if (!w.crew) toggleWeaponOrientationState(w.id); });
   GASLANDS_DATA.upgrades.forEach(u => toggleUpgradeOrientationState(u.id));
   handleTrailerChange();
@@ -790,16 +874,13 @@ function clearRoster() {
 function renderCrew() {
   const container = document.getElementById("crew-list");
   const totalCansEl = document.getElementById("total-cans");
-
   if (!container || !totalCansEl) return;
-
   if (crew.length === 0) {
-    container.innerHTML = `<p class="text-zinc-600 text-sm italic text-center py-12">Aucun véhicule blindé dans le garage...</p>`;
+    container.innerHTML = `<p class="text-zinc-600 text-sm italic text-center py-6">Aucun véhicule blindé dans le garage...</p>`;
     totalCansEl.textContent = "0";
     totalCansEl.className = "text-5xl font-black text-amber-500 font-sans";
     return;
   }
-
   let totalCans = 0;
   container.innerHTML = crew.map(v => {
     totalCans += v.cost;
@@ -830,9 +911,7 @@ function renderCrew() {
             </div>
         `;
   }).join("");
-
   totalCansEl.textContent = totalCans;
-
   if (totalCans > maxCans) {
     totalCansEl.className = "text-5xl font-black text-red-500 font-sans tracking-tight animate-pulse";
   } else {
@@ -845,27 +924,20 @@ function toggleLoadModal() {
   if (modal) modal.classList.toggle("hidden");
 }
 
-// ==========================================
-// 3. MODULE D'IMPRESSION DU ROSTER (PDF)
-// ==========================================
 function printMatchSheet() {
   if (crew.length === 0) {
-    alert("🚨 Ton garage est vide ! Ajoute au moins un véhicule avant d'imprimer la fiche de match.");
+    alert("🚨 Ton garage est vide !");
     return;
   }
-
   const sponsorSelect = document.getElementById("sponsor-select");
   const sponsorName = sponsorSelect ? sponsorSelect.options[sponsorSelect.selectedIndex].text : "Non spécifié";
   const totalCans = crew.reduce((sum, v) => sum + v.cost, 0);
-
   const printWindow = window.open('', '_blank');
-
   let vehiclesHTML = crew.map((v, index) => {
     let boxes = "";
     for (let i = 0; i < v.hull; i++) {
       boxes += '<div style="display:inline-block; width:16px; height:16px; border:2px solid #000; margin-right:5px; margin-bottom:5px; background:#fff;"></div>';
     }
-
     return `
       <div style="border: 3px solid #000; margin-bottom: 20px; page-break-inside: avoid; background: #fff;">
         <div style="background: #000; color: #fff; padding: 6px 10px; font-weight: bold; text-transform: uppercase; font-size: 12px;">
@@ -881,17 +953,16 @@ function printMatchSheet() {
             <tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold; width: 110px;">💥 ARMEMENTS :</td><td style="padding: 4px 0;">${v.weaponName}</td></tr>
             <tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">🔧 MATÉRIEL :</td><td style="padding: 4px 0;">${v.upgradeName}</td></tr>
             <tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">🔥 AVANTAGES :</td><td style="padding: 4px 0;">${v.perkName}</td></tr>
-            ${v.trailerName !== "Aucune" ? `<tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">¼🚛 ATTELAGE :</td><td style="padding: 4px 0;">${v.trailerName} ${v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</td></tr>` : ''}
+            ${v.trailerName !== "Aucune" ? `<tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">🚛 ATTELAGE :</td><td style="padding: 4px 0;">${v.trailerName} ${v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</td></tr>` : ''}
           </table>
           <div style="border-top: 2px solid #000; padding-top: 6px; margin-top: 4px;">
-            <span style="font-weight: bold; font-size: 11px; text-transform: uppercase; font-family:monospace;">Structure de la Coque (Points de vie) :</span>
+            <span style="font-weight: bold; font-size: 11px; text-transform: uppercase; font-family:monospace;">Structure de la Coque :</span>
             <div style="margin-top: 6px;">${boxes} <span style="font-size: 10px; vertical-align: super; font-weight: bold; margin-left: 4px; font-family:monospace;">(${v.hull} PV)</span></div>
           </div>
         </div>
       </div>
     `;
   }).join("");
-
   printWindow.document.write(`
     <!DOCTYPE html>
     <html>
@@ -916,26 +987,12 @@ function printMatchSheet() {
           </tr>
         </table>
       </div>
-      
       ${vehiclesHTML}
-
-      <div class="quick-rules">
-        <div style="font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #000; padding-bottom: 2px; margin-bottom: 6px;">Aide-Mémoire - Règles de Vitesse</div>
-        <ul style="margin: 0; padding-left: 18px;">
-          <li><strong>Phases 1 à 6 :</strong> On s'active si la vitesse actuelle du bolide >= Phase en cours.</li>
-          <li><strong>Séquence :</strong> 1. Choisir Gabarit / 2. Dés de Manœuvre / 3. Résoudre Glissade/Tonneau / 4. Déplacement / 5. Étape d'Attaque.</li>
-        </ul>
-      </div>
-
       <script>
-        window.onload = function() {
-          window.print();
-          window.close();
-        };
+        window.onload = function() { window.print(); window.close(); };
       <\/script>
     </body>
     </html>
   `);
-
   printWindow.document.close();
 }

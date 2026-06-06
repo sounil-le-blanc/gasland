@@ -175,7 +175,7 @@
         </div>
       </div>
 
-      <div class="bg-zinc-900/20 border-2 border-zinc-800 rounded-xl p-6 min-h-[350px] flex flex-col gap-4">
+      <div class="bg-zinc-900/20 border-2 border-zinc-800 rounded-xl p-6 min-h-[220px] flex flex-col gap-4">
         <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
           <h3 class="text-xs font-black uppercase text-zinc-400 tracking-widest">Machines de Guerre Engagées</h3>
           <div class="flex gap-4">
@@ -187,10 +187,68 @@
               l'écurie</button>
           </div>
         </div>
-
         <div id="crew-list" class="flex flex-col gap-4">
-          <p class="text-zinc-600 text-sm italic text-center py-12">Aucun véhicule blindé dans le garage pour le
-            moment...</p>
+          <p class="text-zinc-600 text-sm italic text-center py-6">Aucun véhicule blindé dans le garage...</p>
+        </div>
+      </div>
+
+      <div class="bg-zinc-900 border-2 border-zinc-800 rounded-xl p-6 shadow-xl flex flex-col gap-4">
+        <div class="border-b border-zinc-800 pb-2">
+          <h2 class="text-sm font-black uppercase text-amber-500 tracking-wider">🎥 Programme TV & Championnats de Club
+          </h2>
+          <p class="text-zinc-500 text-[11px]">Crée une course ou rejoins une grille officielle partagée, sans compte.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          <div class="bg-zinc-950 border border-zinc-800 p-4 rounded flex flex-col gap-3">
+            <h4 class="text-xs uppercase font-bold text-zinc-300">🏁 Ouvrir une nouvelle Antenne TV</h4>
+            <input type="text" id="new-event-title" placeholder="Nom du championnat/club..."
+              class="bg-zinc-900 border border-zinc-800 rounded p-2 text-xs text-zinc-200 outline-none focus:border-amber-500">
+            <div class="flex gap-2">
+              <input type="number" id="new-event-cans" value="50"
+                class="w-20 bg-zinc-900 border border-zinc-800 rounded p-2 text-xs text-zinc-200 text-center outline-none focus:border-amber-500">
+              <button onclick="createNewTVEvent()"
+                class="flex-grow bg-amber-600 hover:bg-amber-500 text-zinc-950 font-black text-xs py-2 rounded uppercase tracking-wider transition cursor-pointer">Lancer
+                l'Émission</button>
+            </div>
+          </div>
+
+          <div class="bg-zinc-950 border border-zinc-800 p-4 rounded flex flex-col gap-3">
+            <h4 class="text-xs uppercase font-bold text-zinc-300">📡 Capter Fréquence TV</h4>
+            <div class="flex gap-2">
+              <input type="text" id="tv-code-input" placeholder="Ex: TV-XXXX"
+                class="flex-grow bg-zinc-900 border border-zinc-800 rounded p-2 text-xs uppercase tracking-widest text-zinc-200 outline-none focus:border-amber-500">
+              <button onclick="loadTVEvent(document.getElementById('tv-code-input').value)"
+                class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 font-bold text-xs px-4 rounded uppercase tracking-wider transition cursor-pointer">Capter</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="active-tv-zone"
+          class="hidden bg-zinc-950 border-2 border-amber-600/30 rounded p-4 flex flex-col gap-4">
+          <div class="flex justify-between items-start border-b border-zinc-800 pb-2">
+            <div>
+              <h3 id="tv-event-title" class="text-base font-black text-amber-500 uppercase">COURSE DU WASTELAND</h3>
+              <p class="text-zinc-500 text-[10px]">Code d'accès : <span id="tv-event-code"
+                  class="text-zinc-300 font-bold tracking-widest select-all">TV-XXXX</span></p>
+            </div>
+            <div class="text-right">
+              <span id="tv-event-limit"
+                class="text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 px-2 py-1 rounded font-bold">50 CANS
+                MAX</span>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <h4 class="text-xs font-black uppercase text-zinc-400">🚦 Grille de Départ Actuelle :</h4>
+            <div id="tv-drivers-list" class="flex flex-col gap-2 max-h-48 overflow-y-auto pr-2">
+            </div>
+          </div>
+
+          <button onclick="pushMyGangToActiveEvent()"
+            class="w-full bg-emerald-600 hover:bg-emerald-500 text-zinc-950 font-black text-xs py-2.5 rounded uppercase tracking-wider transition cursor-pointer">🚀
+            Envoyer mon équipe actuelle sur la grille</button>
         </div>
       </div>
 
@@ -204,19 +262,14 @@
       <button onclick="toggleLoadModal()"
         class="absolute top-4 right-4 text-zinc-500 hover:text-zinc-200 font-bold cursor-pointer">✕</button>
       <h2 class="text-xl font-black uppercase text-amber-500 tracking-wider">📡 Capter Fréquence Cloud</h2>
-      <p class="text-zinc-400 text-xs font-sans">Saisis le code unique d'une écurie pour importer instantanément sa
-        composition depuis la liaison satellite.</p>
-
       <form id="load-form" onsubmit="cloudLoadGarage(event)" class="flex flex-col gap-4">
         <div class="flex flex-col gap-1">
-          <label class="text-xs uppercase font-bold text-zinc-400">Code de sauvegarde (Ex: GANG-XXXX)</label>
+          <label class="text-xs uppercase font-bold text-zinc-400">Code de sauvegarde</label>
           <input type="text" id="load-code-input" required placeholder="GANG-"
             class="bg-zinc-950 border-2 border-zinc-800 rounded p-2 text-zinc-200 uppercase tracking-widest outline-none focus:border-amber-500 font-black text-center">
         </div>
         <button type="submit"
-          class="w-full bg-amber-600 hover:bg-amber-500 text-zinc-950 font-black py-2.5 rounded uppercase tracking-wide transition cursor-pointer mt-2">
-          Intercepter les plans du garage
-        </button>
+          class="w-full bg-amber-600 hover:bg-amber-500 text-zinc-950 font-black py-2.5 rounded uppercase tracking-wide transition cursor-pointer mt-2">Intercepter</button>
       </form>
     </div>
   </div>
