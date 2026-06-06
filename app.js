@@ -89,10 +89,10 @@ const GASLANDS_DATA = {
     { id: "teleporteur", name: "Téléporteur Expérimental (Mishkin)", cost: 7, slots: 0, directional: false, mishkinOnly: true }
   ],
   trailers: [
-    { id: "none", name: "Aucune remorque", cost: 0, extraSlots: 0 },
-    { id: "trailer_light", name: "Remorque (Poids Léger)", cost: 4, extraSlots: 0 },
-    { id: "trailer_medium", name: "Remorque (Poids Moyen)", cost: 8, extraSlots: 1 },
-    { id: "trailer_heavy", name: "Remorque (Poids Lourd)", cost: 12, extraSlots: 3 }
+    { id: "none", name: "Aucune remorque", cost: 0, extraSlots: 0, addsFacings: false },
+    { id: "trailer_light", name: "Remorque (Poids Léger)", cost: 4, extraSlots: 0, addsFacings: true },
+    { id: "trailer_medium", name: "Remorque (Poids Moyen)", cost: 8, extraSlots: 1, addsFacings: true },
+    { id: "trailer_heavy", name: "Remorque (Poids Lourd)", cost: 12, extraSlots: 3, addsFacings: true }
   ],
   cargoUpgrades: [
     { id: "none", name: "Aucune amélioration de transport", cost: 0 },
@@ -245,7 +245,7 @@ function createNewGarage() {
 
 function deleteCurrentGarage() {
   if (garageHistory.length <= 1) {
-    alert("🚨 Action impossible : Tu dois garder au moins une écurie active !");
+    alert("🚨 Action impossible : Garde au moins un garage actif !");
     return;
   }
 
@@ -347,7 +347,6 @@ function adjustMaxCans(amount) {
   renderCrew();
 }
 
-// 💥 CONSTRUCTION DES OPTIONS AVEC ÉCOUTEURS EN TEMPS RÉEL (LIVE PREVIEW)
 function populateFormOptions() {
   const sSelect = document.getElementById("sponsor-select");
   const vSelect = document.getElementById("vehicle-type");
@@ -367,8 +366,6 @@ function populateFormOptions() {
   if (vSelect) {
     vSelect.innerHTML = Object.entries(GASLANDS_DATA.vehicles).map(([key, v]) => `<option value="${key}">${v.name} (${v.baseCost} Cans — Slots: ${v.slots})</option>`).join("");
   }
-
-  // 🚛 AJOUT DE L'INDICATION DYNAMIQUE DE SOUTE DANS LES TEXTES DES REMORQUES
   if (tSelect) {
     tSelect.innerHTML = GASLANDS_DATA.trailers.map(t => `<option value="${t.id}">${t.name} ${t.cost > 0 ? `(+${t.cost} Cans — Soute +${t.extraSlots} Slots)` : '(Soute +0 Slot)'}</option>`).join("");
   }
@@ -424,10 +421,10 @@ function populateFormOptions() {
 
   handleSponsorChange();
   handleTrailerChange();
-  updateLiveFormCalculations(); // Lancement du compteur à l'état initial
+  updateLiveFormCalculations();
 }
 
-// 💥 FONCTION EMBARQUÉE DE CALCUL EN TEMPS RÉEL (LIVE PREVIEW)
+// 💥 LIVE PREVIEW ENRICHI AVEC CONTROLE STRICT DES DOUBLONS D'ORIENTATION
 function updateLiveFormCalculations() {
   const chassisKey = document.getElementById("vehicle-type").value;
   const trailerId = document.getElementById("trailer-select").value;
@@ -442,7 +439,10 @@ function updateLiveFormCalculations() {
   let currentCansTotal = chassis.baseCost + (trailer ? trailer.cost : 0) + (cargo ? cargo.cost : 0);
   let currentSlotsTotal = 0;
 
-  // Calcul du coût live des armes
+  // Dictionnaire pour compter l'usage de chaque face (Avant, Arrière, etc.)
+  let facingsUsage = { "Avant": 0, "Arrière": 0, "Flanc Gauche": 0, "Flanc Droit": 0, "Latéral": 0 };
+
+  // Calcul du coût et des orientations d'armes
   document.querySelectorAll('input[name="weapon-checkbox"]:checked').forEach(cb => {
     const wObj = GASLANDS_DATA.weapons.find(w => w.id === cb.value);
     if (wObj) {
@@ -450,22 +450,26 @@ function updateLiveFormCalculations() {
       if (!wObj.crew) {
         const facing = document.getElementById(`w-facing-${wObj.id}`).value;
         if (facing === "Tourelle" && wObj.cost > 0) weaponCost = wObj.cost * 3;
+        if (facingsUsage[facing] !== undefined) facingsUsage[facing]++;
       }
       currentCansTotal += weaponCost;
       currentSlotsTotal += wObj.slots;
     }
   });
 
-  // Calcul du coût live des upgrades
+  // Calcul du coût et des orientations d'upgrades (ex: Bélier)
   document.querySelectorAll('input[name="upgrade-checkbox"]:checked').forEach(cb => {
     const uObj = GASLANDS_DATA.upgrades.find(u => u.id === cb.value);
     if (uObj) {
       currentCansTotal += uObj.cost;
       currentSlotsTotal += uObj.slots;
+      if (uObj.directional) {
+        const facing = document.getElementById(`u-facing-${uObj.id}`).value;
+        if (facingsUsage[facing] !== undefined) facingsUsage[facing]++;
+      }
     }
   });
 
-  // Calcul du coût live des perks
   document.querySelectorAll('input[name="perk-checkbox"]:checked').forEach(cb => {
     const pObj = GASLANDS_DATA.perks.find(p => p.id === cb.value);
     if (pObj) currentCansTotal += pObj.cost;
@@ -473,25 +477,55 @@ function updateLiveFormCalculations() {
 
   const maxSlotsAvailable = chassis.slots + (trailer ? trailer.extraSlots : 0);
 
-  // Mise à jour de l'affichage HTML en temps réel
+  // ⚡ LA LIMITE DE FIXATION : 1 par face par défaut, passe à 2 si présence d'une remorque !
+  const maxPerFacing = (trailer && trailer.id !== "none") ? 2 : 1;
+
+  // Vérifier si une face dépasse la limite technique autorisée
+  let facingOverloadDetected = false;
+  let overloadDetails = [];
+
+  // Fusionner le compteur "Latéral" générique avec les flancs
+  let finalAvant = facingsUsage["Avant"];
+  let finalArriere = facingsUsage["Arrière"];
+  let finalGauche = facingsUsage["Flanc Gauche"] + facingsUsage["Latéral"];
+  let finalDroit = facingsUsage["Flanc Droit"] + facingsUsage["Latéral"];
+
+  if (finalAvant > maxPerFacing) { facingOverloadDetected = true; overloadDetails.push(`Avant (${finalAvant}/${maxPerFacing})`); }
+  if (finalArriere > maxPerFacing) { facingOverloadDetected = true; overloadDetails.push(`Arrière (${finalArriere}/${maxPerFacing})`); }
+  if (finalGauche > maxPerFacing) { facingOverloadDetected = true; overloadDetails.push(`Flanc G. (${finalGauche}/${maxPerFacing})`); }
+  if (finalDroit > maxPerFacing) { facingOverloadDetected = true; overloadDetails.push(`Flanc D. (${finalDroit}/${maxPerFacing})`); }
+
+  // Mettre à jour l'indicateur HTML
   const cansIndicator = document.getElementById("live-cans-indicator");
   const slotsIndicator = document.getElementById("live-slots-indicator");
+  const facingsIndicator = document.getElementById("live-facings-indicator");
 
   if (cansIndicator) cansIndicator.textContent = `${currentCansTotal} Cans`;
 
   if (slotsIndicator) {
     slotsIndicator.textContent = `${currentSlotsTotal} / ${maxSlotsAvailable} Slots`;
-    if (currentSlotsTotal > maxSlotsAvailable) {
-      slotsIndicator.className = "text-red-500 font-mono text-sm font-black tracking-wide animate-pulse";
+    slotsIndicator.className = (currentSlotsTotal > maxSlotsAvailable)
+      ? "text-red-500 font-mono text-sm font-black tracking-wide animate-pulse"
+      : "text-zinc-300 font-mono";
+  }
+
+  if (facingsIndicator) {
+    if (facingOverloadDetected) {
+      facingsIndicator.innerHTML = `<span class="text-red-500 font-black animate-pulse">⚠️ FIXATION SATURÉE : ${overloadDetails.join(", ")}</span>`;
     } else {
-      slotsIndicator.className = "text-zinc-300 font-mono";
+      facingsIndicator.innerHTML = `
+        <span class="${finalAvant > 0 ? 'text-amber-500' : 'text-zinc-600'}">AV: ${finalAvant}/${maxPerFacing}</span>
+        <span class="${finalArriere > 0 ? 'text-amber-500' : 'text-zinc-600'}">ARR: ${finalArriere}/${maxPerFacing}</span>
+        <span class="${finalGauche > 0 || finalDroit > 0 ? 'text-amber-500' : 'text-zinc-600'}">LAT: Max ${maxPerFacing}</span>
+      `;
     }
   }
+
+  // On attache l'état d'erreur global au formulaire pour bloquer la validation finale
+  document.getElementById("live-counter-zone").dataset.invalidFacing = facingOverloadDetected ? "true" : "false";
 }
 
-function handleSponsorSelectChange() {
-  populateFormOptions();
-}
+function handleSponsorSelectChange() { populateFormOptions(); }
 
 function toggleWeaponOrientationState(weaponId) {
   const wBox = document.querySelector(`input[name="weapon-checkbox"][value="${weaponId}"]`);
@@ -524,7 +558,7 @@ function handleTrailerChange() {
       cargoZone.classList.remove("hidden");
     }
   }
-  updateLiveFormCalculations(); // Déclenche le live preview
+  updateLiveFormCalculations();
 }
 
 function handleSponsorChange() {
@@ -617,11 +651,17 @@ function editVehicle(vehicleId) {
   crew = crew.filter(v => v.id !== vehicleId);
   localSave();
   renderCrew();
-  populateFormOptions(); // Synchronise les compteurs live
+  populateFormOptions();
   document.getElementById("vehicle-name").focus();
 }
 
 function addVehicleToCrew() {
+  // Sécurité blocage doublons d'orientations physiques s'il y a surcharge
+  if (document.getElementById("live-counter-zone").dataset.invalidFacing === "true") {
+    alert("🚨 ERREUR D'ASSEMBLAGE : Tu as saturé un point de fixation physique ! Tu ne peux installer qu'un seul élément directionnel par face (Avant, Arrière, Flancs), sauf si tu équipes une remorque qui double tes emplacements disponibles.");
+    return;
+  }
+
   const chassisKey = document.getElementById("vehicle-type").value;
   const customName = document.getElementById("vehicle-name").value.trim();
   const trailerId = document.getElementById("trailer-select").value;
@@ -741,7 +781,7 @@ function addVehicleToCrew() {
   GASLANDS_DATA.weapons.forEach(w => { if (!w.crew) toggleWeaponOrientationState(w.id); });
   GASLANDS_DATA.upgrades.forEach(u => toggleUpgradeOrientationState(u.id));
   handleTrailerChange();
-  updateLiveFormCalculations(); // Reset les compteurs live
+  updateLiveFormCalculations();
 }
 
 function removeVehicle(id) {
