@@ -18,7 +18,6 @@ const GASLANDS_DATA = {
     { id: "ordre_infernal", name: "L'Ordre Infernal", perkClasses: ["Horreur", "Speed"] },
     { id: "beverly", name: "Beverly", perkClasses: ["Horreur", "Engineering"] }
   ],
-  // 🏎️ LE TABLEAU COMPLET EXTRACTÉ DE TA PHOTO e6adb174-fcbb-4b48-bffc-f48b82b80047
   vehicles: {
     dragster: { name: "Dragster", baseCost: 5, hull: 4, slots: 2 },
     moto: { name: "Moto", baseCost: 5, hull: 4, slots: 1 },
@@ -187,29 +186,162 @@ if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
 }
 
 let crew = [];
-let currentUser = null;
 let maxCans = 50;
+let myGarageCode = "";
+let garageHistory = []; // Liste de tous les codes connus du navigateur
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // 1. Charger l'historique des codes créés
+  const savedHistory = localStorage.getItem("gaslands_garage_history_list");
+  if (savedHistory) garageHistory = JSON.parse(savedHistory);
+
+  // 2. Charger ou Générer le Code Actif
+  let savedCode = localStorage.getItem("gaslands_garage_unique_code");
+  if (!savedCode) {
+    savedCode = "GANG-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+    localStorage.setItem("gaslands_garage_unique_code", savedCode);
+    addToHistory(savedCode);
+  }
+  myGarageCode = savedCode;
+
+  if (!garageHistory.includes(myGarageCode)) addToHistory(myGarageCode);
+
+  document.getElementById("garage-code-display").textContent = myGarageCode;
+
+  // 3. Charger le budget max
   const savedLimit = localStorage.getItem("gaslands_max_cans_limit");
   if (savedLimit) maxCans = parseInt(savedLimit, 10);
   document.getElementById("max-cans-display").textContent = maxCans;
 
   populateFormOptions();
+  updateHistoryDropdownUI();
 
-  if (window.supabase && window.supabase.auth) {
-    const { data: { session } } = await window.supabase.auth.getSession();
-    if (session) {
-      currentUser = session.user;
-      updateAuthUI();
-      await loadCrewFromSupabase();
-    }
-  } else {
-    const localData = localStorage.getItem("gaslands_advanced_crew");
-    if (localData) crew = JSON.parse(localData);
-  }
-  renderCrew();
+  // 4. Charger le roster spécifique à CE code depuis le LocalStorage
+  loadLocalCrewForCode(myGarageCode);
 });
+
+// Ajoute un code à l'historique local
+function addToHistory(code) {
+  if (!garageHistory.includes(code)) {
+    garageHistory.push(code);
+    localStorage.setItem("gaslands_garage_history_list", JSON.stringify(garageHistory));
+    updateHistoryDropdownUI();
+  }
+}
+
+// Rafraîchit le menu déroulant de l'historique
+function updateHistoryDropdownUI() {
+  const select = document.getElementById("garage-history-select");
+  if (!select) return;
+  select.innerHTML = `<option value="">Écuries (${garageHistory.length})...</option>` +
+    garageHistory.map(code => `<option value="${code}" ${code === myGarageCode ? 'selected' : ''}>${code}</option>`).join("");
+}
+
+// Bouton (+), crée une nouvelle team vide
+function createNewGarage() {
+  const newCode = "GANG-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+  localStorage.setItem("gaslands_garage_unique_code", newCode);
+  addToHistory(newCode);
+
+  myGarageCode = newCode;
+  document.getElementById("garage-code-display").textContent = myGarageCode;
+
+  crew = [];
+  localSave();
+  renderCrew();
+
+  const statusText = document.getElementById("crew-status-text");
+  statusText.textContent = "🆕 Nouvelle écurie vierge créée : " + newCode;
+  statusText.className = "text-amber-500 text-xs font-sans font-bold";
+  updateHistoryDropdownUI();
+}
+
+// Permet de zapper d'une écurie à une autre via l'historique
+function switchGarageFromHistory(selectedCode) {
+  if (!selectedCode) return;
+  myGarageCode = selectedCode;
+  localStorage.setItem("gaslands_garage_unique_code", myGarageCode);
+  document.getElementById("garage-code-display").textContent = myGarageCode;
+
+  loadLocalCrewForCode(myGarageCode);
+
+  const statusText = document.getElementById("crew-status-text");
+  statusText.textContent = "📟 Écurie locale rechargée : " + myGarageCode;
+  statusText.className = "text-emerald-500 text-xs font-sans font-bold";
+}
+
+function loadLocalCrewForCode(code) {
+  const allGarages = localStorage.getItem("gaslands_multi_garages_data");
+  let multiData = allGarages ? JSON.parse(allGarages) : {};
+  crew = multiData[code] || [];
+  renderCrew();
+}
+
+function localSave() {
+  // Sauvegarde globale triée par code
+  const allGarages = localStorage.getItem("gaslands_multi_garages_data");
+  let multiData = allGarages ? JSON.parse(allGarages) : {};
+  multiData[myGarageCode] = crew;
+  localStorage.setItem("gaslands_multi_garages_data", JSON.stringify(multiData));
+
+  // Rétrocompatibilité
+  localStorage.setItem("gaslands_advanced_crew", JSON.stringify(crew));
+}
+
+async function cloudSaveGarage() {
+  if (!window.supabase) return;
+  const statusText = document.getElementById("crew-status-text");
+
+  statusText.textContent = "📡 Envoi de la fréquence vers le satellite...";
+  statusText.className = "text-amber-500 text-xs font-sans font-bold animate-pulse";
+
+  const { error } = await window.supabase
+    .from("crews")
+    .upsert({ user_id: myGarageCode, data: crew });
+
+  if (error) {
+    statusText.textContent = "🚨 Échec de synchro : " + error.message;
+    statusText.className = "text-red-500 text-xs font-sans font-bold";
+  } else {
+    statusText.textContent = "📟 Garage synchronisé en orbite sous le code : " + myGarageCode;
+    statusText.className = "text-emerald-500 text-xs font-sans font-bold";
+  }
+}
+
+async function cloudLoadGarage(event) {
+  event.preventDefault();
+  if (!window.supabase) return;
+
+  const codeInput = document.getElementById("load-code-input").value.trim().toUpperCase();
+  if (!codeInput) return;
+
+  const { data, error } = await window.supabase
+    .from("crews")
+    .select("data")
+    .eq("user_id", codeInput)
+    .maybeSingle();
+
+  if (error) {
+    alert("Erreur de liaison : " + error.message);
+  } else if (data && data.data) {
+    crew = data.data;
+    myGarageCode = codeInput;
+
+    localStorage.setItem("gaslands_garage_unique_code", myGarageCode);
+    addToHistory(myGarageCode);
+    localSave();
+
+    document.getElementById("garage-code-display").textContent = myGarageCode;
+    renderCrew();
+    toggleLoadModal();
+
+    const statusText = document.getElementById("crew-status-text");
+    statusText.textContent = "🛰️ Garage distant intercepté et mémorisé !";
+    statusText.className = "text-emerald-500 text-xs font-sans font-bold";
+  } else {
+    alert("⚠️ Aucun garage actif n'a été détecté sur la fréquence : " + codeInput);
+  }
+}
 
 function adjustMaxCans(amount) {
   maxCans += amount;
@@ -357,75 +489,60 @@ function handleSponsorChange() {
   `).join("");
 }
 
-function handleChassisChange() { }
-
-// 💥 FONCTION DE MODIFICATION : RECHARGE UNE VOITURE DANS LE FORMULAIRE
 function editVehicle(vehicleId) {
   const targetVehicle = crew.find(v => v.id === vehicleId);
   if (!targetVehicle) return;
 
-  // 1. Restaurer le nom et le châssis de base
   document.getElementById("vehicle-name").value = targetVehicle.customNameOriginal || "";
 
-  // Retrouver la clé du châssis en fonction de son nom d'affichage
   const chassisEntry = Object.entries(GASLANDS_DATA.vehicles).find(([key, val]) => val.name === targetVehicle.chassisName);
-  if (chassisEntry) {
-    document.getElementById("vehicle-type").value = chassisEntry[0];
-  }
+  if (chassisEntry) document.getElementById("vehicle-type").value = chassisEntry[0];
 
-  // 2. Décocher toutes les checkboxes d'abord pour nettoyer le formulaire
   document.querySelectorAll('input[name="weapon-checkbox"]').forEach(cb => cb.checked = false);
   document.querySelectorAll('input[name="upgrade-checkbox"]').forEach(cb => cb.checked = false);
   document.querySelectorAll('input[name="perk-checkbox"]').forEach(cb => cb.checked = false);
 
-  // 3. Restaurer les Armes et leurs fixations
-  if (targetVehicle.originalWeapons && targetVehicle.originalWeapons.length > 0) {
+  if (targetVehicle.originalWeapons) {
     targetVehicle.originalWeapons.forEach(wData => {
       const wBox = document.querySelector(`input[name="weapon-checkbox"][value="${wData.id}"]`);
       if (wBox) {
         wBox.checked = true;
         toggleWeaponOrientationState(wData.id);
-        const facingSelect = document.getElementById(`w-facing-${wData.id}`);
-        if (facingSelect) facingSelect.value = wData.facing;
+        const sf = document.getElementById(`w-facing-${wData.id}`);
+        if (sf) sf.value = wData.facing;
       }
     });
   }
 
-  // 4. Restaurer les Améliorations Matérielles
-  if (targetVehicle.originalUpgrades && targetVehicle.originalUpgrades.length > 0) {
+  if (targetVehicle.originalUpgrades) {
     targetVehicle.originalUpgrades.forEach(uData => {
       const uBox = document.querySelector(`input[name="upgrade-checkbox"][value="${uData.id}"]`);
       if (uBox) {
         uBox.checked = true;
         toggleUpgradeOrientationState(uData.id);
-        const facingSelect = document.getElementById(`u-facing-${uData.id}`);
-        if (facingSelect) facingSelect.value = uData.facing;
+        const sf = document.getElementById(`u-facing-${uData.id}`);
+        if (sf) sf.value = uData.facing;
       }
     });
   }
 
-  // 5. Restaurer les Perks (Cases à cocher)
-  if (targetVehicle.originalPerks && targetVehicle.originalPerks.length > 0) {
+  if (targetVehicle.originalPerks) {
     targetVehicle.originalPerks.forEach(pId => {
       const pBox = document.querySelector(`input[name="perk-checkbox"][value="${pId}"]`);
       if (pBox) pBox.checked = true;
     });
   }
 
-  // 6. Restaurer la remorque et soute Rusty
-  const trailerEntry = GASLANDS_DATA.trailers.find(t => t.name === targetVehicle.trailerName);
-  document.getElementById("trailer-select").value = trailerEntry ? trailerEntry.id : "none";
+  const trEntry = GASLANDS_DATA.trailers.find(t => t.name === targetVehicle.trailerName);
+  document.getElementById("trailer-select").value = trEntry ? trEntry.id : "none";
   handleTrailerChange();
 
-  const cargoEntry = GASLANDS_DATA.cargoUpgrades.find(c => c.name === targetVehicle.cargoName);
-  document.getElementById("cargo-select").value = cargoEntry ? cargoEntry.id : "none";
+  const cgEntry = GASLANDS_DATA.cargoUpgrades.find(c => c.name === targetVehicle.cargoName);
+  document.getElementById("cargo-select").value = cgEntry ? cgEntry.id : "none";
 
-  // 7. Retirer temporairement la voiture du roster (elle y retournera quand tu cliqueras sur Valider)
   crew = crew.filter(v => v.id !== vehicleId);
-  saveData();
+  localSave();
   renderCrew();
-
-  // Scroll fluide vers le panneau de modification pour le confort
   document.getElementById("vehicle-name").focus();
 }
 
@@ -441,11 +558,10 @@ function addVehicleToCrew() {
 
   let totalSlotsUsed = 0;
 
-  // Traitement des armes cochées
   const weaponBoxes = document.querySelectorAll('input[name="weapon-checkbox"]:checked');
   let totalWeaponsCost = 0;
   let selectedWeaponsNames = [];
-  let backupWeaponsData = []; // Stockage pour pouvoir remodifier plus tard
+  let backupWeaponsData = [];
 
   weaponBoxes.forEach(cb => {
     const wObj = GASLANDS_DATA.weapons.find(w => w.id === cb.value);
@@ -458,9 +574,7 @@ function addVehicleToCrew() {
         const facing = document.getElementById(`w-facing-${wObj.id}`).value;
         displayFacing = facing;
         actualFacing = facing;
-        if (facing === "Tourelle" && wObj.cost > 0) {
-          costForThisWeapon = wObj.cost * 3;
-        }
+        if (facing === "Tourelle" && wObj.cost > 0) costForThisWeapon = wObj.cost * 3;
       }
 
       totalWeaponsCost += costForThisWeapon;
@@ -470,12 +584,11 @@ function addVehicleToCrew() {
     }
   });
 
-  // Traitement des améliorations cochées
   const upgradeBoxes = document.querySelectorAll('input[name="upgrade-checkbox"]:checked');
   let totalUpgradesCost = 0;
   let selectedUpgradesNames = [];
   let extraArmorHull = 0;
-  let backupUpgradesData = []; // Stockage pour pouvoir remodifier plus tard
+  let backupUpgradesData = [];
 
   upgradeBoxes.forEach(cb => {
     const uObj = GASLANDS_DATA.upgrades.find(u => u.id === cb.value);
@@ -499,11 +612,10 @@ function addVehicleToCrew() {
   const maxSlotsAvailable = chassis.slots + trailer.extraSlots;
 
   if (totalSlotsUsed > maxSlotsAvailable) {
-    alert(`🚨 TRANSMISSION BLOQUÉE : Cette machine est surchargée ! Ton choix de châssis (${chassis.name}) n'offre que ${maxSlotsAvailable} emplacements (Slots) au total. Ton équipement actuel en demande ${totalSlotsUsed}. Retire une arme ou ajoute une remorque !`);
+    alert(`🚨 TRANSMISSION BLOQUÉE : Surcharge ! Soute limitée à ${maxSlotsAvailable} emplacements.`);
     return;
   }
 
-  // Traitement des Perks
   const perkBoxes = document.querySelectorAll('input[name="perk-checkbox"]:checked');
   let totalPerksCost = 0;
   let selectedPerksNames = [];
@@ -536,40 +648,36 @@ function addVehicleToCrew() {
     cargoName: cargoId !== "none" ? cargo.name : "Aucune",
     cost: totalVehicleCost,
     invalid: false,
-    // Sauvegarde des états bruts en arrière-plan pour la modification future :
     originalWeapons: backupWeaponsData,
     originalUpgrades: backupUpgradesData,
     originalPerks: backupPerksData
   };
 
   crew.push(newVehicle);
-  saveData();
+  localSave();
   renderCrew();
 
-  // Reset des champs
   document.getElementById("vehicle-name").value = "";
   document.getElementById("trailer-select").value = "none";
   weaponBoxes.forEach(cb => cb.checked = false);
   upgradeBoxes.forEach(cb => cb.checked = false);
   perkBoxes.forEach(cb => cb.checked = false);
 
-  GASLANDS_DATA.weapons.forEach(w => {
-    if (!w.crew) toggleWeaponOrientationState(w.id);
-  });
+  GASLANDS_DATA.weapons.forEach(w => { if (!w.crew) toggleWeaponOrientationState(w.id); });
   GASLANDS_DATA.upgrades.forEach(u => toggleUpgradeOrientationState(u.id));
   handleTrailerChange();
 }
 
 function removeVehicle(id) {
   crew = crew.filter(v => v.id !== id);
-  saveData();
+  localSave();
   renderCrew();
 }
 
 function clearRoster() {
   if (confirm("Vider entièrement le garage ?")) {
     crew = [];
-    saveData();
+    localSave();
     renderCrew();
   }
 }
@@ -581,7 +689,7 @@ function renderCrew() {
   if (!container || !totalCansEl) return;
 
   if (crew.length === 0) {
-    container.innerHTML = `<p class="text-zinc-600 text-sm italic text-center py-12">Aucun véhicule blindé dans le garage pour le moment...</p>`;
+    container.innerHTML = `<p class="text-zinc-600 text-sm italic text-center py-12">Aucun véhicule blindé dans le garage...</p>`;
     totalCansEl.textContent = "0";
     totalCansEl.className = "text-5xl font-black text-amber-500 font-sans";
     return;
@@ -597,14 +705,13 @@ function renderCrew() {
                         <h4 class="font-black text-sm uppercase text-zinc-100">${v.name}</h4>
                         <span class="text-[10px] bg-zinc-900 text-zinc-400 border border-zinc-700 px-1.5 py-0.5 rounded uppercase font-sans">${v.chassisName}</span>
                     </div>
-                    
                     <div class="text-zinc-400 text-xs font-sans mt-2 space-y-1">
                         <div>💥 <span class="font-bold text-zinc-500">Armement :</span> ${v.weaponName}</div>
                         <div>🔧 <span class="font-bold text-zinc-500">Matériel :</span> ${v.upgradeName}</div>
-                        <div>🔥 <span class="font-bold text-zinc-500">Avantage / Perk :</span> ${v.perkName}</div>
+                        <div>🔥 <span class="font-bold text-zinc-500">Avantage :</span> ${v.perkName}</div>
                         ${v.trailerName !== "Aucune" ? `<div>🚛 <span class="font-bold text-zinc-500">Attelage :</span> ${v.trailerName} ${v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</div>` : ''}
                         <div class="text-zinc-500 text-[11px] pt-1 border-t border-t-zinc-900/60">
-                            Structure Coque : ${v.hull} | Emplacements Slots : ${v.slotsUsed} / ${v.maxSlots}
+                            Structure Coque : ${v.hull} | Emplacements : ${v.slotsUsed} / ${v.maxSlots}
                         </div>
                     </div>
                 </div>
@@ -628,78 +735,7 @@ function renderCrew() {
   }
 }
 
-async function saveData() {
-  if (window.supabase && currentUser) {
-    await window.supabase.from("crews").upsert({ user_id: currentUser.id, data: crew });
-  } else {
-    localStorage.setItem("gaslands_advanced_crew", JSON.stringify(crew));
-  }
-}
-
-async function loadCrewFromSupabase() {
-  if (!window.supabase || !currentUser) return;
-  const { data } = await window.supabase.from("crews").select("data").eq("user_id", currentUser.id).maybeSingle();
-  if (data && data.data) crew = data.data;
-}
-
-function toggleAuthModal(mode = "signin") {
-  const modal = document.getElementById("auth-modal");
-  if (!modal) return;
-  modal.classList.toggle("hidden");
-  if (!modal.classList.contains("hidden")) {
-    document.getElementById("auth-mode").value = mode;
-    document.getElementById("modal-title").textContent = mode === "signin" ? "⚡ Connexion Pilote" : "🔥 S'inscrire au Championnat";
-  }
-}
-
-async function handleAuthSubmit(event) {
-  event.preventDefault();
-  if (!window.supabase) return;
-  const mode = document.getElementById("auth-mode").value;
-  const email = document.getElementById("auth-email").value;
-  const password = document.getElementById("auth-password").value;
-
-  let response = mode === "signin"
-    ? await window.supabase.auth.signInWithPassword({ email, password })
-    : await window.supabase.auth.signUp({ email, password });
-
-  if (response.error) {
-    alert(`Échec : ${response.error.message}`);
-  } else {
-    currentUser = response.data.user;
-    toggleAuthModal();
-    updateAuthUI();
-    await loadCrewFromSupabase();
-    renderCrew();
-  }
-}
-
-async function handleLogout() {
-  if (window.supabase) await window.supabase.auth.signOut();
-  currentUser = null;
-  crew = [];
-  localStorage.removeItem("gaslands_advanced_crew");
-  updateAuthUI();
-  renderCrew();
-}
-
-function updateAuthUI() {
-  const loggedOutZone = document.getElementById("auth-logged-out");
-  const loggedInZone = document.getElementById("auth-logged-in");
-  const statusText = document.getElementById("crew-status-text");
-
-  if (!loggedOutZone || !loggedInZone || !statusText) return;
-
-  if (currentUser) {
-    loggedOutZone.classList.add("hidden");
-    loggedInZone.classList.remove("hidden");
-    document.getElementById("user-email").textContent = currentUser.email;
-    statusText.textContent = "Profil et Gang synchronisés via liaison satellite.";
-    statusText.className = "text-emerald-500 text-xs font-sans font-bold";
-  } else {
-    loggedOutZone.classList.remove("hidden");
-    loggedInZone.classList.add("hidden");
-    statusText.textContent = "Sauvegarde locale active. Connecte-toi pour sauvegarder sur le Cloud.";
-    statusText.className = "text-zinc-500 text-xs font-sans";
-  }
+function toggleLoadModal() {
+  const modal = document.getElementById("load-modal");
+  if (modal) modal.classList.toggle("hidden");
 }
