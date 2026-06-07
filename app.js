@@ -644,9 +644,11 @@ function updateLiveFormCalculations() {
   const trailer = GASLANDS_DATA.trailers.find(t => t.id === trailerId);
   const cargo = GASLANDS_DATA.cargoUpgrades.find(c => c.id === cargoId);
   if (!chassis) return;
+  
   let currentCansTotal = chassis.baseCost + (trailer ? trailer.cost : 0) + (cargo ? cargo.cost : 0);
   let currentSlotsTotal = 0;
-  let facingsUsage = { "Avant": 0, "Arrière": 0, "Flanc Gauche": 0, "Flanc Droit": 0, "Latéral": 0 };
+  
+  // Calcul des armes
   document.querySelectorAll('input[name="weapon-checkbox"]:checked').forEach(cb => {
     const wObj = GASLANDS_DATA.weapons.find(w => w.id === cb.value);
     if (wObj) {
@@ -654,59 +656,81 @@ function updateLiveFormCalculations() {
       if (!wObj.crew) {
         const facing = document.getElementById(`w-facing-${wObj.id}`).value;
         if (facing === "Tourelle" && wObj.cost > 0) weaponCost = wObj.cost * 3;
-        if (facingsUsage[facing] !== undefined) facingsUsage[facing]++;
       }
       currentCansTotal += weaponCost;
       currentSlotsTotal += wObj.slots;
     }
   });
+  
+  // Calcul des upgrades
   document.querySelectorAll('input[name="upgrade-checkbox"]:checked').forEach(cb => {
     const uObj = GASLANDS_DATA.upgrades.find(u => u.id === cb.value);
     if (uObj) {
       currentCansTotal += uObj.cost;
       currentSlotsTotal += uObj.slots;
-      if (uObj.directional) {
-        const facing = document.getElementById(`u-facing-${uObj.id}`).value;
-        if (facingsUsage[facing] !== undefined) facingsUsage[facing]++;
-      }
     }
   });
+  
+  // Calcul des perks
   document.querySelectorAll('input[name="perk-checkbox"]:checked').forEach(cb => {
     const pObj = GASLANDS_DATA.perks.find(p => p.id === cb.value);
     if (pObj) currentCansTotal += pObj.cost;
   });
+  
   const maxSlotsAvailable = chassis.slots + (trailer ? trailer.extraSlots : 0);
-  const maxPerFacing = (trailer && trailer.id !== "none") ? 2 : 1;
-  let facingOverloadDetected = false;
-  let overloadDetails = [];
-  let finalAvant = facingsUsage["Avant"];
-  let finalArriere = facingsUsage["Arrière"];
-  let finalGauche = facingsUsage["Flanc Gauche"] + facingsUsage["Latéral"];
-  let finalDroit = facingsUsage["Flanc Droit"] + facingsUsage["Latéral"];
-  if (finalAvant > maxPerFacing) { facingOverloadDetected = true; overloadDetails.push(`Avant (${finalAvant}/${maxPerFacing})`); }
-  if (finalArriere > maxPerFacing) { facingOverloadDetected = true; overloadDetails.push(`Arrière (${finalArriere}/${maxPerFacing})`); }
-  if (finalGauche > maxPerFacing) { facingOverloadDetected = true; overloadDetails.push(`Flanc G. (${finalGauche}/${maxPerFacing})`); }
-  if (finalDroit > maxPerFacing) { facingOverloadDetected = true; overloadDetails.push(`Flanc D. (${finalDroit}/${maxPerFacing})`); }
+  
   const cansIndicator = document.getElementById("live-cans-indicator");
   const slotsIndicator = document.getElementById("live-slots-indicator");
   const facingsIndicator = document.getElementById("live-facings-indicator");
+  
   if (cansIndicator) cansIndicator.textContent = `${currentCansTotal} Cans`;
   if (slotsIndicator) {
     slotsIndicator.textContent = `${currentSlotsTotal} / ${maxSlotsAvailable} Slots`;
     slotsIndicator.className = (currentSlotsTotal > maxSlotsAvailable) ? "text-red-500 font-mono text-sm font-black tracking-wide animate-pulse" : "text-zinc-300 font-mono";
   }
+  
+  // Affichage simplifié : plus de limite, juste un compteur de fixations par face
   if (facingsIndicator) {
-    if (facingOverloadDetected) {
-      facingsIndicator.innerHTML = `<span class="text-red-500 font-black animate-pulse">⚠️ FIXATION SATURÉE : ${overloadDetails.join(", ")}</span>`;
-    } else {
-      facingsIndicator.innerHTML = `
-        <span class="${finalAvant > 0 ? 'text-amber-500' : 'text-zinc-600'}">AV: ${finalAvant}/${maxPerFacing}</span>
-        <span class="${finalArriere > 0 ? 'text-amber-500' : 'text-zinc-600'}">ARR: ${finalArriere}/${maxPerFacing}</span>
-        <span class="${finalGauche > 0 || finalDroit > 0 ? 'text-amber-500' : 'text-zinc-600'}">LAT: Max ${maxPerFacing}</span>
-      `;
-    }
+    // Compter les équipements par face (juste pour info, pas de blocage)
+    let avant = 0, arriere = 0, flancG = 0, flancD = 0, tourelle = 0;
+    
+    document.querySelectorAll('input[name="weapon-checkbox"]:checked').forEach(cb => {
+      const wObj = GASLANDS_DATA.weapons.find(w => w.id === cb.value);
+      if (wObj && !wObj.crew) {
+        const facing = document.getElementById(`w-facing-${wObj.id}`).value;
+        if (facing === "Avant") avant++;
+        else if (facing === "Arrière") arriere++;
+        else if (facing === "Flanc Gauche") flancG++;
+        else if (facing === "Flanc Droit") flancD++;
+        else if (facing === "Tourelle") tourelle++;
+      }
+    });
+    
+    document.querySelectorAll('input[name="upgrade-checkbox"]:checked').forEach(cb => {
+      const uObj = GASLANDS_DATA.upgrades.find(u => u.id === cb.value);
+      if (uObj && uObj.directional) {
+        const facing = document.getElementById(`u-facing-${uObj.id}`).value;
+        if (facing === "Avant") avant++;
+        else if (facing === "Arrière") arriere++;
+        else if (facing === "Latéral") {
+          flancG++;
+          flancD++;
+        }
+      }
+    });
+    
+    facingsIndicator.innerHTML = `
+      <span class="text-zinc-500">📦 Fixations libres :</span>
+      <span class="${avant > 0 ? 'text-amber-500' : 'text-zinc-600'}">AV:${avant}</span>
+      <span class="${arriere > 0 ? 'text-amber-500' : 'text-zinc-600'}">ARR:${arriere}</span>
+      <span class="${flancG > 0 ? 'text-amber-500' : 'text-zinc-600'}">G:${flancG}</span>
+      <span class="${flancD > 0 ? 'text-amber-500' : 'text-zinc-600'}">D:${flancD}</span>
+      ${tourelle > 0 ? `<span class="text-purple-500">T:${tourelle}</span>` : ''}
+    `;
   }
-  document.getElementById("live-counter-zone").dataset.invalidFacing = facingOverloadDetected ? "true" : "false";
+  
+  // Plus jamais de blocage
+  document.getElementById("live-counter-zone").dataset.invalidFacing = "false";
 }
 
 function handleSponsorSelectChange() { 
@@ -839,10 +863,6 @@ function editVehicle(vehicleId) {
 }
 
 function addVehicleToCrew() {
-  if (document.getElementById("live-counter-zone").dataset.invalidFacing === "true") {
-    alert("🚨 ERREUR D'ASSEMBLAGE : Fixation saturée !");
-    return;
-  }
   const chassisKey = document.getElementById("vehicle-type").value;
   const customName = document.getElementById("vehicle-name").value.trim();
   const trailerId = document.getElementById("trailer-select").value;
