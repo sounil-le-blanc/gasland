@@ -382,7 +382,10 @@ async function loadTVEvent(eventCode) {
   if (activeTvZone) activeTvZone.classList.remove("hidden");
 
   const tvEventTitle = document.getElementById("tv-event-title");
-  if (tvEventTitle) tvEventTitle.textContent = data.title;
+if (tvEventTitle) {
+  const eventUrl = `${window.location.origin}${window.location.pathname.replace('index.html', 'event.html')}?code=${data.event_id}`;
+  tvEventTitle.innerHTML = `<a href="${eventUrl}" target="_blank" class="hover:text-amber-300 underline decoration-amber-500/30 underline-offset-4 transition">${data.title}</a>`;
+}
 
   const tvEventCode = document.getElementById("tv-event-code");
   if (tvEventCode) tvEventCode.textContent = data.event_id;
