@@ -189,7 +189,7 @@ let crew = [];
 let maxCans = 50;
 let myGarageId = "";
 let garageHistory = [];
-let currentLoadedEvent = null; // Données du match actif chargé depuis Supabase
+let currentLoadedEvent = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   const savedHistory = localStorage.getItem("gaslands_local_history_v2");
@@ -307,6 +307,9 @@ function loadLocalCrewForId(id) {
   let multiData = allGaragesData ? JSON.parse(allGaragesData) : {};
   crew = multiData[id] || [];
   renderCrew();
+  
+  // ⚡ FIX ACCESSIBILITÉ : Réveille l'affichage conditionnel des Rusty et des atouts
+  handleSponsorChange();
 }
 
 function localSave() {
@@ -320,7 +323,6 @@ function localSave() {
 // 🎥 MODULE DE SÉRIE TV / TOURNOIS PARTAGEABLES DANS LE CLOUD
 // ==========================================
 
-// 1. CRÉER UN MATCH UNIQUE CLOUD
 async function createNewTVEvent() {
   if (!window.supabase) return;
   const title = document.getElementById("new-event-title").value.trim();
@@ -333,7 +335,6 @@ async function createNewTVEvent() {
 
   const generatedTVCode = "TV-" + Math.random().toString(36).substring(2, 6).toUpperCase();
 
-  // registered_gangs contiendra des objets complets de rosters : [{ gang_name: "X", total_cans: 50, vehicles: [...] }]
   const { error } = await window.supabase
     .from("events")
     .insert({
@@ -351,7 +352,6 @@ async function createNewTVEvent() {
   }
 }
 
-// 2. RETROUVER / CAPTER UN MATCH CLOUD
 async function loadTVEvent(eventCode) {
   if (!window.supabase) return;
   const code = eventCode.trim().toUpperCase();
@@ -384,7 +384,6 @@ async function loadTVEvent(eventCode) {
   renderTVDriversGrille(data.registered_gangs);
 }
 
-// 3. DESSINER LA GRILLE COMPLÈTE STOCKÉE DANS L'ÉVÉNEMENT
 function renderTVDriversGrille(rostersArray) {
   const container = document.getElementById("tv-drivers-list");
   if (!container) return;
@@ -409,7 +408,6 @@ function renderTVDriversGrille(rostersArray) {
   }).join("");
 }
 
-// 4. ENVOYER SON ÉCURIE LOCALE ACTUELLE DANS LE JSON DU MATCH
 async function pushMyGangToActiveEvent() {
   if (!window.supabase || !currentLoadedEvent) return;
 
@@ -426,7 +424,6 @@ async function pushMyGangToActiveEvent() {
     return;
   }
 
-  // Préparation du pack de données à enregistrer directement dans le match
   const myRosterSummary = crew.map(v => v.name).join(", ");
   const newRosterPayload = {
     gang_id: myGarageId,
@@ -436,7 +433,6 @@ async function pushMyGangToActiveEvent() {
     vehicles: crew
   };
 
-  // Filtrer pour remplacer si déjà inscrit (mise à jour de liste), sinon ajouter
   let updatedRosters = currentLoadedEvent.registered_gangs.filter(r => r.gang_id !== myGarageId);
   updatedRosters.push(newRosterPayload);
 
@@ -449,14 +445,12 @@ async function pushMyGangToActiveEvent() {
     alert("Erreur d'alignement grille : " + error.message);
   } else {
     alert(`🚀 Écurie "${currentGarageInfo.name}" envoyée avec succès sur la ligne de départ !`);
-    loadTVEvent(currentLoadedEvent.event_id); // Rafraîchir l'écran du match
+    loadTVEvent(currentLoadedEvent.event_id);
   }
 }
 
-// 5. COPIER LE LIEN MAGIQUE DE MATCH DANS LE PRESSE-PAPIER
 function copyMatchMagicLink() {
   if (!currentLoadedEvent) return;
-  // Construit l'URL : https://domaine.com/?event=TV-XXXX
   const magicURL = `${window.location.origin}${window.location.pathname}?event=${currentLoadedEvent.event_id}`;
   
   navigator.clipboard.writeText(magicURL).then(() => {
@@ -467,7 +461,7 @@ function copyMatchMagicLink() {
 }
 
 // ==========================================
-// (Le reste de tes fonctions d'artillerie reste à l'identique)
+// ⚙️ GESTION DU BUILDER ET COMPTEURS LIVE
 // ==========================================
 function adjustMaxCans(amount) {
   maxCans += amount;
@@ -618,4 +612,388 @@ function updateLiveFormCalculations() {
     }
   }
   document.getElementById("live-counter-zone").dataset.invalidFacing = facingOverloadDetected ? "true" : "false";
+}
+
+function handleSponsorSelectChange() { populateFormOptions(); }
+
+function toggleWeaponOrientationState(weaponId) {
+  const wBox = document.querySelector(`input[name="weapon-checkbox"][value="${weaponId}"]`);
+  const zone = document.getElementById(`w-orient-zone-${weaponId}`);
+  const select = document.getElementById(`w-facing-${weaponId}`);
+  if (wBox && zone && select) {
+    select.disabled = !wBox.checked;
+    wBox.checked ? zone.classList.remove("opacity-40") : zone.classList.add("opacity-40");
+  }
+}
+
+function toggleUpgradeOrientationState(upgradeId) {
+  const uBox = document.querySelector(`input[name="upgrade-checkbox"][value="${upgradeId}"]`);
+  const zone = document.getElementById(`u-orient-zone-${upgradeId}`);
+  const select = document.getElementById(`u-facing-${upgradeId}`);
+  if (uBox && zone && select) {
+    select.disabled = !uBox.checked;
+    uBox.checked ? zone.classList.remove("opacity-40") : zone.classList.add("opacity-40");
+  }
+}
+
+function handleTrailerChange() {
+  const trailerId = document.getElementById("trailer-select").value;
+  const cargoZone = document.getElementById("cargo-upgrade-zone");
+  if (cargoZone) {
+    if (trailerId === "none") {
+      cargoZone.classList.add("hidden");
+      document.getElementById("cargo-select").value = "none";
+    } else {
+      cargoZone.classList.remove("hidden");
+    }
+  }
+  updateLiveFormCalculations();
+}
+
+function handleSponsorChange() {
+  const sSelect = document.getElementById("sponsor-select");
+  if (!sSelect) return;
+  const sponsorId = sSelect.value;
+  const container = document.getElementById("perk-checkboxes-container");
+  const trailerZone = document.getElementById("trailer-zone");
+  if (!container) return;
+
+  const selectedSponsor = GASLANDS_DATA.sponsors.find(s => s.id === sponsorId);
+  if (trailerZone) {
+    if (sponsorId === "rustys" || sponsorId === "none") {
+      trailerZone.classList.remove("hidden");
+    } else {
+      trailerZone.classList.add("hidden");
+      document.getElementById("trailer-select").value = "none";
+      handleTrailerChange();
+    }
+  }
+
+  const allowedPerks = GASLANDS_DATA.perks.filter(perk => selectedSponsor.perkClasses.includes(perk.class));
+  if (allowedPerks.length === 0) {
+    container.innerHTML = `<p class="text-xs text-zinc-600 italic">Aucun avantage pour ce sponsor.</p>`;
+    return;
+  }
+
+  container.innerHTML = allowedPerks.map(p => `
+    <label class="flex items-center gap-2.5 cursor-pointer hover:text-amber-400 transition py-0.5">
+      <input type="checkbox" name="perk-checkbox" value="${p.id}" onchange="updateLiveFormCalculations()" class="accent-amber-500 w-4 h-4 cursor-pointer">
+      <span>${p.name} <span class="text-[10px] text-zinc-500">[${p.class}]</span> <span class="text-amber-500 font-bold text-xs">(+${p.cost})</span></span>
+    </label>
+  `).join("");
+}
+
+function editVehicle(vehicleId) {
+  const targetVehicle = crew.find(v => v.id === vehicleId);
+  if (!targetVehicle) return;
+
+  document.getElementById("vehicle-name").value = targetVehicle.customNameOriginal || "";
+  const chassisEntry = Object.entries(GASLANDS_DATA.vehicles).find(([key, val]) => val.name === targetVehicle.chassisName);
+  if (chassisEntry) document.getElementById("vehicle-type").value = chassisEntry[0];
+
+  document.querySelectorAll('input[name="weapon-checkbox"]').forEach(cb => cb.checked = false);
+  document.querySelectorAll('input[name="upgrade-checkbox"]').forEach(cb => cb.checked = false);
+  document.querySelectorAll('input[name="perk-checkbox"]').forEach(cb => cb.checked = false);
+
+  if (targetVehicle.originalWeapons) {
+    targetVehicle.originalWeapons.forEach(wData => {
+      const wBox = document.querySelector(`input[name="weapon-checkbox"][value="${wData.id}"]`);
+      if (wBox) {
+        wBox.checked = true;
+        toggleWeaponOrientationState(wData.id);
+        const sf = document.getElementById(`w-facing-${wData.id}`);
+        if (sf) sf.value = wData.facing;
+      }
+    });
+  }
+
+  if (targetVehicle.originalUpgrades) {
+    targetVehicle.originalUpgrades.forEach(uData => {
+      const uBox = document.querySelector(`input[name="upgrade-checkbox"][value="${uData.id}"]`);
+      if (uBox) {
+        uBox.checked = true;
+        toggleUpgradeOrientationState(uData.id);
+        const sf = document.getElementById(`u-facing-${uData.id}`);
+        if (sf) sf.value = uData.facing;
+      }
+    });
+  }
+
+  if (targetVehicle.originalPerks) {
+    targetVehicle.originalPerks.forEach(pId => {
+      const pBox = document.querySelector(`input[name="perk-checkbox"][value="${pId}"]`);
+      if (pBox) pBox.checked = true;
+    });
+  }
+
+  const trEntry = GASLANDS_DATA.trailers.find(t => t.name === targetVehicle.trailerName);
+  document.getElementById("trailer-select").value = trEntry ? trEntry.id : "none";
+  handleTrailerChange();
+
+  const cgEntry = GASLANDS_DATA.cargoUpgrades.find(c => c.name === targetVehicle.cargoName);
+  document.getElementById("cargo-select").value = cgEntry ? cgEntry.id : "none";
+
+  crew = crew.filter(v => v.id !== vehicleId);
+  localSave();
+  renderCrew();
+  populateFormOptions();
+  document.getElementById("vehicle-name").focus();
+}
+
+function addVehicleToCrew() {
+  if (document.getElementById("live-counter-zone").dataset.invalidFacing === "true") {
+    alert("🚨 ERREUR D'ASSEMBLAGE : Fixation saturée !");
+    return;
+  }
+  const chassisKey = document.getElementById("vehicle-type").value;
+  const customName = document.getElementById("vehicle-name").value.trim();
+  const trailerId = document.getElementById("trailer-select").value;
+  const cargoId = document.getElementById("cargo-select").value;
+  const chassis = GASLANDS_DATA.vehicles[chassisKey];
+  const trailer = GASLANDS_DATA.trailers.find(t => t.id === trailerId);
+  const cargo = GASLANDS_DATA.cargoUpgrades.find(c => c.id === cargoId);
+
+  let totalSlotsUsed = 0;
+  const weaponBoxes = document.querySelectorAll('input[name="weapon-checkbox"]:checked');
+  let totalWeaponsCost = 0;
+  let selectedWeaponsNames = [];
+  let backupWeaponsData = [];
+
+  weaponBoxes.forEach(cb => {
+    const wObj = GASLANDS_DATA.weapons.find(w => w.id === cb.value);
+    if (wObj) {
+      let costForThisWeapon = wObj.cost;
+      let displayFacing = "Équipement Équipage";
+      let actualFacing = "Équipement Équipage";
+      if (!wObj.crew) {
+        const facing = document.getElementById(`w-facing-${wObj.id}`).value;
+        displayFacing = facing;
+        actualFacing = facing;
+        if (facing === "Tourelle" && wObj.cost > 0) costForThisWeapon = wObj.cost * 3;
+      }
+      totalWeaponsCost += costForThisWeapon;
+      totalSlotsUsed += wObj.slots;
+      selectedWeaponsNames.push(`${wObj.name} (${displayFacing})`);
+      backupWeaponsData.push({ id: wObj.id, facing: actualFacing });
+    }
+  });
+
+  const upgradeBoxes = document.querySelectorAll('input[name="upgrade-checkbox"]:checked');
+  let totalUpgradesCost = 0;
+  let selectedUpgradesNames = [];
+  let extraArmorHull = 0;
+  let backupUpgradesData = [];
+
+  upgradeBoxes.forEach(cb => {
+    const uObj = GASLANDS_DATA.upgrades.find(u => u.id === cb.value);
+    if (uObj) {
+      totalUpgradesCost += uObj.cost;
+      totalSlotsUsed += uObj.slots;
+      let facingText = "";
+      let actualFacing = "Normal";
+      if (uObj.directional) {
+        actualFacing = document.getElementById(`u-facing-${uObj.id}`).value;
+        facingText = ` (${actualFacing})`;
+      }
+      selectedUpgradesNames.push(`${uObj.name}${facingText}`);
+      backupUpgradesData.push({ id: uObj.id, facing: actualFacing });
+      if (uObj.id === "armor_plating") extraArmorHull += 2;
+    }
+  });
+
+  const maxSlotsAvailable = chassis.slots + trailer.extraSlots;
+  if (totalSlotsUsed > maxSlotsAvailable) {
+    alert(`🚨 TRANSMISSION BLOQUÉE : Surcharge ! Soute limitée à ${maxSlotsAvailable} emplacements.`);
+    return;
+  }
+
+  const perkBoxes = document.querySelectorAll('input[name="perk-checkbox"]:checked');
+  let totalPerksCost = 0;
+  let selectedPerksNames = [];
+  let backupPerksData = [];
+
+  perkBoxes.forEach(cb => {
+    const pObj = GASLANDS_DATA.perks.find(p => p.id === cb.value);
+    if (pObj) {
+      totalPerksCost += pObj.cost;
+      selectedPerksNames.push(pObj.name);
+      backupPerksData.push(pObj.id);
+    }
+  });
+
+  const totalVehicleCost = chassis.baseCost + totalWeaponsCost + totalUpgradesCost + totalPerksCost + trailer.cost + cargo.cost;
+  const finalName = customName || `${chassis.name} de Combat`;
+  const newVehicle = {
+    id: crypto.randomUUID(),
+    name: finalName,
+    customNameOriginal: customName,
+    chassisName: chassis.name,
+    hull: chassis.hull + extraArmorHull,
+    maxSlots: maxSlotsAvailable,
+    slotsUsed: totalSlotsUsed,
+    weaponName: selectedWeaponsNames.length > 0 ? selectedWeaponsNames.join(", ") : "Aucune",
+    upgradeName: selectedUpgradesNames.length > 0 ? selectedUpgradesNames.join(", ") : "Aucune",
+    perkName: selectedPerksNames.length > 0 ? selectedPerksNames.join(", ") : "Aucun",
+    trailerName: trailerId !== "none" ? trailer.name : "Aucune",
+    cargoName: cargoId !== "none" ? cargo.name : "Aucune",
+    cost: totalVehicleCost,
+    invalid: false,
+    originalWeapons: backupWeaponsData,
+    originalUpgrades: backupUpgradesData,
+    originalPerks: backupPerksData
+  };
+
+  crew.push(newVehicle);
+  localSave();
+  renderCrew();
+
+  document.getElementById("vehicle-name").value = "";
+  document.getElementById("trailer-select").value = "none";
+  weaponBoxes.forEach(cb => cb.checked = false);
+  upgradeBoxes.forEach(cb => cb.checked = false);
+  perkBoxes.forEach(cb => cb.checked = false);
+  GASLANDS_DATA.weapons.forEach(w => { if (!w.crew) toggleWeaponOrientationState(w.id); });
+  GASLANDS_DATA.upgrades.forEach(u => toggleUpgradeOrientationState(u.id));
+  handleTrailerChange();
+  updateLiveFormCalculations();
+}
+
+function removeVehicle(id) {
+  crew = crew.filter(v => v.id !== id);
+  localSave();
+  renderCrew();
+}
+
+function clearRoster() {
+  if (confirm("Vider entièrement l'écurie ?")) {
+    crew = [];
+    localSave();
+    renderCrew();
+  }
+}
+
+function renderCrew() {
+  const container = document.getElementById("crew-list");
+  const totalCansEl = document.getElementById("total-cans");
+  if (!container || !totalCansEl) return;
+
+  if (crew.length === 0) {
+    container.innerHTML = `<p class="text-zinc-600 text-sm italic text-center py-12">Aucun véhicule blindé engagé pour le moment...</p>`;
+    totalCansEl.textContent = "0";
+    totalCansEl.className = "text-5xl font-black text-amber-500 font-sans";
+    return;
+  }
+
+  let totalCans = 0;
+  container.innerHTML = crew.map(v => {
+    totalCans += v.cost;
+    return `
+            <div class="bg-zinc-950 border-2 border-zinc-800 rounded p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition">
+                <div class="flex-grow">
+                    <div class="flex items-center gap-2">
+                        <h4 class="font-black text-sm uppercase text-zinc-100">${v.name}</h4>
+                        <span class="text-[10px] bg-zinc-900 text-zinc-400 border border-zinc-700 px-1.5 py-0.5 rounded uppercase font-sans">${v.chassisName}</span>
+                    </div>
+                    <div class="text-zinc-400 text-xs font-sans mt-2 space-y-1">
+                        <div>💥 <span class="font-bold text-zinc-500">Armement :</span> ${v.weaponName}</div>
+                        <div>🔧 <span class="font-bold text-zinc-500">Matériel :</span> ${v.upgradeName}</div>
+                        <div>🔥 <span class="font-bold text-zinc-500">Avantage :</span> ${v.perkName}</div>
+                        ${v.trailerName !== "Aucune" ? `<div>🚛 <span class="font-bold text-zinc-500">Attelage :</span> ${v.trailerName} ${v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</div>` : ''}
+                        <div class="text-zinc-500 text-[11px] pt-1 border-t border-t-zinc-900/60">
+                            Structure Coque : ${v.hull} | Emplacements : ${v.slotsUsed} / ${v.maxSlots}
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 border-zinc-800/60 pt-2 sm:pt-0 min-w-[160px]">
+                    <span class="text-amber-500 font-black text-base font-sans mr-2">${v.cost} Cans</span>
+                    <div class="flex gap-3">
+                      <button onclick="editVehicle('${v.id}')" class="text-zinc-400 hover:text-amber-500 font-bold text-xs uppercase cursor-pointer transition">Modifier</button>
+                      <button onclick="removeVehicle('${v.id}')" class="text-zinc-500 hover:text-red-400 font-bold text-xs uppercase cursor-pointer transition">Supprimer</button>
+                    </div>
+                </div>
+            </div>
+        `;
+  }).join("");
+
+  totalCansEl.textContent = totalCans;
+  if (totalCans > maxCans) {
+    totalCansEl.className = "text-5xl font-black text-red-500 font-sans tracking-tight animate-pulse";
+  } else {
+    totalCansEl.className = "text-5xl font-black text-amber-500 font-sans tracking-tight";
+  }
+}
+
+function printMatchSheet() {
+  if (crew.length === 0) {
+    alert("🚨 Ton garage est vide !");
+    return;
+  }
+  const currentGarageData = garageHistory.find(g => g.id === myGarageId);
+  const sponsorSelect = document.getElementById("sponsor-select");
+  const sponsorName = sponsorSelect ? sponsorSelect.options[sponsorSelect.selectedIndex].text : "Non spécifié";
+  const totalCans = crew.reduce((sum, v) => sum + v.cost, 0);
+
+  const printWindow = window.open('', '_blank');
+  let vehiclesHTML = crew.map((v, index) => {
+    let boxes = "";
+    for (let i = 0; i < v.hull; i++) {
+      boxes += '<div style="display:inline-block; width:16px; height:16px; border:2px solid #000; margin-right:5px; margin-bottom:5px; background:#fff;"></div>';
+    }
+    return `
+      <div style="border: 3px solid #000; margin-bottom: 20px; page-break-inside: avoid; background: #fff;">
+        <div style="background: #000; color: #fff; padding: 6px 10px; font-weight: bold; text-transform: uppercase; font-size: 12px;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="color:#fff; font-weight:bold; font-family:monospace;">${String(index + 1).padStart(2, '0')}. ${v.name.toUpperCase()}</td>
+              <td style="text-align: right; color:#fff; font-size: 11px; font-family:monospace;">${v.chassisName.toUpperCase()} — ${v.cost} CANS</td>
+            </tr>
+          </table>
+        </div>
+        <div style="padding: 10px;">
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px; font-family:monospace;">
+            <tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold; width: 110px;">💥 ARMEMENTS :</td><td style="padding: 4px 0;">${v.weaponName}</td></tr>
+            <tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">🔧 MATÉRIEL :</td><td style="padding: 4px 0;">${v.upgradeName}</td></tr>
+            <tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">🔥 AVANTAGES :</td><td style="padding: 4px 0;">${v.perkName}</td></tr>
+            ${v.trailerName !== "Aucune" ? `<tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">🚛 ATTELAGE :</td><td style="padding: 4px 0;">${v.trailerName} ${v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</td></tr>` : ''}
+          </table>
+          <div style="border-top: 2px solid #000; padding-top: 6px; margin-top: 4px;">
+            <span style="font-weight: bold; font-size: 11px; text-transform: uppercase; font-family:monospace;">Structure de la Coque :</span>
+            <div style="margin-top: 6px;">${boxes} <span style="font-size: 10px; vertical-align: super; font-weight: bold; margin-left: 4px; font-family:monospace;">(${v.hull} PV)</span></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Gaslands - Roster ${currentGarageData.name}</title>
+      <style>
+        @page { size: A4; margin: 15mm 10mm; }
+        body { font-family: 'Courier New', Courier, monospace; color: #000; background: #fff; margin: 0; padding: 0; }
+        .header { border: 4px solid #000; padding: 12px; margin-bottom: 25px; }
+        .header-title { font-size: 24px; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 8px 0; border-bottom: 2px solid #000; padding-bottom: 4px; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="header-title">Gaslands - Roster d'Écurie</div>
+        <table style="width: 100%; font-size: 13px; font-weight: bold; font-family:monospace;">
+          <tr>
+            <td style="width: 33%;">ÉCURIE : ${currentGarageData.name.toUpperCase()}</td>
+            <td style="width: 34%; text-align: center;">SPONSOR : ${sponsorName}</td>
+            <td style="width: 33%; text-align: right;">VALEUR : ${totalCans} / ${maxCans} CANS</td>
+          </tr>
+        </table>
+      </div>
+      ${vehiclesHTML}
+      <script>
+        window.onload = function() { window.print(); window.close(); };
+      </script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
 }
