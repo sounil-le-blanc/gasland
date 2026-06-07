@@ -215,7 +215,6 @@ document.addEventListener("DOMContentLoaded", () => {
   updateHistoryDropdownUI();
   loadLocalCrewForId(myGarageId);
 
-  // 📡 LIEN MAGIQUE : Exécuté de façon totalement sécurisée après le rendu complet du DOM
   const urlParams = new URLSearchParams(window.location.search);
   const eventParam = urlParams.get('event');
   if (eventParam) {
@@ -371,17 +370,14 @@ async function loadTVEvent(eventCode) {
     return;
   }
 
-  // ⚡ FIX ARBITRAGE : On mémorise l'état avant d'aligner de force l'UI sur les Cans requis par l'orga
   currentLoadedEvent = data;
   maxCans = data.max_cans;
 
-  // Mise à jour de sécurité des compteurs locaux
   const maxCansDisplay = document.getElementById("max-cans-display");
   if (maxCansDisplay) maxCansDisplay.textContent = maxCans;
   localStorage.setItem("gaslands_max_cans_limit", maxCans);
   renderCrew(); 
 
-  // Sécurisation de l'affichage de la zone TV
   const activeTvZone = document.getElementById("active-tv-zone");
   if (activeTvZone) activeTvZone.classList.remove("hidden");
 
@@ -411,13 +407,15 @@ function renderTVDriversGrille(rostersArray) {
 
   container.innerHTML = rostersArray.map(roster => {
     return `
-      <div class="bg-zinc-900 border border-zinc-800 rounded p-2 flex items-center justify-between text-xs font-sans">
+      <div onclick="inspectGangRoster('${roster.gang_id}')" 
+        class="bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 rounded p-2.5 flex items-center justify-between text-xs font-sans cursor-pointer transition-all duration-200 hover:bg-zinc-900/80 group">
         <div>
-          <span class="font-bold text-amber-500 font-mono uppercase tracking-wider">${roster.gang_name}</span>
+          <span class="font-black text-amber-500 group-hover:text-amber-400 font-mono uppercase tracking-wider">${roster.gang_name}</span>
           <p class="text-zinc-400 text-[11px] font-mono mt-0.5">${roster.summary}</p>
         </div>
-        <div class="text-right shrink-0">
+        <div class="text-right shrink-0 flex items-center gap-2">
           <span class="bg-zinc-950 px-2 py-0.5 rounded font-mono text-zinc-300 font-bold">${roster.total_cans} Cans</span>
+          <span class="text-zinc-600 group-hover:text-amber-500 transition text-[10px]">👁️</span>
         </div>
       </div>
     `;
@@ -435,7 +433,6 @@ async function pushMyGangToActiveEvent() {
     return;
   }
 
-  // 🛡️ CONTROLE TECHNIQUE MAXIMUM : On bloque impérativement l'envoi si la liste triche sur la limite du match
   if (myTotalCost > currentLoadedEvent.max_cans) {
     alert(`⛔ ARBITRAGE : Inscription refusée.\n\nVotre équipe vaut ${myTotalCost} Cans, mais la grille de ce match en ligne est STRICTEMENT limitée à ${currentLoadedEvent.max_cans} Cans max.\n\nModifiez votre liste pour repasser sous la barre !`);
     return;
@@ -475,6 +472,54 @@ function copyMatchMagicLink() {
   }).catch(err => {
     alert("Impossible de copier le lien : " + err);
   });
+}
+
+// ==========================================
+// 📡 INSPECTION DES ÉCURIES ADVERSES
+// ==========================================
+
+function inspectGangRoster(gangId) {
+  if (!currentLoadedEvent || !currentLoadedEvent.registered_gangs) return;
+  
+  const targetRoster = currentLoadedEvent.registered_gangs.find(r => r.gang_id === gangId);
+  if (!targetRoster) return;
+
+  document.getElementById("inspect-gang-name").textContent = targetRoster.gang_name;
+  document.getElementById("inspect-gang-cost").textContent = `${targetRoster.total_cans} Cans`;
+
+  const container = document.getElementById("inspect-vehicles-container");
+  if (!container) return;
+
+  if (!targetRoster.vehicles || targetRoster.vehicles.length === 0) {
+    container.innerHTML = `<p class="text-zinc-500 text-xs italic text-center py-4">Aucun véhicule enregistré dans cette écurie...</p>`;
+  } else {
+    container.innerHTML = targetRoster.vehicles.map(v => {
+      return `
+        <div class="bg-zinc-950 border border-zinc-800 p-3 rounded font-sans text-xs">
+          <div class="flex justify-between items-center border-b border-zinc-900 pb-1.5 mb-2">
+            <span class="font-black text-sm text-zinc-200 uppercase tracking-wide">${v.name}</span>
+            <span class="bg-zinc-900 border border-zinc-700 text-zinc-400 px-2 py-0.5 rounded font-mono text-[10px] uppercase">${v.chassisName} — ${v.cost} Cans</span>
+          </div>
+          <div class="space-y-1 text-zinc-400">
+            <div>💥 <span class="text-zinc-600 font-bold">Armement :</span> ${v.weaponName}</div>
+            <div>🔧 <span class="text-zinc-600 font-bold">Matériel :</span> ${v.upgradeName}</div>
+            <div>🔥 <span class="text-zinc-600 font-bold">Avantage :</span> ${v.perkName}</div>
+            ${v.trailerName !== "Aucune" ? `<div>🚛 <span class="text-zinc-600 font-bold">Attelage :</span> ${v.trailerName} ${v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</div>` : ''}
+          </div>
+          <div class="mt-2.5 pt-2 border-t border-zinc-900 text-[10px] text-zinc-500 font-mono">
+            Structure Coque : <span class="text-zinc-300 font-bold">${v.hull} PV</span> | Soute : <span class="text-zinc-300 font-bold">${v.slotsUsed} / ${v.maxSlots} Slots</span>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  toggleInspectModal();
+}
+
+function toggleInspectModal() {
+  const modal = document.getElementById("inspect-modal");
+  if (modal) modal.classList.toggle("hidden");
 }
 
 // ==========================================
@@ -631,13 +676,16 @@ function updateLiveFormCalculations() {
   document.getElementById("live-counter-zone").dataset.invalidFacing = facingOverloadDetected ? "true" : "false";
 }
 
-function handleSponsorSelectChange() { populateFormOptions(); }
+function handleSponsorSelectChange() { 
+  handleSponsorChange(); 
+  populateFormOptions(); 
+}
 
 function toggleWeaponOrientationState(weaponId) {
   const wBox = document.querySelector(`input[name="weapon-checkbox"][value="${weaponId}"]`);
   const zone = document.getElementById(`w-orient-zone-${weaponId}`);
   const select = document.getElementById(`w-facing-${weaponId}`);
-  if (wBox && zone && select) {
+  if (zone && select && wBox) {
     select.disabled = !wBox.checked;
     wBox.checked ? zone.classList.remove("opacity-40") : zone.classList.add("opacity-40");
   }
@@ -647,7 +695,7 @@ function toggleUpgradeOrientationState(upgradeId) {
   const uBox = document.querySelector(`input[name="upgrade-checkbox"][value="${upgradeId}"]`);
   const zone = document.getElementById(`u-orient-zone-${upgradeId}`);
   const select = document.getElementById(`u-facing-${upgradeId}`);
-  if (uBox && zone && select) {
+  if (zone && select && uBox) {
     select.disabled = !uBox.checked;
     uBox.checked ? zone.classList.remove("opacity-40") : zone.classList.add("opacity-40");
   }
@@ -1008,7 +1056,7 @@ function printMatchSheet() {
       ${vehiclesHTML}
       <script>
         window.onload = function() { window.print(); window.close(); };
-      </script>
+      <\/script>
     </body>
     </html>
   `);
