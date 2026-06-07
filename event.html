@@ -10,32 +10,14 @@
   <script src="app.js" defer></script>
   <style>
     @keyframes fade-in {
-      from {
-        opacity: 0;
-        transform: scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
     }
-    .animate-fade-in {
-      animation: fade-in 0.2s ease-out;
-    }
-    .scrollbar-thin::-webkit-scrollbar {
-      width: 6px;
-    }
-    .scrollbar-thin::-webkit-scrollbar-track {
-      background: #1f1f1f;
-      border-radius: 3px;
-    }
-    .scrollbar-thin::-webkit-scrollbar-thumb {
-      background: #3f3f3f;
-      border-radius: 3px;
-    }
-    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-      background: #5f5f5f;
-    }
+    .animate-fade-in { animation: fade-in 0.2s ease-out; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: #1f1f1f; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #3f3f3f; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #5f5f5f; }
   </style>
 </head>
 
@@ -46,14 +28,12 @@
       <span class="text-2xl font-black tracking-wider text-amber-500 uppercase drop-shadow-[0_2px_4px_rgba(245,158,11,0.3)]">📺 Wasteland Arena</span>
       <span class="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded border border-zinc-700 tracking-widest font-sans">SPECTATEUR</span>
     </div>
-
     <a id="join-event-btn" href="index.html" class="text-xs bg-amber-600 hover:bg-amber-500 text-zinc-950 font-black px-3 py-1.5 rounded uppercase tracking-wider transition cursor-pointer flex items-center gap-2">
       🛠️ Rejoindre avec mon écurie
     </a>
   </header>
 
   <main class="w-full max-w-7xl mx-auto px-4 py-6 flex-grow">
-
     <div id="event-view" class="bg-zinc-900/40 border-2 border-zinc-800 rounded-xl p-6 shadow-2xl backdrop-blur-sm">
       
       <div class="border-b border-zinc-800 pb-4 mb-4 flex flex-col sm:flex-row justify-between items-start gap-4">
@@ -93,23 +73,19 @@
           <p class="text-zinc-600 text-xs italic text-center py-12">Chargement de la grille...</p>
         </div>
       </div>
-
     </div>
   </main>
 
-  <div id="inspect-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
+  <!-- FIX : style="display:none" au lieu de class="hidden" pour éviter le conflit avec flex -->
+  <div id="inspect-modal" style="display:none" class="fixed inset-0 bg-black/90 backdrop-blur-md items-center justify-center p-4 z-50 animate-fade-in">
     <div class="bg-zinc-900 border-4 border-amber-600/40 w-full max-w-2xl p-6 rounded-xl shadow-2xl flex flex-col gap-4 relative max-h-[85vh]">
-      
       <button onclick="toggleInspectModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-amber-500 text-lg font-bold cursor-pointer transition">✕</button>
-      
       <div class="border-b-2 border-zinc-800 pb-3">
         <span class="text-[10px] bg-amber-500/10 text-amber-500 border border-amber-500/30 px-2 py-0.5 rounded font-sans tracking-widest uppercase font-bold">📡 SCANNER DE L'ARÈNE</span>
         <h2 id="inspect-gang-name" class="text-xl font-black uppercase text-zinc-100 tracking-wider mt-1">NOM DE L'ÉCURIE</h2>
         <p class="text-zinc-500 text-xs mt-0.5">Valeur totale : <span id="inspect-gang-cost" class="text-amber-500 font-bold font-mono">0 Cans</span></p>
       </div>
-
-      <div id="inspect-vehicles-container" class="flex flex-col gap-4 overflow-y-auto pr-1 scrollbar-thin">
-      </div>
+      <div id="inspect-vehicles-container" class="flex flex-col gap-4 overflow-y-auto pr-1 scrollbar-thin"></div>
     </div>
   </div>
 
@@ -118,13 +94,11 @@
   </footer>
 
   <script>
-    // Variable globale pour stocker les écuries chargées et éviter les requêtes Supabase inutiles au clic
     let currentEventGangs = [];
 
     document.addEventListener("DOMContentLoaded", () => {
       const urlParams = new URLSearchParams(window.location.search);
       const eventCode = urlParams.get('code');
-      
       if (eventCode) {
         loadEventPage(eventCode);
       } else {
@@ -135,9 +109,7 @@
 
     function updateJoinButton(eventCode) {
       const joinBtn = document.getElementById("join-event-btn");
-      if (joinBtn && eventCode) {
-        joinBtn.href = `/index.html?event=${eventCode}`;
-      }
+      if (joinBtn && eventCode) joinBtn.href = `/index.html?event=${eventCode}`;
     }
 
     async function loadEventPage(eventCode) {
@@ -145,35 +117,24 @@
         document.getElementById("event-drivers-list").innerHTML = `<p class="text-red-500 text-xs italic text-center py-12">❌ Base de données non disponible</p>`;
         return;
       }
-
       const { data, error } = await window.supabase
-        .from("events")
-        .select("*")
-        .eq("event_id", eventCode.toUpperCase())
-        .maybeSingle();
-
+        .from("events").select("*").eq("event_id", eventCode.toUpperCase()).maybeSingle();
       if (error || !data) {
         document.getElementById("event-title").textContent = "Match introuvable";
         document.getElementById("event-drivers-list").innerHTML = `<p class="text-red-500 text-xs italic text-center py-12">❌ Ce code TV ne correspond à aucun match.</p>`;
         return;
       }
-
       document.getElementById("event-title").textContent = data.title;
       document.getElementById("event-code").textContent = data.event_id;
       document.getElementById("event-limit").textContent = `${data.max_cans} Cans max`;
-
       updateJoinButton(data.event_id);
-      
-      // Sauvegarde locale des écuries pour l'inspecteur automatique
       currentEventGangs = data.registered_gangs || [];
-      
       renderEventDriversGrille(currentEventGangs, data.max_cans);
     }
 
     function renderEventDriversGrille(rostersArray, maxCansLimit) {
       const container = document.getElementById("event-drivers-list");
       if (!container) return;
-
       const statsPilots = document.getElementById("stats-pilots");
       const statsVehicles = document.getElementById("stats-vehicles");
       const statsCans = document.getElementById("stats-cans");
@@ -186,25 +147,20 @@
         return;
       }
 
-      let totalVehicles = 0;
-      let totalCans = 0;
-      
+      let totalVehicles = 0, totalCans = 0;
       rostersArray.forEach(roster => {
         totalCans += roster.total_cans;
         if (roster.vehicles) totalVehicles += roster.vehicles.length;
       });
-
       if (statsPilots) statsPilots.textContent = rostersArray.length;
       if (statsVehicles) statsVehicles.textContent = totalVehicles;
       if (statsCans) statsCans.textContent = totalCans;
 
       container.innerHTML = rostersArray.map(roster => {
         const isOverBudget = roster.total_cans > maxCansLimit;
-        
         const vehiclesSummary = roster.vehicles && roster.vehicles.length > 0
           ? roster.vehicles.map(v => `${v.name} (${v.chassisName || 'Châssis'})`).join(", ")
           : "Aucun véhicule engagé";
-
         return `
           <div onclick="inspectGangRoster('${roster.gang_id}')" 
             class="bg-zinc-900 border ${isOverBudget ? 'border-red-500/50 hover:border-red-500' : 'border-zinc-800 hover:border-amber-500/50'} rounded p-2.5 flex items-center justify-between text-xs font-sans cursor-pointer transition-all duration-200 hover:bg-zinc-900/80 group">
@@ -216,43 +172,34 @@
               <span class="bg-zinc-950 px-2 py-0.5 rounded font-mono ${isOverBudget ? 'text-red-400' : 'text-zinc-300'} font-bold">${roster.total_cans} Cans</span>
               <span class="text-zinc-600 group-hover:text-amber-500 transition text-[10px]">👁️</span>
             </div>
-          </div>
-        `;
+          </div>`;
       }).join("");
     }
 
     function inspectGangRoster(gangId) {
-      // Recherche instantanée dans les données déjà chargées
       const targetRoster = currentEventGangs.find(r => r.gang_id === gangId);
       if (!targetRoster) return;
-
       document.getElementById("inspect-gang-name").textContent = targetRoster.gang_name;
       document.getElementById("inspect-gang-cost").textContent = `${targetRoster.total_cans} Cans`;
-
       const container = document.getElementById("inspect-vehicles-container");
       if (!container) return;
-
       if (!targetRoster.vehicles || targetRoster.vehicles.length === 0) {
         container.innerHTML = `<p class="text-zinc-500 text-xs italic text-center py-4">Aucun véhicule enregistré dans cette écurie...</p>`;
       } else {
+        const formatList = (field) => {
+          if (!field) return "Aucun";
+          if (Array.isArray(field)) return field.length > 0 ? field.join(", ") : "Aucun";
+          return field;
+        };
         container.innerHTML = targetRoster.vehicles.map(v => {
-          // Extraction identique à l'index pour gérer tableaux ou strings
-          const formatList = (field) => {
-            if (!field) return "Aucun";
-            if (Array.isArray(field)) return field.length > 0 ? field.join(", ") : "Aucun";
-            return field;
-          };
-
           const weapons = formatList(v.weaponName || v.weapons);
           const upgrades = formatList(v.upgradeName || v.upgrades);
           const perks = formatList(v.perkName || v.perks);
-
-          let hullBoxes = "";
           const hullCount = v.hull || 0;
+          let hullBoxes = "";
           for (let i = 0; i < hullCount; i++) {
             hullBoxes += `<div style="display:inline-block; width:14px; height:14px; border:1.5px solid #3f3f3f; margin-right:4px; margin-bottom:4px; background:#1f1f1f;"></div>`;
           }
-          
           return `
             <div class="bg-zinc-950 border border-zinc-800 p-3 rounded font-sans text-xs">
               <div class="flex justify-between items-center border-b border-zinc-900 pb-1.5 mb-2">
@@ -267,34 +214,31 @@
               </div>
               <div class="mt-2 pt-2 border-t border-zinc-900 flex flex-col gap-1">
                 <div class="text-[10px] text-zinc-500 font-mono">
-                  Structure Coque : <span class="text-zinc-300 font-bold">${hullCount} PV</span> 
+                  Structure Coque : <span class="text-zinc-300 font-bold">${hullCount} PV</span>
                   ${v.slotsUsed !== undefined ? `| Soute : <span class="text-zinc-300 font-bold">${v.slotsUsed} / ${v.maxSlots || 0} Slots</span>` : ''}
                 </div>
                 <div class="flex flex-wrap gap-1 mt-1">${hullBoxes}</div>
               </div>
-            </div>
-          `;
+            </div>`;
         }).join("");
       }
-
-      // Ouvre le modal
       toggleInspectModal();
     }
 
+    // FIX : style.display au lieu de classList.toggle("hidden")
     function toggleInspectModal() {
       const modal = document.getElementById("inspect-modal");
-      if (modal) modal.classList.toggle("hidden");
+      if (!modal) return;
+      modal.style.display = modal.style.display === "flex" ? "none" : "flex";
     }
+
+    document.addEventListener("keydown", e => { if (e.key === "Escape") { const m = document.getElementById("inspect-modal"); if (m) m.style.display = "none"; } });
 
     function copyEventLink() {
-      const url = window.location.href;
-      navigator.clipboard.writeText(url).then(() => {
-        alert("🔗 Lien du match copié !\n\nPartagez-le avec vos amis.");
-      }).catch(() => {
-        alert("Impossible de copier le lien.");
-      });
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => alert("🔗 Lien du match copié !\n\nPartagez-le avec vos amis."))
+        .catch(() => alert("Impossible de copier le lien."));
     }
-</script>
+  </script>
 </body>
-
 </html>
