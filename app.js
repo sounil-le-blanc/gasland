@@ -215,11 +215,11 @@ document.addEventListener("DOMContentLoaded", () => {
   updateHistoryDropdownUI();
   loadLocalCrewForId(myGarageId);
 
-  // 📡 LIEN MAGIQUE DE MATCH (Avec temporisation pour laisser le DOM respirer)
+  // 📡 LIEN MAGIQUE : Exécuté de façon totalement sécurisée après le rendu complet du DOM
   const urlParams = new URLSearchParams(window.location.search);
   const eventParam = urlParams.get('event');
   if (eventParam) {
-    setTimeout(() => loadTVEvent(eventParam), 150);
+    loadTVEvent(eventParam);
   }
 });
 
@@ -371,20 +371,31 @@ async function loadTVEvent(eventCode) {
     return;
   }
 
-  // ⚡ LOCK : On fige les données cloud de l'événement
+  // ⚡ FIX ARBITRAGE : On mémorise l'état avant d'aligner de force l'UI sur les Cans requis par l'orga
   currentLoadedEvent = data;
-
-  // ⚡ VERROU : On écrase de force la limite de Cans locale par celle requise par la table Cloud
   maxCans = data.max_cans;
-  document.getElementById("max-cans-display").textContent = maxCans;
+
+  // Mise à jour de sécurité des compteurs locaux
+  const maxCansDisplay = document.getElementById("max-cans-display");
+  if (maxCansDisplay) maxCansDisplay.textContent = maxCans;
   localStorage.setItem("gaslands_max_cans_limit", maxCans);
   renderCrew(); 
 
-  document.getElementById("active-tv-zone").classList.remove("hidden");
-  document.getElementById("tv-event-title").textContent = data.title;
-  document.getElementById("tv-event-code").textContent = data.event_id;
-  document.getElementById("tv-event-limit").textContent = `${data.max_cans} CANS MAX`;
-  document.getElementById("tv-code-input").value = data.event_id;
+  // Sécurisation de l'affichage de la zone TV
+  const activeTvZone = document.getElementById("active-tv-zone");
+  if (activeTvZone) activeTvZone.classList.remove("hidden");
+
+  const tvEventTitle = document.getElementById("tv-event-title");
+  if (tvEventTitle) tvEventTitle.textContent = data.title;
+
+  const tvEventCode = document.getElementById("tv-event-code");
+  if (tvEventCode) tvEventCode.textContent = data.event_id;
+
+  const tvEventLimit = document.getElementById("tv-event-limit");
+  if (tvEventLimit) tvEventLimit.textContent = `${data.max_cans} CANS MAX`;
+
+  const tvCodeInput = document.getElementById("tv-code-input");
+  if (tvCodeInput) tvCodeInput.value = data.event_id;
 
   renderTVDriversGrille(data.registered_gangs);
 }
@@ -424,9 +435,9 @@ async function pushMyGangToActiveEvent() {
     return;
   }
 
-  // 🛡️ SÉCURITÉ ABSOLUE : Blocage strict si le roster local outrepasse le barème du match cloud
+  // 🛡️ CONTROLE TECHNIQUE MAXIMUM : On bloque impérativement l'envoi si la liste triche sur la limite du match
   if (myTotalCost > currentLoadedEvent.max_cans) {
-    alert(`⛔ ARBITRAGE : Inscription refusée.\n\nVotre équipe vaut ${myTotalCost} Cans, mais la grille de ce match en ligne est STRICTEMENT limitée à ${currentLoadedEvent.max_cans} Cans max.\n\nModifiez ou supprimez des armes pour repasser sous la barre !`);
+    alert(`⛔ ARBITRAGE : Inscription refusée.\n\nVotre équipe vaut ${myTotalCost} Cans, mais la grille de ce match en ligne est STRICTEMENT limitée à ${currentLoadedEvent.max_cans} Cans max.\n\nModifiez votre liste pour repasser sous la barre !`);
     return;
   }
 
