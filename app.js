@@ -306,7 +306,7 @@ function loadLocalCrewForId(id) {
   let multiData = allGaragesData ? JSON.parse(allGaragesData) : {};
   crew = multiData[id] || [];
   renderCrew();
-  handleSponsorChange(); 
+  handleSponsorChange();
 }
 
 function localSave() {
@@ -338,7 +338,7 @@ async function createNewTVEvent() {
       event_id: generatedTVCode,
       title: title,
       max_cans: cans,
-      registered_gangs: [] 
+      registered_gangs: []
     });
 
   if (error) {
@@ -376,7 +376,7 @@ async function loadTVEvent(eventCode) {
   const maxCansDisplay = document.getElementById("max-cans-display");
   if (maxCansDisplay) maxCansDisplay.textContent = maxCans;
   localStorage.setItem("gaslands_max_cans_limit", maxCans);
-  renderCrew(); 
+  renderCrew();
 
   const activeTvZone = document.getElementById("active-tv-zone");
   if (activeTvZone) activeTvZone.classList.remove("hidden");
@@ -470,7 +470,7 @@ async function pushMyGangToActiveEvent() {
 function copyMatchMagicLink() {
   if (!currentLoadedEvent) return;
   const magicURL = `${window.location.origin}${window.location.pathname}?event=${currentLoadedEvent.event_id}`;
-  
+
   navigator.clipboard.writeText(magicURL).then(() => {
     alert("🔗 LIEN MAGIQUE COPIÉ !\n\nPartagez-le avec votre club. En cliquant dessus, ils rejoindront directement ce match.");
   }).catch(err => {
@@ -485,7 +485,7 @@ async function removeMyGangFromActiveEvent() {
   }
 
   const currentGarageInfo = garageHistory.find(g => g.id === myGarageId);
-  
+
   if (!confirm(`⚠️ Retirer l'écurie "${currentGarageInfo.name}" de la grille de match ?\n\nVos véhicules resteront dans votre garage, seule l'inscription au match sera supprimée.`)) {
     return;
   }
@@ -512,7 +512,7 @@ async function removeMyGangFromActiveEvent() {
 
 function inspectGangRoster(gangId) {
   if (!currentLoadedEvent || !currentLoadedEvent.registered_gangs) return;
-  
+
   const targetRoster = currentLoadedEvent.registered_gangs.find(r => r.gang_id === gangId);
   if (!targetRoster) return;
 
@@ -644,10 +644,10 @@ function updateLiveFormCalculations() {
   const trailer = GASLANDS_DATA.trailers.find(t => t.id === trailerId);
   const cargo = GASLANDS_DATA.cargoUpgrades.find(c => c.id === cargoId);
   if (!chassis) return;
-  
+
   let currentCansTotal = chassis.baseCost + (trailer ? trailer.cost : 0) + (cargo ? cargo.cost : 0);
   let currentSlotsTotal = 0;
-  
+
   // Calcul des armes
   document.querySelectorAll('input[name="weapon-checkbox"]:checked').forEach(cb => {
     const wObj = GASLANDS_DATA.weapons.find(w => w.id === cb.value);
@@ -661,7 +661,7 @@ function updateLiveFormCalculations() {
       currentSlotsTotal += wObj.slots;
     }
   });
-  
+
   // Calcul des upgrades
   document.querySelectorAll('input[name="upgrade-checkbox"]:checked').forEach(cb => {
     const uObj = GASLANDS_DATA.upgrades.find(u => u.id === cb.value);
@@ -670,30 +670,30 @@ function updateLiveFormCalculations() {
       currentSlotsTotal += uObj.slots;
     }
   });
-  
+
   // Calcul des perks
   document.querySelectorAll('input[name="perk-checkbox"]:checked').forEach(cb => {
     const pObj = GASLANDS_DATA.perks.find(p => p.id === cb.value);
     if (pObj) currentCansTotal += pObj.cost;
   });
-  
+
   const maxSlotsAvailable = chassis.slots + (trailer ? trailer.extraSlots : 0);
-  
+
   const cansIndicator = document.getElementById("live-cans-indicator");
   const slotsIndicator = document.getElementById("live-slots-indicator");
   const facingsIndicator = document.getElementById("live-facings-indicator");
-  
+
   if (cansIndicator) cansIndicator.textContent = `${currentCansTotal} Cans`;
   if (slotsIndicator) {
     slotsIndicator.textContent = `${currentSlotsTotal} / ${maxSlotsAvailable} Slots`;
     slotsIndicator.className = (currentSlotsTotal > maxSlotsAvailable) ? "text-red-500 font-mono text-sm font-black tracking-wide animate-pulse" : "text-zinc-300 font-mono";
   }
-  
+
   // Affichage simplifié : plus de limite, juste un compteur de fixations par face
   if (facingsIndicator) {
     // Compter les équipements par face (juste pour info, pas de blocage)
     let avant = 0, arriere = 0, flancG = 0, flancD = 0, tourelle = 0;
-    
+
     document.querySelectorAll('input[name="weapon-checkbox"]:checked').forEach(cb => {
       const wObj = GASLANDS_DATA.weapons.find(w => w.id === cb.value);
       if (wObj && !wObj.crew) {
@@ -705,7 +705,7 @@ function updateLiveFormCalculations() {
         else if (facing === "Tourelle") tourelle++;
       }
     });
-    
+
     document.querySelectorAll('input[name="upgrade-checkbox"]:checked').forEach(cb => {
       const uObj = GASLANDS_DATA.upgrades.find(u => u.id === cb.value);
       if (uObj && uObj.directional) {
@@ -718,7 +718,7 @@ function updateLiveFormCalculations() {
         }
       }
     });
-    
+
     facingsIndicator.innerHTML = `
       <span class="text-zinc-500">📦 Fixations libres :</span>
       <span class="${avant > 0 ? 'text-amber-500' : 'text-zinc-600'}">AV:${avant}</span>
@@ -728,14 +728,14 @@ function updateLiveFormCalculations() {
       ${tourelle > 0 ? `<span class="text-purple-500">T:${tourelle}</span>` : ''}
     `;
   }
-  
+
   // Plus jamais de blocage
   document.getElementById("live-counter-zone").dataset.invalidFacing = "false";
 }
 
-function handleSponsorSelectChange() { 
-  handleSponsorChange(); 
-  populateFormOptions(); 
+function handleSponsorSelectChange() {
+  handleSponsorChange();
+  populateFormOptions();
 }
 
 function toggleWeaponOrientationState(weaponId) {
@@ -809,14 +809,23 @@ function editVehicle(vehicleId) {
   const targetVehicle = crew.find(v => v.id === vehicleId);
   if (!targetVehicle) return;
 
+  // 1. Retirer le véhicule du tableau et sauvegarder
+  crew = crew.filter(v => v.id !== vehicleId);
+  localSave();
+
+  // 2. Remplir les champs simples
   document.getElementById("vehicle-name").value = targetVehicle.customNameOriginal || "";
   const chassisEntry = Object.entries(GASLANDS_DATA.vehicles).find(([key, val]) => val.name === targetVehicle.chassisName);
   if (chassisEntry) document.getElementById("vehicle-type").value = chassisEntry[0];
 
-  document.querySelectorAll('input[name="weapon-checkbox"]').forEach(cb => cb.checked = false);
-  document.querySelectorAll('input[name="upgrade-checkbox"]').forEach(cb => cb.checked = false);
-  document.querySelectorAll('input[name="perk-checkbox"]').forEach(cb => cb.checked = false);
+  // 3. Restaurer le sponsor si besoin (pour que populateFormOptions génère les bons perks/armes)
+  // Le sponsor est global à l'écurie, pas au véhicule, donc on ne le touche pas.
 
+  // 4. Reconstruire tout le DOM des checkboxes proprement
+  populateFormOptions();
+  renderCrew();
+
+  // 5. Cocher les armes et restaurer leurs orientations
   if (targetVehicle.originalWeapons) {
     targetVehicle.originalWeapons.forEach(wData => {
       const wBox = document.querySelector(`input[name="weapon-checkbox"][value="${wData.id}"]`);
@@ -829,6 +838,7 @@ function editVehicle(vehicleId) {
     });
   }
 
+  // 6. Cocher les upgrades et restaurer leurs orientations
   if (targetVehicle.originalUpgrades) {
     targetVehicle.originalUpgrades.forEach(uData => {
       const uBox = document.querySelector(`input[name="upgrade-checkbox"][value="${uData.id}"]`);
@@ -841,6 +851,7 @@ function editVehicle(vehicleId) {
     });
   }
 
+  // 7. Cocher les perks
   if (targetVehicle.originalPerks) {
     targetVehicle.originalPerks.forEach(pId => {
       const pBox = document.querySelector(`input[name="perk-checkbox"][value="${pId}"]`);
@@ -848,17 +859,19 @@ function editVehicle(vehicleId) {
     });
   }
 
+  // 8. Restaurer la remorque
   const trEntry = GASLANDS_DATA.trailers.find(t => t.name === targetVehicle.trailerName);
   document.getElementById("trailer-select").value = trEntry ? trEntry.id : "none";
   handleTrailerChange();
 
+  // 9. Restaurer le cargo
   const cgEntry = GASLANDS_DATA.cargoUpgrades.find(c => c.name === targetVehicle.cargoName);
-  document.getElementById("cargo-select").value = cgEntry ? cgEntry.id : "none";
+  if (cgEntry) document.getElementById("cargo-select").value = cgEntry.id;
 
-  crew = crew.filter(v => v.id !== vehicleId);
-  localSave();
-  renderCrew();
-  populateFormOptions();
+  // 10. Recalculer les compteurs live
+  updateLiveFormCalculations();
+
+  // 11. Focus sur le nom pour signaler visuellement qu'on est en mode édition
   document.getElementById("vehicle-name").focus();
 }
 
