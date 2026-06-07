@@ -215,11 +215,11 @@ document.addEventListener("DOMContentLoaded", () => {
   updateHistoryDropdownUI();
   loadLocalCrewForId(myGarageId);
 
-  // 📡 DÉTECTION DU LIEN MAGIQUE DE TOURNOI
+  // 📡 LIEN MAGIQUE DE MATCH (Avec temporisation pour laisser le DOM respirer)
   const urlParams = new URLSearchParams(window.location.search);
   const eventParam = urlParams.get('event');
   if (eventParam) {
-    loadTVEvent(eventParam);
+    setTimeout(() => loadTVEvent(eventParam), 150);
   }
 });
 
@@ -307,9 +307,7 @@ function loadLocalCrewForId(id) {
   let multiData = allGaragesData ? JSON.parse(allGaragesData) : {};
   crew = multiData[id] || [];
   renderCrew();
-  
-  // ⚡ FIX ACCESSIBILITÉ : Réveille l'affichage conditionnel des Rusty et des atouts
-  handleSponsorChange();
+  handleSponsorChange(); // Relance l'évaluation des atouts/remorques
 }
 
 function localSave() {
@@ -320,7 +318,7 @@ function localSave() {
 }
 
 // ==========================================
-// 🎥 MODULE DE SÉRIE TV / TOURNOIS PARTAGEABLES DANS LE CLOUD
+// 🎥 MODULE DE SÉRIE TV / TOURNOIS PARTAGEABLES
 // ==========================================
 
 async function createNewTVEvent() {
@@ -373,6 +371,7 @@ async function loadTVEvent(eventCode) {
     return;
   }
 
+  // ⚡ FIX CRUCIAL : Mémorise l'événement complet avant le rendu visuel
   currentLoadedEvent = data;
 
   document.getElementById("active-tv-zone").classList.remove("hidden");
@@ -433,6 +432,7 @@ async function pushMyGangToActiveEvent() {
     vehicles: crew
   };
 
+  // Remplace l'écurie si elle existait déjà (mise à jour), sinon l'ajoute
   let updatedRosters = currentLoadedEvent.registered_gangs.filter(r => r.gang_id !== myGarageId);
   updatedRosters.push(newRosterPayload);
 
@@ -954,7 +954,7 @@ function printMatchSheet() {
             <tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold; width: 110px;">💥 ARMEMENTS :</td><td style="padding: 4px 0;">${v.weaponName}</td></tr>
             <tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">🔧 MATÉRIEL :</td><td style="padding: 4px 0;">${v.upgradeName}</td></tr>
             <tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">🔥 AVANTAGES :</td><td style="padding: 4px 0;">${v.perkName}</td></tr>
-            ${v.trailerName !== "Aucune" ? `<tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">🚛 ATTELAGE :</td><td style="padding: 4px 0;">${v.trailerName} ${v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</td></tr>` : ''}
+            ${v.trailerName !== "Aucune" ? `<tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">¼🚛 ATTELAGE :</td><td style="padding: 4px 0;">${v.trailerName} ${v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</td></tr>` : ''}
           </table>
           <div style="border-top: 2px solid #000; padding-top: 6px; margin-top: 4px;">
             <span style="font-weight: bold; font-size: 11px; text-transform: uppercase; font-family:monospace;">Structure de la Coque :</span>
