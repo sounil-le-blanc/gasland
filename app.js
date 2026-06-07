@@ -551,7 +551,8 @@ function inspectGangRoster(gangId) {
 
 function toggleInspectModal() {
   const modal = document.getElementById("inspect-modal");
-  if (modal) modal.classList.toggle("hidden");
+  if (!modal) return;
+  modal.style.display = modal.style.display === "flex" ? "none" : "flex";
 }
 
 // ==========================================
