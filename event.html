@@ -166,7 +166,7 @@
       document.getElementById("event-code").textContent = data.event_id;
       document.getElementById("event-limit").textContent = `${data.max_cans} Cans max`;
 
-      // 🔥 MET À JOUR LE LIEN DU BOUTON "REJOINDRE"
+      // Met à jour le lien du bouton "Rejoindre"
       updateJoinButton(data.event_id);
 
       // Afficher la grille
@@ -240,6 +240,7 @@
       const targetRoster = data.registered_gangs?.find(r => r.gang_id === gangId);
       if (!targetRoster) return;
 
+      // Afficher le nom et le coût total de l'écurie
       document.getElementById("inspect-gang-name").textContent = targetRoster.gang_name;
       document.getElementById("inspect-gang-cost").textContent = `${targetRoster.total_cans} Cans`;
 
@@ -249,7 +250,15 @@
       if (!targetRoster.vehicles || targetRoster.vehicles.length === 0) {
         container.innerHTML = `<p class="text-zinc-500 text-xs italic text-center py-4">Aucun véhicule enregistré dans cette écurie...</p>`;
       } else {
+        // Générer l'affichage de chaque véhicule avec ses points de structure visuels
         container.innerHTML = targetRoster.vehicles.map(v => {
+          // Génère les petits carrés de points de structure (comme dans index)
+          let hullBoxes = "";
+          const hullCount = v.hull || 0;
+          for (let i = 0; i < hullCount; i++) {
+            hullBoxes += `<div style="display:inline-block; width:14px; height:14px; border:1.5px solid #3f3f3f; margin-right:4px; margin-bottom:4px; background:#1f1f1f;"></div>`;
+          }
+          
           return `
             <div class="bg-zinc-950 border border-zinc-800 p-3 rounded font-sans text-xs">
               <div class="flex justify-between items-center border-b border-zinc-900 pb-1.5 mb-2">
@@ -262,14 +271,16 @@
                 <div>🔥 <span class="text-zinc-600 font-bold">Avantage :</span> ${v.perkName}</div>
                 ${v.trailerName !== "Aucune" ? `<div>🚛 <span class="text-zinc-600 font-bold">Attelage :</span> ${v.trailerName} ${v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</div>` : ''}
               </div>
-              <div class="mt-2.5 pt-2 border-t border-zinc-900 text-[10px] text-zinc-500 font-mono">
-                Structure Coque : <span class="text-zinc-300 font-bold">${v.hull} PV</span> | Soute : <span class="text-zinc-300 font-bold">${v.slotsUsed} / ${v.maxSlots} Slots</span>
+              <div class="mt-2 pt-2 border-t border-zinc-900">
+                <div class="text-[10px] text-zinc-500 font-mono mb-1">Structure Coque : <span class="text-zinc-300 font-bold">${hullCount} PV</span> | Soute : <span class="text-zinc-300 font-bold">${v.slotsUsed} / ${v.maxSlots} Slots</span></div>
+                <div class="flex flex-wrap gap-1 mt-1">${hullBoxes}</div>
               </div>
             </div>
           `;
         }).join("");
       }
 
+      // Afficher la modale
       toggleInspectModal();
     }
 
