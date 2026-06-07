@@ -478,6 +478,34 @@ function copyMatchMagicLink() {
   });
 }
 
+async function removeMyGangFromActiveEvent() {
+  if (!window.supabase || !currentLoadedEvent) {
+    alert("❌ Aucun événement actif chargé.");
+    return;
+  }
+
+  const currentGarageInfo = garageHistory.find(g => g.id === myGarageId);
+  
+  if (!confirm(`⚠️ Retirer l'écurie "${currentGarageInfo.name}" de la grille de match ?\n\nVos véhicules resteront dans votre garage, seule l'inscription au match sera supprimée.`)) {
+    return;
+  }
+
+  // Filtrer pour enlever l'écurie actuelle
+  let updatedRosters = currentLoadedEvent.registered_gangs.filter(r => r.gang_id !== myGarageId);
+
+  const { error } = await window.supabase
+    .from("events")
+    .update({ registered_gangs: updatedRosters })
+    .eq("event_id", currentLoadedEvent.event_id);
+
+  if (error) {
+    alert("Erreur lors de la désinscription : " + error.message);
+  } else {
+    alert(`❌ Écurie "${currentGarageInfo.name}" retirée de la grille.`);
+    loadTVEvent(currentLoadedEvent.event_id);
+  }
+}
+
 // ==========================================
 // 📡 INSPECTION DES ÉCURIES ADVERSES
 // ==========================================
