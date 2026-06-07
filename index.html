@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wasteland Garage — Gaslands Crew Builder</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js" defer></script>
 </head>
 
@@ -45,7 +46,11 @@
     </div>
   </header>
 
-  <main class="w-full max-w-7xl mx-auto px-4 py-8 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+  <div class="bg-amber-950/40 border-b border-amber-900/60 px-4 py-2 text-center text-xs text-amber-400/90 font-sans">
+    ⚠️ <strong>Mode Hangar Local :</strong> Vos 5 écuries max sont stockées dans ce navigateur. Utilisez le module TV en bas pour partager et sauvegarder vos grilles de match en ligne !
+  </div>
+
+  <main class="w-full max-w-7xl mx-auto px-4 py-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
     <section
       class="lg:col-span-5 bg-zinc-900/40 border-2 border-zinc-800 rounded-xl p-6 shadow-2xl backdrop-blur-sm flex flex-col gap-5">
@@ -141,7 +146,7 @@
       <div class="bg-zinc-900 border-2 border-zinc-800 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between shadow-xl gap-4">
         <div class="text-left w-full sm:w-auto">
           <h1 id="roster-title-display" class="text-xl font-black uppercase tracking-wide">Roster Officiel</h1>
-          <p id="crew-status-text" class="text-emerald-500 text-xs font-sans font-bold">Sauvegarde locale opérationnelle.</p>
+          <p id="crew-status-text" class="text-emerald-500 text-xs font-sans font-bold">Sauvegarde locale active.</p>
         </div>
 
         <div class="flex items-center gap-4 justify-between w-full sm:w-auto border-t sm:border-t-0 border-zinc-800 pt-3 sm:pt-0">
@@ -160,7 +165,7 @@
         </div>
       </div>
 
-      <div class="bg-zinc-900/20 border-2 border-zinc-800 rounded-xl p-6 min-h-[350px] flex flex-col gap-4">
+      <div class="bg-zinc-900/20 border-2 border-zinc-800 rounded-xl p-6 min-h-[220px] flex flex-col gap-4">
         <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
           <h3 class="text-xs font-black uppercase text-zinc-400 tracking-widest">Machines de Guerre Engagées</h3>
           <div class="flex gap-4">
@@ -168,9 +173,56 @@
             <button onclick="clearRoster()" class="text-[10px] text-zinc-600 hover:text-red-400 font-bold uppercase tracking-wider cursor-pointer transition">Vider l'écurie</button>
           </div>
         </div>
-
         <div id="crew-list" class="flex flex-col gap-4">
-          <p class="text-zinc-600 text-sm italic text-center py-12">Aucun véhicule blindé dans le garage pour le moment...</p>
+          <p class="text-zinc-600 text-sm italic text-center py-12">Aucun véhicule blindé dans le garage...</p>
+        </div>
+      </div>
+
+      <div class="bg-zinc-900 border-2 border-zinc-800 rounded-xl p-6 shadow-xl flex flex-col gap-4">
+        <div class="border-b border-zinc-800 pb-2">
+          <h2 class="text-sm font-black uppercase text-amber-500 tracking-wider">🎥 Grilles de Match TV Partagées</h2>
+          <p class="text-zinc-500 text-[11px]">Génère un match à partager par lien ou capte une fréquence pour voir qui est sur la ligne de départ.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          <div class="bg-zinc-950 border border-zinc-800 p-4 rounded flex flex-col gap-3">
+            <h4 class="text-xs uppercase font-bold text-zinc-300">🏁 Créer une Grille de Match</h4>
+            <input type="text" id="new-event-title" placeholder="Ex: Course de Club du Vendredi..." class="bg-zinc-900 border border-zinc-800 rounded p-2 text-xs text-zinc-200 outline-none focus:border-amber-500">
+            <div class="flex gap-2">
+              <input type="number" id="new-event-cans" value="50" class="w-20 bg-zinc-900 border border-zinc-800 rounded p-2 text-xs text-zinc-200 text-center outline-none focus:border-amber-500">
+              <button onclick="createNewTVEvent()" class="flex-grow bg-amber-600 hover:bg-amber-500 text-zinc-950 font-black text-xs py-2 rounded uppercase tracking-wider transition cursor-pointer">Générer le Match</button>
+            </div>
+          </div>
+
+          <div class="bg-zinc-950 border border-zinc-800 p-4 rounded flex flex-col gap-3">
+            <h4 class="text-xs uppercase font-bold text-zinc-300">📡 Entrer un code TV</h4>
+            <div class="flex gap-2">
+              <input type="text" id="tv-code-input" placeholder="TV-XXXX" class="flex-grow bg-zinc-900 border border-zinc-800 rounded p-2 text-xs uppercase tracking-widest text-zinc-200 outline-none focus:border-amber-500">
+              <button onclick="loadTVEvent(document.getElementById('tv-code-input').value)" class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 font-bold text-xs px-4 rounded uppercase tracking-wider transition cursor-pointer">Capter</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="active-tv-zone" class="hidden bg-zinc-950 border-2 border-amber-500/40 rounded p-4 flex flex-col gap-4">
+          <div class="flex justify-between items-start border-b border-zinc-800 pb-2">
+            <div>
+              <h3 id="tv-event-title" class="text-base font-black text-amber-500 uppercase">MATCH</h3>
+              <button onclick="copyMatchMagicLink()" class="text-[10px] mt-1 bg-zinc-900 border border-zinc-800 hover:border-amber-500 text-zinc-400 hover:text-amber-500 px-2 py-1 rounded transition flex items-center gap-1.5 font-bold uppercase cursor-pointer">
+                🔗 Copier le lien de partage du match
+              </button>
+            </div>
+            <div class="text-right">
+              <span id="tv-event-limit" class="text-xs bg-zinc-900 border border-zinc-800 text-zinc-400 px-2 py-1 rounded font-bold">50 CANS MAX</span>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <h4 class="text-xs font-black uppercase text-zinc-400">🚦 Pilotes Alignés en Ligne :</h4>
+            <div id="tv-drivers-list" class="flex flex-col gap-2 max-h-56 overflow-y-auto pr-2">
+              </div>
+          </div>
+
+          <button onclick="pushMyGangToActiveEvent()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-zinc-950 font-black text-xs py-2.5 rounded uppercase tracking-wider transition cursor-pointer">🚀 Envoyer mon écurie active sur cette grille</button>
         </div>
       </div>
 
