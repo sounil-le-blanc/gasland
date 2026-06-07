@@ -809,23 +809,20 @@ function editVehicle(vehicleId) {
   const targetVehicle = crew.find(v => v.id === vehicleId);
   if (!targetVehicle) return;
 
-  // 1. Retirer le véhicule du tableau et sauvegarder
+  // 1. Retirer le véhicule du tableau
   crew = crew.filter(v => v.id !== vehicleId);
   localSave();
 
-  // 2. Remplir les champs simples
+  // 2. Reconstruire tout le DOM proprement EN PREMIER
+  populateFormOptions();
+  renderCrew();
+
+  // 3. Maintenant remplir les champs simples (après que le DOM existe)
   document.getElementById("vehicle-name").value = targetVehicle.customNameOriginal || "";
   const chassisEntry = Object.entries(GASLANDS_DATA.vehicles).find(([key, val]) => val.name === targetVehicle.chassisName);
   if (chassisEntry) document.getElementById("vehicle-type").value = chassisEntry[0];
 
-  // 3. Restaurer le sponsor si besoin (pour que populateFormOptions génère les bons perks/armes)
-  // Le sponsor est global à l'écurie, pas au véhicule, donc on ne le touche pas.
-
-  // 4. Reconstruire tout le DOM des checkboxes proprement
-  populateFormOptions();
-  renderCrew();
-
-  // 5. Cocher les armes et restaurer leurs orientations
+  // 4. Cocher les armes et restaurer leurs orientations
   if (targetVehicle.originalWeapons) {
     targetVehicle.originalWeapons.forEach(wData => {
       const wBox = document.querySelector(`input[name="weapon-checkbox"][value="${wData.id}"]`);
@@ -838,7 +835,7 @@ function editVehicle(vehicleId) {
     });
   }
 
-  // 6. Cocher les upgrades et restaurer leurs orientations
+  // 5. Cocher les upgrades et restaurer leurs orientations
   if (targetVehicle.originalUpgrades) {
     targetVehicle.originalUpgrades.forEach(uData => {
       const uBox = document.querySelector(`input[name="upgrade-checkbox"][value="${uData.id}"]`);
@@ -851,7 +848,7 @@ function editVehicle(vehicleId) {
     });
   }
 
-  // 7. Cocher les perks
+  // 6. Cocher les perks
   if (targetVehicle.originalPerks) {
     targetVehicle.originalPerks.forEach(pId => {
       const pBox = document.querySelector(`input[name="perk-checkbox"][value="${pId}"]`);
@@ -859,19 +856,18 @@ function editVehicle(vehicleId) {
     });
   }
 
-  // 8. Restaurer la remorque
+  // 7. Restaurer la remorque
   const trEntry = GASLANDS_DATA.trailers.find(t => t.name === targetVehicle.trailerName);
   document.getElementById("trailer-select").value = trEntry ? trEntry.id : "none";
   handleTrailerChange();
 
-  // 9. Restaurer le cargo
+  // 8. Restaurer le cargo
   const cgEntry = GASLANDS_DATA.cargoUpgrades.find(c => c.name === targetVehicle.cargoName);
   if (cgEntry) document.getElementById("cargo-select").value = cgEntry.id;
 
-  // 10. Recalculer les compteurs live
+  // 9. Recalculer les compteurs live
   updateLiveFormCalculations();
 
-  // 11. Focus sur le nom pour signaler visuellement qu'on est en mode édition
   document.getElementById("vehicle-name").focus();
 }
 
