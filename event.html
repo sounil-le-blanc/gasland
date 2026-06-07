@@ -118,6 +118,9 @@
   </footer>
 
   <script>
+    // Variable globale pour stocker les écuries chargées et éviter les requêtes Supabase inutiles au clic
+    let currentEventGangs = [];
+
     document.addEventListener("DOMContentLoaded", () => {
       const urlParams = new URLSearchParams(window.location.search);
       const eventCode = urlParams.get('code');
@@ -160,7 +163,11 @@
       document.getElementById("event-limit").textContent = `${data.max_cans} Cans max`;
 
       updateJoinButton(data.event_id);
-      renderEventDriversGrille(data.registered_gangs, data.max_cans);
+      
+      // Sauvegarde locale des écuries pour l'inspecteur automatique
+      currentEventGangs = data.registered_gangs || [];
+      
+      renderEventDriversGrille(currentEventGangs, data.max_cans);
     }
 
     function renderEventDriversGrille(rostersArray, maxCansLimit) {
@@ -194,7 +201,6 @@
       container.innerHTML = rostersArray.map(roster => {
         const isOverBudget = roster.total_cans > maxCansLimit;
         
-        // Création d'un résumé propre des véhicules de l'écurie
         const vehiclesSummary = roster.vehicles && roster.vehicles.length > 0
           ? roster.vehicles.map(v => `${v.name} (${v.chassisName || 'Châssis'})`).join(", ")
           : "Aucun véhicule engagé";
@@ -215,22 +221,9 @@
       }).join("");
     }
 
-    async function inspectGangRoster(gangId) {
-      if (!window.supabase) return;
-      
-      const urlParams = new URLSearchParams(window.location.search);
-      const eventCode = urlParams.get('code');
-      if (!eventCode) return;
-
-      const { data, error } = await window.supabase
-        .from("events")
-        .select("*")
-        .eq("event_id", eventCode.toUpperCase())
-        .maybeSingle();
-
-      if (error || !data) return;
-
-      const targetRoster = data.registered_gangs?.find(r => r.gang_id === gangId);
+    function inspectGangRoster(gangId) {
+      // Recherche instantanée dans les données déjà chargées
+      const targetRoster = currentEventGangs.find(r => r.gang_id === gangId);
       if (!targetRoster) return;
 
       document.getElementById("inspect-gang-name").textContent = targetRoster.gang_name;
@@ -243,7 +236,7 @@
         container.innerHTML = `<p class="text-zinc-500 text-xs italic text-center py-4">Aucun véhicule enregistré dans cette écurie...</p>`;
       } else {
         container.innerHTML = targetRoster.vehicles.map(v => {
-          // Gestion sécurisée des listes d'équipements multiples (si tableaux ou chaînes de caractères simples)
+          // Extraction identique à l'index pour gérer tableaux ou strings
           const formatList = (field) => {
             if (!field) return "Aucun";
             if (Array.isArray(field)) return field.length > 0 ? field.join(", ") : "Aucun";
@@ -254,7 +247,6 @@
           const upgrades = formatList(v.upgradeName || v.upgrades);
           const perks = formatList(v.perkName || v.perks);
 
-          // Génération des carrés de structure de coque (Hull)
           let hullBoxes = "";
           const hullCount = v.hull || 0;
           for (let i = 0; i < hullCount; i++) {
@@ -273,7 +265,7 @@
                 <div>🔥 <span class="text-zinc-600 font-bold">Avantage :</span> ${perks}</div>
                 ${v.trailerName && v.trailerName !== "Aucune" ? `<div>🚛 <span class="text-zinc-600 font-bold">Attelage :</span> ${v.trailerName} ${v.cargoName && v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</div>` : ''}
               </div>
-              <div class="mt-2 pt-2 border-t border-t-zinc-900 flex flex-col gap-1">
+              <div class="mt-2 pt-2 border-t border-zinc-900 flex flex-col gap-1">
                 <div class="text-[10px] text-zinc-500 font-mono">
                   Structure Coque : <span class="text-zinc-300 font-bold">${hullCount} PV</span> 
                   ${v.slotsUsed !== undefined ? `| Soute : <span class="text-zinc-300 font-bold">${v.slotsUsed} / ${v.maxSlots || 0} Slots</span>` : ''}
@@ -285,6 +277,7 @@
         }).join("");
       }
 
+      // Ouvre le modal
       toggleInspectModal();
     }
 
@@ -301,7 +294,7 @@
         alert("Impossible de copier le lien.");
       });
     }
-  </script>
+</script>
 </body>
 
 </html>
