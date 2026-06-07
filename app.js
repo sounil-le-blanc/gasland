@@ -307,7 +307,7 @@ function loadLocalCrewForId(id) {
   let multiData = allGaragesData ? JSON.parse(allGaragesData) : {};
   crew = multiData[id] || [];
   renderCrew();
-  handleSponsorChange(); // Relance l'évaluation des atouts/remorques
+  handleSponsorChange(); 
 }
 
 function localSave() {
@@ -371,8 +371,14 @@ async function loadTVEvent(eventCode) {
     return;
   }
 
-  // ⚡ FIX CRUCIAL : Mémorise l'événement complet avant le rendu visuel
+  // ⚡ LOCK : On fige les données cloud de l'événement
   currentLoadedEvent = data;
+
+  // ⚡ VERROU : On écrase de force la limite de Cans locale par celle requise par la table Cloud
+  maxCans = data.max_cans;
+  document.getElementById("max-cans-display").textContent = maxCans;
+  localStorage.setItem("gaslands_max_cans_limit", maxCans);
+  renderCrew(); 
 
   document.getElementById("active-tv-zone").classList.remove("hidden");
   document.getElementById("tv-event-title").textContent = data.title;
@@ -418,8 +424,9 @@ async function pushMyGangToActiveEvent() {
     return;
   }
 
+  // 🛡️ SÉCURITÉ ABSOLUE : Blocage strict si le roster local outrepasse le barème du match cloud
   if (myTotalCost > currentLoadedEvent.max_cans) {
-    alert(`⛔ ARBITRAGE : Inscription refusée. Votre équipe vaut ${myTotalCost} Cans, la limite de ce match est fixée à ${currentLoadedEvent.max_cans} Cans.`);
+    alert(`⛔ ARBITRAGE : Inscription refusée.\n\nVotre équipe vaut ${myTotalCost} Cans, mais la grille de ce match en ligne est STRICTEMENT limitée à ${currentLoadedEvent.max_cans} Cans max.\n\nModifiez ou supprimez des armes pour repasser sous la barre !`);
     return;
   }
 
@@ -432,7 +439,6 @@ async function pushMyGangToActiveEvent() {
     vehicles: crew
   };
 
-  // Remplace l'écurie si elle existait déjà (mise à jour), sinon l'ajoute
   let updatedRosters = currentLoadedEvent.registered_gangs.filter(r => r.gang_id !== myGarageId);
   updatedRosters.push(newRosterPayload);
 
@@ -954,7 +960,7 @@ function printMatchSheet() {
             <tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold; width: 110px;">💥 ARMEMENTS :</td><td style="padding: 4px 0;">${v.weaponName}</td></tr>
             <tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">🔧 MATÉRIEL :</td><td style="padding: 4px 0;">${v.upgradeName}</td></tr>
             <tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">🔥 AVANTAGES :</td><td style="padding: 4px 0;">${v.perkName}</td></tr>
-            ${v.trailerName !== "Aucune" ? `<tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">¼🚛 ATTELAGE :</td><td style="padding: 4px 0;">${v.trailerName} ${v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</td></tr>` : ''}
+            ${v.trailerName !== "Aucune" ? `<tr style="border-bottom: 1px dashed #ccc;"><td style="padding: 4px 0; font-weight: bold;">🚛 ATTELAGE :</td><td style="padding: 4px 0;">${v.trailerName} ${v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</td></tr>` : ''}
           </table>
           <div style="border-top: 2px solid #000; padding-top: 6px; margin-top: 4px;">
             <span style="font-weight: bold; font-size: 11px; text-transform: uppercase; font-family:monospace;">Structure de la Coque :</span>
