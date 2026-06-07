@@ -7,6 +7,7 @@
   <title>Wasteland Arena — Match Public</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js" defer></script>
   <style>
     @keyframes fade-in {
       from {
@@ -103,7 +104,7 @@
   <div id="inspect-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
     <div class="bg-zinc-900 border-4 border-amber-600/40 w-full max-w-2xl p-6 rounded-xl shadow-2xl flex flex-col gap-4 relative max-h-[85vh]">
       
-      <button onclick="closeInspectModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-amber-500 text-lg font-bold cursor-pointer transition">✕</button>
+      <button onclick="toggleInspectModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-amber-500 text-lg font-bold cursor-pointer transition">✕</button>
       
       <div class="border-b-2 border-zinc-800 pb-3">
         <span class="text-[10px] bg-amber-500/10 text-amber-500 border border-amber-500/30 px-2 py-0.5 rounded font-sans tracking-widest uppercase font-bold">📡 SCANNER DE L'ARÈNE</span>
@@ -121,11 +122,6 @@
   </footer>
 
   <script>
-    // Initialisation Supabase
-    const SUPABASE_URL = "https://vwfzzybjjlrashioovrk.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_CVxOH_z-iZs-hmc2O6NBEw_faZRGkNI";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     // Initialisation spécifique pour event.html
     document.addEventListener("DOMContentLoaded", () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -148,12 +144,12 @@
     }
 
     async function loadEventPage(eventCode) {
-      if (!supabase) {
+      if (!window.supabase) {
         document.getElementById("event-drivers-list").innerHTML = `<p class="text-red-500 text-xs italic text-center py-12">❌ Base de données non disponible</p>`;
         return;
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await window.supabase
         .from("events")
         .select("*")
         .eq("event_id", eventCode.toUpperCase())
@@ -213,8 +209,8 @@
           <div onclick="inspectGangRoster('${roster.gang_id}')" 
             class="bg-zinc-900 border ${isOverBudget ? 'border-red-500/50 hover:border-red-500' : 'border-zinc-800 hover:border-amber-500/50'} rounded p-2.5 flex items-center justify-between text-xs font-sans cursor-pointer transition-all duration-200 hover:bg-zinc-900/80 group">
             <div>
-              <span class="font-black ${isOverBudget ? 'text-red-400' : 'text-amber-500'} group-hover:text-amber-400 font-mono uppercase tracking-wider">${escapeHtml(roster.gang_name)}</span>
-              <p class="text-zinc-400 text-[11px] font-mono mt-0.5">${escapeHtml(roster.summary || (roster.vehicles ? roster.vehicles.map(v => v.name).join(", ") : "Aucun véhicule"))}</p>
+              <span class="font-black ${isOverBudget ? 'text-red-400' : 'text-amber-500'} group-hover:text-amber-400 font-mono uppercase tracking-wider">${roster.gang_name}</span>
+              <p class="text-zinc-400 text-[11px] font-mono mt-0.5">${roster.summary || (roster.vehicles ? roster.vehicles.map(v => v.name).join(", ") : "Aucun véhicule")}</p>
             </div>
             <div class="text-right shrink-0 flex items-center gap-2">
               <span class="bg-zinc-950 px-2 py-0.5 rounded font-mono ${isOverBudget ? 'text-red-400' : 'text-zinc-300'} font-bold">${roster.total_cans} Cans</span>
@@ -225,26 +221,15 @@
       }).join("");
     }
 
-    // Fonction utilitaire pour échapper le HTML
-    function escapeHtml(str) {
-      if (!str) return "";
-      return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-      });
-    }
-
     async function inspectGangRoster(gangId) {
-      if (!supabase) return;
+      if (!window.supabase) return;
       
       // Récupérer l'event actuel depuis l'URL
       const urlParams = new URLSearchParams(window.location.search);
       const eventCode = urlParams.get('code');
       if (!eventCode) return;
 
-      const { data, error } = await supabase
+      const { data, error } = await window.supabase
         .from("events")
         .select("*")
         .eq("event_id", eventCode.toUpperCase())
@@ -267,7 +252,7 @@
       } else {
         // Générer l'affichage de chaque véhicule avec ses points de structure visuels
         container.innerHTML = targetRoster.vehicles.map(v => {
-          // Génère les petits carrés de points de structure
+          // Génère les petits carrés de points de structure (comme dans index)
           let hullBoxes = "";
           const hullCount = v.hull || 0;
           for (let i = 0; i < hullCount; i++) {
@@ -277,14 +262,14 @@
           return `
             <div class="bg-zinc-950 border border-zinc-800 p-3 rounded font-sans text-xs">
               <div class="flex justify-between items-center border-b border-zinc-900 pb-1.5 mb-2">
-                <span class="font-black text-sm text-zinc-200 uppercase tracking-wide">${escapeHtml(v.name)}</span>
-                <span class="bg-zinc-900 border border-zinc-700 text-zinc-400 px-2 py-0.5 rounded font-mono text-[10px] uppercase">${escapeHtml(v.chassisName)} — ${v.cost} Cans</span>
+                <span class="font-black text-sm text-zinc-200 uppercase tracking-wide">${v.name}</span>
+                <span class="bg-zinc-900 border border-zinc-700 text-zinc-400 px-2 py-0.5 rounded font-mono text-[10px] uppercase">${v.chassisName} — ${v.cost} Cans</span>
               </div>
               <div class="space-y-1 text-zinc-400">
-                <div>💥 <span class="text-zinc-600 font-bold">Armement :</span> ${escapeHtml(v.weaponName)}</div>
-                <div>🔧 <span class="text-zinc-600 font-bold">Matériel :</span> ${escapeHtml(v.upgradeName)}</div>
-                <div>🔥 <span class="text-zinc-600 font-bold">Avantage :</span> ${escapeHtml(v.perkName)}</div>
-                ${v.trailerName && v.trailerName !== "Aucune" ? `<div>🚛 <span class="text-zinc-600 font-bold">Attelage :</span> ${escapeHtml(v.trailerName)} ${v.cargoName && v.cargoName !== "Aucune" ? `[${escapeHtml(v.cargoName)}]` : ''}</div>` : ''}
+                <div>💥 <span class="text-zinc-600 font-bold">Armement :</span> ${v.weaponName}</div>
+                <div>🔧 <span class="text-zinc-600 font-bold">Matériel :</span> ${v.upgradeName}</div>
+                <div>🔥 <span class="text-zinc-600 font-bold">Avantage :</span> ${v.perkName}</div>
+                ${v.trailerName !== "Aucune" ? `<div>🚛 <span class="text-zinc-600 font-bold">Attelage :</span> ${v.trailerName} ${v.cargoName !== "Aucune" ? `[${v.cargoName}]` : ''}</div>` : ''}
               </div>
               <div class="mt-2 pt-2 border-t border-zinc-900">
                 <div class="text-[10px] text-zinc-500 font-mono mb-1">Structure Coque : <span class="text-zinc-300 font-bold">${hullCount} PV</span> | Soute : <span class="text-zinc-300 font-bold">${v.slotsUsed} / ${v.maxSlots} Slots</span></div>
@@ -296,36 +281,12 @@
       }
 
       // Afficher la modale
-      openInspectModal();
-    }
-
-    function openInspectModal() {
-      const modal = document.getElementById("inspect-modal");
-      if (modal) {
-        modal.classList.remove("hidden");
-        // Empêcher le scroll du body
-        document.body.style.overflow = "hidden";
-      }
-    }
-
-    function closeInspectModal() {
-      const modal = document.getElementById("inspect-modal");
-      if (modal) {
-        modal.classList.add("hidden");
-        // Réactiver le scroll du body
-        document.body.style.overflow = "";
-      }
+      toggleInspectModal();
     }
 
     function toggleInspectModal() {
       const modal = document.getElementById("inspect-modal");
-      if (modal) {
-        if (modal.classList.contains("hidden")) {
-          openInspectModal();
-        } else {
-          closeInspectModal();
-        }
-      }
+      if (modal) modal.classList.toggle("hidden");
     }
 
     function copyEventLink() {
@@ -336,20 +297,6 @@
         alert("Impossible de copier le lien.");
       });
     }
-
-    // Fermer la modale avec Echap
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        closeInspectModal();
-      }
-    });
-
-    // Fermer la modale en cliquant en dehors
-    document.getElementById("inspect-modal")?.addEventListener("click", (e) => {
-      if (e.target === document.getElementById("inspect-modal")) {
-        closeInspectModal();
-      }
-    });
   </script>
 </body>
 
